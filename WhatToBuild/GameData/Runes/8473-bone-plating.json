@@ -1,0 +1,12 @@
+﻿{
+    "id":  "6474b9b4-be5c-51ff-418b-7c295d743a21",
+    "riotId":  8473,
+    "key":  "BonePlating",
+    "name":  "Bone Plating",
+    "icon":  "perk-images/Styles/Resolve/BonePlating/BonePlating.png",
+    "tree":  "Resolve",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

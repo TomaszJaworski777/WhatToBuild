@@ -1,0 +1,18 @@
+﻿{
+    "id":  "4b542707-5a9e-94e5-1ce8-84e1051944ae",
+    "riotId":  8369,
+    "key":  "FirstStrike",
+    "name":  "First Strike",
+    "icon":  "perk-images/Styles/Inspiration/FirstStrike/FirstStrike.png",
+    "tree":  "Inspiration",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "StatBuff",
+                        "stat":  "damageAmp",
+                        "amount":  0.07,
+                        "cooldown":  25
+                    }
+                ]
+}

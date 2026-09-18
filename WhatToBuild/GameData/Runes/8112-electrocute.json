@@ -1,0 +1,20 @@
+﻿{
+    "id":  "44e6aef2-1875-addc-f3e2-20cf975445a1",
+    "riotId":  8112,
+    "key":  "Electrocute",
+    "name":  "Electrocute",
+    "icon":  "perk-images/Styles/Domination/Electrocute/Electrocute.png",
+    "tree":  "Domination",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "AdaptiveDamage",
+                        "amount":  70,
+                        "perLevel":  10,
+                        "perBaseAd":  0.1,
+                        "perAp":  0.05,
+                        "cooldown":  20
+                    }
+                ]
+}

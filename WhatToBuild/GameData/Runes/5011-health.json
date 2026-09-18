@@ -1,0 +1,17 @@
+﻿{
+    "id":  "1d47fa78-c6d7-fc96-9df8-9fa0d5cc0cbe",
+    "riotId":  5011,
+    "key":  "Health",
+    "name":  "Health",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsHealthScalingIcon.png",
+    "tree":  "Shard",
+    "slot":  2,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "health",
+                        "amount":  65
+                    }
+                ]
+}

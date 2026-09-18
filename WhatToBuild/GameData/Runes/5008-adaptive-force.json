@@ -1,0 +1,17 @@
+﻿{
+    "id":  "1eb284bf-f1dc-b73a-78c9-ad58da5c5a43",
+    "riotId":  5008,
+    "key":  "AdaptiveForce",
+    "name":  "Adaptive Force",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsAdaptiveForceIcon.png",
+    "tree":  "Shard",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "adaptiveForce",
+                        "amount":  9
+                    }
+                ]
+}

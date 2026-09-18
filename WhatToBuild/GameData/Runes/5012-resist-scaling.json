@@ -1,0 +1,25 @@
+﻿{
+    "id":  "cc45cd46-5d83-f4cd-84f8-026e225ff2ea",
+    "riotId":  5012,
+    "key":  "ResistScaling",
+    "name":  "Resist Scaling",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsAdaptiveForceScalingIcon.png",
+    "tree":  "Shard",
+    "slot":  2,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "armor",
+                        "amount":  1,
+                        "perLevel":  0.41
+                    },
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "magicResist",
+                        "amount":  1,
+                        "perLevel":  0.41
+                    }
+                ]
+}

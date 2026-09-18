@@ -1,0 +1,12 @@
+﻿{
+    "id":  "f7446504-f460-9a57-d672-3d7e5696a014",
+    "riotId":  8306,
+    "key":  "HextechFlashtraption",
+    "name":  "Hextech Flashtraption",
+    "icon":  "perk-images/Styles/Inspiration/HextechFlashtraption/HextechFlashtraption.png",
+    "tree":  "Inspiration",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

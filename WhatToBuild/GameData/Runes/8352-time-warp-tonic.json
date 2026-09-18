@@ -1,0 +1,12 @@
+﻿{
+    "id":  "eac9b5a7-5139-a8fd-537d-b58418545962",
+    "riotId":  8352,
+    "key":  "TimeWarpTonic",
+    "name":  "Time Warp Tonic",
+    "icon":  "perk-images/Styles/Inspiration/TimeWarpTonic/TimeWarpTonic.png",
+    "tree":  "Inspiration",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

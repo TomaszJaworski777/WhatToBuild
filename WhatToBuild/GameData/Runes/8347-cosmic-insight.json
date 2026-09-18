@@ -1,0 +1,12 @@
+﻿{
+    "id":  "ec6f7443-d610-4a89-feae-25853fae3481",
+    "riotId":  8347,
+    "key":  "CosmicInsight",
+    "name":  "Cosmic Insight",
+    "icon":  "perk-images/Styles/Inspiration/CosmicInsight/CosmicInsight.png",
+    "tree":  "Inspiration",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

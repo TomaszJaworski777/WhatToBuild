@@ -1,0 +1,12 @@
+﻿{
+    "id":  "52b59a63-c9e7-0343-75d5-a54b6a080d6c",
+    "riotId":  8237,
+    "key":  "Scorch",
+    "name":  "Scorch",
+    "icon":  "perk-images/Styles/Sorcery/Scorch/Scorch.png",
+    "tree":  "Sorcery",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

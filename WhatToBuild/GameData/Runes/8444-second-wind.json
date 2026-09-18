@@ -1,0 +1,12 @@
+﻿{
+    "id":  "819cf87c-98fc-d71c-bf8a-fd5b5d095c8f",
+    "riotId":  8444,
+    "key":  "SecondWind",
+    "name":  "Second Wind",
+    "icon":  "perk-images/Styles/Resolve/SecondWind/SecondWind.png",
+    "tree":  "Resolve",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

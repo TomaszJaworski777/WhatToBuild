@@ -1,0 +1,17 @@
+﻿{
+    "id":  "74827c73-0546-56c5-f0a9-e8753be3b831",
+    "riotId":  5003,
+    "key":  "MagicResist",
+    "name":  "Magic Resist",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsMagicResIcon.png",
+    "tree":  "Shard",
+    "slot":  2,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "magicResist",
+                        "amount":  8
+                    }
+                ]
+}

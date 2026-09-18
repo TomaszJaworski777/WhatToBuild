@@ -1,0 +1,12 @@
+﻿{
+    "id":  "a90fdbab-c603-1fc3-b638-8de84bc95689",
+    "riotId":  8224,
+    "key":  "NullifyingOrb",
+    "name":  "Axiom Arcanist",
+    "icon":  "perk-images/Styles/Sorcery/NullifyingOrb/Axiom_Arcanist.png",
+    "tree":  "Sorcery",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

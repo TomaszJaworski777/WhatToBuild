@@ -1,0 +1,12 @@
+﻿{
+    "id":  "4a3afd12-6868-d2d1-c701-abccfbfd9c7b",
+    "riotId":  8106,
+    "key":  "UltimateHunter",
+    "name":  "Ultimate Hunter",
+    "icon":  "perk-images/Styles/Domination/UltimateHunter/UltimateHunter.png",
+    "tree":  "Domination",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

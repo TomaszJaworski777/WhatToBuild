@@ -1,0 +1,12 @@
+﻿{
+    "id":  "902b7465-00f8-23b8-71d4-5ab63e778455",
+    "riotId":  8453,
+    "key":  "Revitalize",
+    "name":  "Revitalize",
+    "icon":  "perk-images/Styles/Resolve/Revitalize/Revitalize.png",
+    "tree":  "Resolve",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

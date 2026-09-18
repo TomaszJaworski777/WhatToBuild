@@ -1,0 +1,12 @@
+﻿{
+    "id":  "5bc2b2c2-64fb-a93d-8a5b-28281bd5c1bd",
+    "riotId":  8135,
+    "key":  "TreasureHunter",
+    "name":  "Treasure Hunter",
+    "icon":  "perk-images/Styles/Domination/TreasureHunter/TreasureHunter.png",
+    "tree":  "Domination",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

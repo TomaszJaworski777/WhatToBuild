@@ -1,0 +1,19 @@
+﻿{
+    "id":  "fdcf2647-84aa-8bc8-3b7b-09331ed9bcd1",
+    "riotId":  8214,
+    "key":  "SummonAery",
+    "name":  "Summon Aery",
+    "icon":  "perk-images/Styles/Sorcery/SummonAery/SummonAery.png",
+    "tree":  "Sorcery",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "AdaptiveDamage",
+                        "amount":  10,
+                        "perLevel":  2.35,
+                        "perAp":  0.05,
+                        "cooldown":  2
+                    }
+                ]
+}

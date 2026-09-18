@@ -1,0 +1,12 @@
+﻿{
+    "id":  "3bf178dd-0146-b2a0-5ee1-72f419872d98",
+    "riotId":  8304,
+    "key":  "MagicalFootwear",
+    "name":  "Magical Footwear",
+    "icon":  "perk-images/Styles/Inspiration/MagicalFootwear/MagicalFootwear.png",
+    "tree":  "Inspiration",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

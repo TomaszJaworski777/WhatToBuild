@@ -1,0 +1,18 @@
+﻿{
+    "id":  "376fd0aa-f9a9-d2d2-baa6-9e3cc614d11e",
+    "riotId":  8465,
+    "key":  "Guardian",
+    "name":  "Guardian",
+    "icon":  "perk-images/Styles/Resolve/Guardian/Guardian.png",
+    "tree":  "Resolve",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "WhenLow",
+                        "kind":  "Shield",
+                        "amount":  80,
+                        "perLevel":  8,
+                        "cooldown":  30
+                    }
+                ]
+}

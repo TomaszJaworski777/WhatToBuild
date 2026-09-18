@@ -1,0 +1,12 @@
+﻿{
+    "id":  "4e7e385b-e40e-1ffa-f50e-4f46838cb9cd",
+    "riotId":  8446,
+    "key":  "Demolish",
+    "name":  "Demolish",
+    "icon":  "perk-images/Styles/Resolve/Demolish/Demolish.png",
+    "tree":  "Resolve",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

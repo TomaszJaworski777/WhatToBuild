@@ -1,0 +1,12 @@
+﻿{
+    "id":  "66882a07-bbc5-1747-636f-51ea1e6a6534",
+    "riotId":  8140,
+    "key":  "GrislyMementos",
+    "name":  "Grisly Mementos",
+    "icon":  "perk-images/Styles/Domination/GrislyMementos/GrislyMementos.png",
+    "tree":  "Domination",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

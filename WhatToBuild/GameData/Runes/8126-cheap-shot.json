@@ -1,0 +1,12 @@
+﻿{
+    "id":  "89ad4122-df93-c092-edda-a34859906c95",
+    "riotId":  8126,
+    "key":  "CheapShot",
+    "name":  "Cheap Shot",
+    "icon":  "perk-images/Styles/Domination/CheapShot/CheapShot.png",
+    "tree":  "Domination",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

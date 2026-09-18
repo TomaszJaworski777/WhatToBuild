@@ -1,0 +1,12 @@
+﻿{
+    "id":  "ca2e4d8a-a194-faec-fcb3-2c7ddfac96d1",
+    "riotId":  8429,
+    "key":  "Conditioning",
+    "name":  "Conditioning",
+    "icon":  "perk-images/Styles/Resolve/Conditioning/Conditioning.png",
+    "tree":  "Resolve",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "d8b88844-60e3-9fd0-71c6-46d631415c5d",
+    "riotId":  8232,
+    "key":  "Waterwalking",
+    "name":  "Waterwalking",
+    "icon":  "perk-images/Styles/Sorcery/Waterwalking/Waterwalking.png",
+    "tree":  "Sorcery",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

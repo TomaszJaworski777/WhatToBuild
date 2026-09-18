@@ -1,0 +1,12 @@
+﻿{
+    "id":  "a08391b5-42c4-d126-55be-b6ed91187f90",
+    "riotId":  8463,
+    "key":  "FontOfLife",
+    "name":  "Font of Life",
+    "icon":  "perk-images/Styles/Resolve/FontOfLife/FontOfLife.png",
+    "tree":  "Resolve",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

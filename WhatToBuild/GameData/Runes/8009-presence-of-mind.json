@@ -1,0 +1,12 @@
+﻿{
+    "id":  "fa8f5f4e-d843-cddb-7032-8657b940f196",
+    "riotId":  8009,
+    "key":  "PresenceOfMind",
+    "name":  "Presence of Mind",
+    "icon":  "perk-images/Styles/Precision/PresenceOfMind/PresenceOfMind.png",
+    "tree":  "Precision",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

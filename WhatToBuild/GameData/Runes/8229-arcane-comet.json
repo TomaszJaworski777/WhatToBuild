@@ -1,0 +1,19 @@
+﻿{
+    "id":  "33811428-a40e-a268-97f1-4c95db25924c",
+    "riotId":  8229,
+    "key":  "ArcaneComet",
+    "name":  "Arcane Comet",
+    "icon":  "perk-images/Styles/Sorcery/ArcaneComet/ArcaneComet.png",
+    "tree":  "Sorcery",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "AdaptiveDamage",
+                        "amount":  30,
+                        "perLevel":  4.7,
+                        "perAp":  0.05,
+                        "cooldown":  14
+                    }
+                ]
+}

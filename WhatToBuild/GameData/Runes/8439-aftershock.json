@@ -1,0 +1,18 @@
+﻿{
+    "id":  "158d2455-3eb3-2572-2f2b-6d751376e372",
+    "riotId":  8439,
+    "key":  "Aftershock",
+    "name":  "Aftershock",
+    "icon":  "perk-images/Styles/Resolve/VeteranAftershock/VeteranAftershock.png",
+    "tree":  "Resolve",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "StatBuff",
+                        "stat":  "armor",
+                        "amount":  45,
+                        "cooldown":  20
+                    }
+                ]
+}

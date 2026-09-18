@@ -1,0 +1,12 @@
+﻿{
+    "id":  "80dc7f7f-7804-f334-cb3a-cef14369748b",
+    "riotId":  8233,
+    "key":  "AbsoluteFocus",
+    "name":  "Absolute Focus",
+    "icon":  "perk-images/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.png",
+    "tree":  "Sorcery",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

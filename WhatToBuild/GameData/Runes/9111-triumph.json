@@ -1,0 +1,12 @@
+﻿{
+    "id":  "6f796feb-7819-1ac7-2052-02ab29ab3395",
+    "riotId":  9111,
+    "key":  "Triumph",
+    "name":  "Triumph",
+    "icon":  "perk-images/Styles/Precision/Triumph.png",
+    "tree":  "Precision",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "f81b7c8d-b902-c3f5-843e-b366ea0b1d03",
+    "riotId":  8226,
+    "key":  "ManaflowBand",
+    "name":  "Manaflow Band",
+    "icon":  "perk-images/Styles/Sorcery/ManaflowBand/ManaflowBand.png",
+    "tree":  "Sorcery",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

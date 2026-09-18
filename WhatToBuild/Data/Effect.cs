@@ -66,6 +66,7 @@ public enum EffectKind
     PhysicalDamage,
     MagicDamage,
     TrueDamage,
+    AdaptiveDamage,
     Heal,
     Shield,
     DamageReduction,
@@ -78,7 +79,7 @@ public enum EffectKind
     Revive,
 }
 
-public class ItemEffect
+public class Effect
 {
     public EffectTrigger Trigger { get; set; }
 
@@ -94,6 +95,8 @@ public class ItemEffect
 
     public List<EffectCondition> When { get; set; } = new();
 
+    public double PerLevel { get; set; }
+
     public double PerBaseAd { get; set; }
     public double PerTotalAd { get; set; }
     public double PerAp { get; set; }
@@ -101,3 +104,4 @@ public class ItemEffect
     public double PerTargetMaxHealth { get; set; }
     public double PerTargetCurrentHealth { get; set; }
 }
+

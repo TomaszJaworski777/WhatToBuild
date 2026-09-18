@@ -1,0 +1,23 @@
+﻿{
+    "id":  "486243c2-f3b5-303b-4815-dee474696ec4",
+    "riotId":  8437,
+    "key":  "GraspOfTheUndying",
+    "name":  "Grasp of the Undying",
+    "icon":  "perk-images/Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.png",
+    "tree":  "Resolve",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "MagicDamage",
+                        "perMaxHealth":  0.035,
+                        "cooldown":  4
+                    },
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "Heal",
+                        "perMaxHealth":  0.013,
+                        "cooldown":  4
+                    }
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "0873dd87-c0eb-7fbf-05cb-b65c75c2000b",
+    "riotId":  8321,
+    "key":  "CashBack",
+    "name":  "Cash Back",
+    "icon":  "perk-images/Styles/Inspiration/CashBack/CashBack2.png",
+    "tree":  "Inspiration",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

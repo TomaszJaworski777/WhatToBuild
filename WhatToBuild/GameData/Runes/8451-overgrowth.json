@@ -1,0 +1,12 @@
+﻿{
+    "id":  "a347f627-36a2-d143-7826-882f9aaf3da6",
+    "riotId":  8451,
+    "key":  "Overgrowth",
+    "name":  "Overgrowth",
+    "icon":  "perk-images/Styles/Resolve/Overgrowth/Overgrowth.png",
+    "tree":  "Resolve",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

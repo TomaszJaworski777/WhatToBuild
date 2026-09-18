@@ -1,0 +1,12 @@
+﻿{
+    "id":  "a1616780-0015-4ac2-5129-eb35c2b85825",
+    "riotId":  8316,
+    "key":  "JackOfAllTrades",
+    "name":  "Jack Of All Trades",
+    "icon":  "perk-images/Styles/Inspiration/JackOfAllTrades/JackofAllTrades2.png",
+    "tree":  "Inspiration",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

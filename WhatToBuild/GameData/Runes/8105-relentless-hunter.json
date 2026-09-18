@@ -1,0 +1,12 @@
+﻿{
+    "id":  "634ec1dd-6c8e-9166-479a-02093b577ac7",
+    "riotId":  8105,
+    "key":  "RelentlessHunter",
+    "name":  "Relentless Hunter",
+    "icon":  "perk-images/Styles/Domination/RelentlessHunter/RelentlessHunter.png",
+    "tree":  "Domination",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

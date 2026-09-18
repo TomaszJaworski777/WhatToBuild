@@ -1,0 +1,12 @@
+﻿{
+    "id":  "5f157ad4-056c-02a1-c0f1-c1968958810a",
+    "riotId":  8141,
+    "key":  "DeepWard",
+    "name":  "Deep Ward",
+    "icon":  "perk-images/Styles/Domination/DeepWard/DeepWard.png",
+    "tree":  "Domination",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,18 @@
+﻿{
+    "id":  "df58b1d1-4ee2-91fa-8274-bf0c4cda4816",
+    "riotId":  8005,
+    "key":  "PressTheAttack",
+    "name":  "Press the Attack",
+    "icon":  "perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png",
+    "tree":  "Precision",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "AdaptiveDamage",
+                        "amount":  40,
+                        "perLevel":  7,
+                        "cooldown":  6
+                    }
+                ]
+}

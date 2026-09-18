@@ -1,0 +1,12 @@
+﻿{
+    "id":  "506be603-af03-93e8-c5b9-49497942e8ae",
+    "riotId":  8299,
+    "key":  "LastStand",
+    "name":  "Last Stand",
+    "icon":  "perk-images/Styles/Sorcery/LastStand/LastStand.png",
+    "tree":  "Precision",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

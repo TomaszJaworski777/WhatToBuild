@@ -1,0 +1,12 @@
+﻿{
+    "id":  "ee7db03e-c5f5-f768-3f15-d0e184fbf645",
+    "riotId":  8234,
+    "key":  "Celerity",
+    "name":  "Celerity",
+    "icon":  "perk-images/Styles/Sorcery/Celerity/CelerityTemp.png",
+    "tree":  "Sorcery",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

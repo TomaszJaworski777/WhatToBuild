@@ -1,0 +1,12 @@
+﻿{
+    "id":  "acb301b4-ca0f-5b00-fe95-cd0db412d7c4",
+    "riotId":  8236,
+    "key":  "GatheringStorm",
+    "name":  "Gathering Storm",
+    "icon":  "perk-images/Styles/Sorcery/GatheringStorm/GatheringStorm.png",
+    "tree":  "Sorcery",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,20 @@
+﻿{
+    "id":  "defd4d56-8efe-a17d-5898-e33ab3b276b5",
+    "riotId":  8021,
+    "key":  "FleetFootwork",
+    "name":  "Fleet Footwork",
+    "icon":  "perk-images/Styles/Precision/FleetFootwork/FleetFootwork.png",
+    "tree":  "Precision",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "Heal",
+                        "amount":  15,
+                        "perLevel":  8.5,
+                        "perBaseAd":  0.1,
+                        "perAp":  0.05,
+                        "cooldown":  10
+                    }
+                ]
+}

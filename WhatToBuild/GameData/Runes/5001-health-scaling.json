@@ -1,0 +1,18 @@
+﻿{
+    "id":  "607db8a3-5240-265b-0bef-d5c63ba415a1",
+    "riotId":  5001,
+    "key":  "HealthScaling",
+    "name":  "Health Scaling",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsHealthPlusIcon.png",
+    "tree":  "Shard",
+    "slot":  1,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "health",
+                        "amount":  10,
+                        "perLevel":  10
+                    }
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "2b941e35-1ac6-9fa4-eb1e-c5c426f1ab54",
+    "riotId":  8401,
+    "key":  "ShieldBash",
+    "name":  "Shield Bash",
+    "icon":  "perk-images/Styles/Resolve/MirrorShell/MirrorShell.png",
+    "tree":  "Resolve",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

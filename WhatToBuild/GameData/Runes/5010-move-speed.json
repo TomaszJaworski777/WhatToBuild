@@ -1,0 +1,17 @@
+﻿{
+    "id":  "07e0095a-9fad-271f-1b0e-94e4a5bad284",
+    "riotId":  5010,
+    "key":  "MoveSpeed",
+    "name":  "Move Speed",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsMovementSpeedIcon.png",
+    "tree":  "Shard",
+    "slot":  1,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "moveSpeedPercent",
+                        "amount":  0.025
+                    }
+                ]
+}

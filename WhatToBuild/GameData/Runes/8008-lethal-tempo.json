@@ -1,0 +1,17 @@
+﻿{
+    "id":  "a8c81fcb-ace9-d861-fd60-48bfc8deaaf8",
+    "riotId":  8008,
+    "key":  "LethalTempo",
+    "name":  "Lethal Tempo",
+    "icon":  "perk-images/Styles/Precision/LethalTempo/LethalTempoTemp.png",
+    "tree":  "Precision",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "StatBuff",
+                        "stat":  "attackSpeedPercent",
+                        "amount":  0.24
+                    }
+                ]
+}

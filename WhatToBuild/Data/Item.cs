@@ -16,7 +16,7 @@ public class Item
 
     public ItemStats Stats { get; set; } = new();
 
-    public List<ItemEffect> Effects { get; set; } = new();
+    public List<Effect> Effects { get; set; } = new();
 
     public override string ToString() => $"{Name} ({Cost}g)";
 }

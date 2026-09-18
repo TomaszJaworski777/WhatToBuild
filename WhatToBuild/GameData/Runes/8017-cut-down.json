@@ -1,0 +1,12 @@
+﻿{
+    "id":  "2b5f8e57-6b61-06a5-ff8d-ada02cd43d5f",
+    "riotId":  8017,
+    "key":  "CutDown",
+    "name":  "Cut Down",
+    "icon":  "perk-images/Styles/Precision/CutDown/CutDown.png",
+    "tree":  "Precision",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

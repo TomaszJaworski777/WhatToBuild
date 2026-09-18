@@ -1,0 +1,12 @@
+﻿{
+    "id":  "14329924-7b8f-8ced-1000-d47c04344345",
+    "riotId":  8139,
+    "key":  "TasteOfBlood",
+    "name":  "Taste of Blood",
+    "icon":  "perk-images/Styles/Domination/TasteOfBlood/GreenTerror_TasteOfBlood.png",
+    "tree":  "Domination",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

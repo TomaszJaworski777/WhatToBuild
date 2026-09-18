@@ -1,0 +1,18 @@
+﻿{
+    "id":  "fc372d3e-6286-96d8-3042-9ff79ad58b77",
+    "riotId":  9923,
+    "key":  "HailOfBlades",
+    "name":  "Hail of Blades",
+    "icon":  "perk-images/Styles/Domination/HailOfBlades/HailOfBlades.png",
+    "tree":  "Domination",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "StatBuff",
+                        "stat":  "attackSpeedPercent",
+                        "amount":  0.6,
+                        "cooldown":  10
+                    }
+                ]
+}

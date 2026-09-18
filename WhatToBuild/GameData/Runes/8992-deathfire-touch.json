@@ -1,0 +1,19 @@
+﻿{
+    "id":  "bfec49f4-52ec-d92f-9fa2-bbf24af4bc77",
+    "riotId":  8992,
+    "key":  "DeathfireTouch",
+    "name":  "Deathfire Touch",
+    "icon":  "perk-images/Styles/Sorcery/DeathfireTouch/DEATHFIRE_TOUCH_KEYSTONE.png",
+    "tree":  "Sorcery",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "MagicDamage",
+                        "amount":  9,
+                        "perLevel":  1.6,
+                        "perAp":  0.075,
+                        "cooldown":  0
+                    }
+                ]
+}

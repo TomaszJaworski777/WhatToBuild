@@ -1,0 +1,17 @@
+﻿{
+    "id":  "a328e415-ff3c-f00b-1da9-a50ad7037de2",
+    "riotId":  5007,
+    "key":  "AbilityHaste",
+    "name":  "Ability Haste",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsCDRScalingIcon.png",
+    "tree":  "Shard",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "abilityHaste",
+                        "amount":  8
+                    }
+                ]
+}

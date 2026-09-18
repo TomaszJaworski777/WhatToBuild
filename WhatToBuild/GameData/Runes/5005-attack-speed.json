@@ -1,0 +1,17 @@
+﻿{
+    "id":  "3aa2dda3-841e-0864-ca7d-218d38abbcdb",
+    "riotId":  5005,
+    "key":  "AttackSpeed",
+    "name":  "Attack Speed",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsAttackSpeedIcon.png",
+    "tree":  "Shard",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "attackSpeedPercent",
+                        "amount":  0.10
+                    }
+                ]
+}

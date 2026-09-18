@@ -1,0 +1,25 @@
+﻿{
+    "id":  "c0c20e90-989f-ae2d-80bd-3b41f6d626a8",
+    "riotId":  8128,
+    "key":  "DarkHarvest",
+    "name":  "Dark Harvest",
+    "icon":  "perk-images/Styles/Domination/DarkHarvest/DarkHarvest.png",
+    "tree":  "Domination",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "AdaptiveDamage",
+                        "amount":  60,
+                        "cooldown":  35,
+                        "when":  [
+                                     {
+                                         "subject":  "Target",
+                                         "property":  "HealthPercent",
+                                         "op":  "AtMost",
+                                         "value":  0.5
+                                     }
+                                 ]
+                    }
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "470fc2c1-0297-5396-b038-b25c61fdfadd",
+    "riotId":  8143,
+    "key":  "SuddenImpact",
+    "name":  "Sudden Impact",
+    "icon":  "perk-images/Styles/Domination/SuddenImpact/SuddenImpact.png",
+    "tree":  "Domination",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "5e650bcc-6d86-94cd-53cc-1c0feed980f7",
+    "riotId":  8242,
+    "key":  "Unflinching",
+    "name":  "Unflinching",
+    "icon":  "perk-images/Styles/Sorcery/Unflinching/Unflinching.png",
+    "tree":  "Resolve",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

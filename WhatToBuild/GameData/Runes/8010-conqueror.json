@@ -1,0 +1,18 @@
+﻿{
+    "id":  "cfc7c199-13b2-72c5-07b7-16d278470cd5",
+    "riotId":  8010,
+    "key":  "Conqueror",
+    "name":  "Conqueror",
+    "icon":  "perk-images/Styles/Precision/Conqueror/Conqueror.png",
+    "tree":  "Precision",
+    "slot":  0,
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "StatBuff",
+                        "stat":  "adaptiveForce",
+                        "amount":  22,
+                        "perLevel":  1.3
+                    }
+                ]
+}

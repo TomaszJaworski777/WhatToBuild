@@ -1,0 +1,12 @@
+﻿{
+    "id":  "aa9d19cb-a69f-6115-1cd5-4f36cd709e98",
+    "riotId":  8351,
+    "key":  "GlacialAugment",
+    "name":  "Glacial Augment",
+    "icon":  "perk-images/Styles/Inspiration/GlacialAugment/GlacialAugment.png",
+    "tree":  "Inspiration",
+    "slot":  0,
+    "effects":  [
+
+                ]
+}

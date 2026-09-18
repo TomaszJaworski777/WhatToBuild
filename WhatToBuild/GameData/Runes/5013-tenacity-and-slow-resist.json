@@ -1,0 +1,17 @@
+﻿{
+    "id":  "c7fbde9c-afbf-d8a9-cc13-fe5533cd1090",
+    "riotId":  5013,
+    "key":  "TenacityandSlowResist",
+    "name":  "Tenacity and Slow Resist",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsTenacityIcon.png",
+    "tree":  "Shard",
+    "slot":  2,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "tenacityPercent",
+                        "amount":  0.15
+                    }
+                ]
+}

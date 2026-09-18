@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace WhatToBuild.Data;
@@ -117,11 +117,39 @@ public sealed class EnemyMagicDamageAmpStat : Stat
     public override bool TargetsEnemy => true;
 }
 
+public sealed class AdaptiveForceStat : Stat
+{
+    public override string Name => "adaptiveForce";
+}
+
+public sealed class AbilityHasteStat : Stat
+{
+    public override string Name => "abilityHaste";
+}
+
+public sealed class MoveSpeedPercentStat : Stat
+{
+    public override string Name => "moveSpeedPercent";
+
+    public override bool IsFraction => true;
+}
+
+public sealed class TenacityPercentStat : Stat
+{
+    public override string Name => "tenacityPercent";
+
+    public override bool IsFraction => true;
+}
+
 public static class Stats
 {
     public static readonly Stat AttackDamage = new AttackDamageStat();
     public static readonly Stat AbilityPower = new AbilityPowerStat();
     public static readonly Stat AbilityDamage = new AbilityDamageStat();
+    public static readonly Stat AdaptiveForce = new AdaptiveForceStat();
+    public static readonly Stat AbilityHaste = new AbilityHasteStat();
+    public static readonly Stat MoveSpeedPercent = new MoveSpeedPercentStat();
+    public static readonly Stat TenacityPercent = new TenacityPercentStat();
     public static readonly Stat Health = new HealthStat();
     public static readonly Stat Armor = new ArmorStat();
     public static readonly Stat MagicResist = new MagicResistStat();
@@ -138,7 +166,8 @@ public static class Stats
 
     public static IReadOnlyList<Stat> All { get; } = new[]
     {
-        AttackDamage, AbilityPower, AbilityDamage, Health, Armor, MagicResist,
+        AttackDamage, AbilityPower, AbilityDamage, AdaptiveForce, Health, Armor, MagicResist,
+        AbilityHaste, MoveSpeedPercent, TenacityPercent,
         AttackSpeed, AttackSpeedPercent, CritChance, OmnivampPercent,
         HealAndShieldPowerPercent, ArmorPenetrationPercent,
         DamageAmp, AbilityPowerAmp, EnemyAttackSpeedPercent, EnemyMagicDamageAmp,
@@ -164,3 +193,4 @@ public class StatConverter : JsonConverter<Stat>
         writer.WriteStringValue(value.Name);
     }
 }
+

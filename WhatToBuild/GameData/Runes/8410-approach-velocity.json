@@ -1,0 +1,12 @@
+﻿{
+    "id":  "c255cba0-222f-3614-f9c9-46e646b17e30",
+    "riotId":  8410,
+    "key":  "ApproachVelocity",
+    "name":  "Approach Velocity",
+    "icon":  "perk-images/Styles/Resolve/ApproachVelocity/ApproachVelocity.png",
+    "tree":  "Inspiration",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

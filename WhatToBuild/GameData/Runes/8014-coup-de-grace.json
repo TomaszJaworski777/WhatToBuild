@@ -1,0 +1,12 @@
+﻿{
+    "id":  "187562cd-2a97-9786-4cf0-ded49b7a05e7",
+    "riotId":  8014,
+    "key":  "CoupDeGrace",
+    "name":  "Coup de Grace",
+    "icon":  "perk-images/Styles/Precision/CoupDeGrace/CoupDeGrace.png",
+    "tree":  "Precision",
+    "slot":  3,
+    "effects":  [
+
+                ]
+}

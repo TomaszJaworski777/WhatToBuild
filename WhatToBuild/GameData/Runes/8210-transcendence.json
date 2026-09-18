@@ -1,0 +1,12 @@
+﻿{
+    "id":  "f3e34939-c0d4-dfe1-622e-4e2c919c0bc3",
+    "riotId":  8210,
+    "key":  "Transcendence",
+    "name":  "Transcendence",
+    "icon":  "perk-images/Styles/Sorcery/Transcendence/Transcendence.png",
+    "tree":  "Sorcery",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "cf44fcde-e8de-7a51-c9d4-98cbf1f78739",
+    "riotId":  8360,
+    "key":  "UnsealedSpellbook",
+    "name":  "Unsealed Spellbook",
+    "icon":  "perk-images/Styles/Inspiration/UnsealedSpellbook/UnsealedSpellbook.png",
+    "tree":  "Inspiration",
+    "slot":  0,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "622aebd4-8fdc-5fdf-099b-19c05e657c87",
+    "riotId":  8313,
+    "key":  "PerfectTiming",
+    "name":  "Triple Tonic",
+    "icon":  "perk-images/Styles/Inspiration/PerfectTiming/AlchemistCabinet.png",
+    "tree":  "Inspiration",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

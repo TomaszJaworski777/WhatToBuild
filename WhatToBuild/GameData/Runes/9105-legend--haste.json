@@ -1,0 +1,12 @@
+﻿{
+    "id":  "127023fa-bbf4-8da5-57f1-d4e5d95897c1",
+    "riotId":  9105,
+    "key":  "LegendHaste",
+    "name":  "Legend: Haste",
+    "icon":  "perk-images/Styles/Precision/LegendHaste/LegendHaste.png",
+    "tree":  "Precision",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "id":  "d4429c0d-3129-bf20-e924-a44afa29013d",
+    "riotId":  9101,
+    "key":  "AbsorbLife",
+    "name":  "Absorb Life",
+    "icon":  "perk-images/Styles/Precision/AbsorbLife/AbsorbLife.png",
+    "tree":  "Precision",
+    "slot":  1,
+    "effects":  [
+
+                ]
+}

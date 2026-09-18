@@ -1,0 +1,12 @@
+﻿{
+    "id":  "9635a1c1-0d7f-9ac9-6662-f8a447c2d3f8",
+    "riotId":  9103,
+    "key":  "LegendBloodline",
+    "name":  "Legend: Bloodline",
+    "icon":  "perk-images/Styles/Precision/LegendBloodline/LegendBloodline.png",
+    "tree":  "Precision",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

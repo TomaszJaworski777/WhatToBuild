@@ -1,0 +1,12 @@
+﻿{
+    "id":  "a5b96077-a378-879c-0201-e6ea6190a35d",
+    "riotId":  9104,
+    "key":  "LegendAlacrity",
+    "name":  "Legend: Alacrity",
+    "icon":  "perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
+    "tree":  "Precision",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

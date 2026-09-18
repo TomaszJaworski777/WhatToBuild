@@ -142,6 +142,51 @@ does not have yet. If one is added later, the place to put it is attack uptime �
 the fraction of a fight you can spend attacking — because that converts range and
 mobility into damage, which is already the scoring currency.
 
+## Runes
+
+One file per rune in `Runes/`, named `<riotId>-<slug>.json`. Stat shards live here
+too, under the pseudo-tree `Shard`.
+
+```json
+{
+  "id": "44e6aef2-1875-addc-f3e2-20cf975445a1",
+  "riotId": 8112,
+  "key": "Electrocute",
+  "name": "Electrocute",
+  "icon": "perk-images/Styles/Domination/Electrocute/Electrocute.png",
+  "tree": "Domination",
+  "slot": 0,
+  "effects": [
+    { "trigger": "OnAttack", "kind": "AdaptiveDamage", "amount": 70,
+      "perLevel": 10, "perBaseAd": 0.1, "perAp": 0.05, "cooldown": 20 }
+  ]
+}
+```
+
+`slot` is the row: `0` is the keystone, `1`–`3` the minor rows. For shards it is the
+shard row instead. 62 tree runes, 10 shards.
+
+Runes use the **same effect DSL as items**, which is why the type is `Effect` rather
+than `ItemEffect`. Two additions exist because runes need them:
+
+- `perLevel` — many runes scale with level (`70 - 240`), so `amount` is the level 1
+  value and `perLevel` is the step. `amount + perLevel * 17` should equal the level
+  18 number, and a test checks exactly that for Electrocute and the scaling shards.
+- `AdaptiveDamage` — a kind of its own, because adaptive damage resolves to physical
+  or magic from the holder's build. Writing it as one or the other would be wrong for
+  half the champions who take it.
+
+Unlike champion tooltips, rune descriptions carry **real numbers**, so keystone and
+shard values are read off Riot's own text rather than estimated. Shards are exact.
+
+Three keystones are deliberately unmodelled — Glacial Augment, Unsealed Spellbook
+and Stormraider's Surge — because they are crowd control, summoner spells and
+movement speed, which the evaluator cannot price. A test pins that list.
+
+The 45 minor runes currently have empty effects. That is a real gap, not a decision:
+several of them (Coup de Grace, Cut Down, Legend: Alacrity) change damage and will be
+needed before rune pages can be recommended.
+
 ## Champions
 
 One file per champion, in `Champions/`, named `<riotId>-<internalName>.json`.

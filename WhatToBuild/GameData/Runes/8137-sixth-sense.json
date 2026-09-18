@@ -1,0 +1,12 @@
+﻿{
+    "id":  "e9262cd7-de8f-1dcb-3483-a89ac7b8ad0c",
+    "riotId":  8137,
+    "key":  "SixthSense",
+    "name":  "Sixth Sense",
+    "icon":  "perk-images/Styles/Domination/SixthSense/SixthSense.png",
+    "tree":  "Domination",
+    "slot":  2,
+    "effects":  [
+
+                ]
+}

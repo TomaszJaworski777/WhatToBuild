@@ -1,0 +1,17 @@
+﻿{
+    "id":  "46dc9c5c-ab41-0d1f-6e68-649f66334e91",
+    "riotId":  5002,
+    "key":  "Armor",
+    "name":  "Armor",
+    "icon":  "/lol-game-data/assets/v1/perk-images/StatMods/StatModsArmorIcon.png",
+    "tree":  "Shard",
+    "slot":  2,
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "armor",
+                        "amount":  6
+                    }
+                ]
+}
