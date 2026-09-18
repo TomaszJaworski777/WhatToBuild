@@ -1,0 +1,18 @@
+﻿{
+    "id":  "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
+    "riotId":  3108,
+    "name":  "Fiendish Codex",
+    "icon":  "3108.png",
+    "cost":  850,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a",
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "abilityPower":  25
+              },
+    "effects":  [
+
+                ]
+}

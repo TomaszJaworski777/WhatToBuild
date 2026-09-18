@@ -1,0 +1,17 @@
+﻿{
+    "id":  "65c920ce-88e1-1d04-222d-d58f483a3e22",
+    "riotId":  3020,
+    "name":  "Sorcerer\u0027s Shoes",
+    "icon":  "3020.png",
+    "cost":  1100,
+    "buildPath":  [
+                      "ae639a00-f269-2346-dd47-eedaa6723936"
+                  ],
+    "stats":  {
+                  "moveSpeedFlat":  45,
+                  "magicPenetrationFlat":  12
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,17 @@
+﻿{
+    "id":  "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",
+    "riotId":  3113,
+    "name":  "Aether Wisp",
+    "icon":  "3113.png",
+    "cost":  900,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.04,
+                  "abilityPower":  30
+              },
+    "effects":  [
+
+                ]
+}

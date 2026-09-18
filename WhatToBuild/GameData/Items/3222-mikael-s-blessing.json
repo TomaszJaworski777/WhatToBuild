@@ -1,0 +1,25 @@
+﻿{
+    "id":  "13a99986-1292-ca7b-4947-9926c765a192",
+    "riotId":  3222,
+    "name":  "Mikael\u0027s Blessing",
+    "icon":  "3222.png",
+    "cost":  2300,
+    "buildPath":  [
+                      "dec45a0a-3f4e-628c-abff-7537636197ac",
+                      "f613eb9a-98a0-b948-8531-cbf47e581483"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  250,
+                  "healAndShieldPowerPercent":  0.12,
+                  "baseManaRegenPercent":  1
+              },
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "Heal",
+                        "amount":  175,
+                        "cooldown":  120
+                    }
+                ]
+}

@@ -1,0 +1,21 @@
+﻿{
+    "id":  "5adb131b-168b-c7e0-3046-d93221fc67b2",
+    "riotId":  1107,
+    "name":  "Scorchclaw Pup",
+    "icon":  "1107.png",
+    "cost":  450,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "omnivampPercent",
+                        "amount":  0.07
+                    }
+                ]
+}

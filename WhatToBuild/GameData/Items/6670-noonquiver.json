@@ -1,0 +1,18 @@
+﻿{
+    "id":  "c569fe85-3b86-987f-584f-b07a6fd20985",
+    "riotId":  6670,
+    "name":  "Noonquiver",
+    "icon":  "6670.png",
+    "cost":  1300,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+                      "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb"
+                  ],
+    "stats":  {
+                  "critChance":  0.2,
+                  "attackDamage":  15
+              },
+    "effects":  [
+
+                ]
+}

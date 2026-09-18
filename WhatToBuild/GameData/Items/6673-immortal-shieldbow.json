@@ -1,0 +1,23 @@
+﻿{
+    "id":  "3b69b5a5-fadf-2fb9-f0cf-627fd7ab389b",
+    "riotId":  6673,
+    "name":  "Immortal Shieldbow",
+    "icon":  "6673.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "c569fe85-3b86-987f-584f-b07a6fd20985"
+                  ],
+    "stats":  {
+                  "critChance":  0.25,
+                  "attackDamage":  55
+              },
+    "effects":  [
+                    {
+                        "trigger":  "WhenLow",
+                        "kind":  "Shield",
+                        "amount":  320,
+                        "cooldown":  90
+                    }
+                ]
+}

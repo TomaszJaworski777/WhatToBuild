@@ -1,0 +1,19 @@
+﻿{
+    "id":  "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
+    "riotId":  3133,
+    "name":  "Caulfield\u0027s Warhammer",
+    "icon":  "3133.png",
+    "cost":  1050,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "attackDamage":  20
+              },
+    "effects":  [
+
+                ]
+}

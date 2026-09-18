@@ -1,0 +1,20 @@
+﻿{
+    "id":  "09d8b104-a9bd-07d6-1ee4-01081df51942",
+    "riotId":  3046,
+    "name":  "Phantom Dancer",
+    "icon":  "3046.png",
+    "cost":  2650,
+    "buildPath":  [
+                      "29012b80-9265-ee3d-3b54-ed05645960db",
+                      "0c82b054-3477-2b93-a13a-8ce1a5ab92c7",
+                      "29012b80-9265-ee3d-3b54-ed05645960db"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.1,
+                  "critChance":  0.25,
+                  "attackSpeedPercent":  0.65
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,19 @@
+﻿{
+    "id":  "62d837f0-c9d8-874e-4348-c1543f46ba48",
+    "riotId":  4628,
+    "name":  "Horizon Focus",
+    "icon":  "4628.png",
+    "cost":  2700,
+    "buildPath":  [
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "abilityHaste":  25,
+                  "abilityPower":  75
+              },
+    "effects":  [
+
+                ]
+}

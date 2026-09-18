@@ -1,0 +1,22 @@
+﻿{
+    "id":  "73b148ae-e419-3935-f70b-5aeaa9864756",
+    "riotId":  3041,
+    "name":  "Mejai\u0027s Soulstealer",
+    "icon":  "3041.png",
+    "cost":  1500,
+    "buildPath":  [
+                      "145ee186-26c7-7885-1382-14226cf0cf1c"
+                  ],
+    "stats":  {
+                  "health":  100,
+                  "abilityPower":  20
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "abilityPower",
+                        "amount":  60
+                    }
+                ]
+}

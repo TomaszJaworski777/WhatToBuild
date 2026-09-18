@@ -1,0 +1,22 @@
+﻿{
+    "id":  "19d00925-d037-92bc-a1a7-090ea1159624",
+    "riotId":  3008,
+    "name":  "Gluttonous Greaves",
+    "icon":  "3008.png",
+    "cost":  1000,
+    "buildPath":  [
+                      "ae639a00-f269-2346-dd47-eedaa6723936"
+                  ],
+    "stats":  {
+                  "moveSpeedFlat":  45,
+                  "omnivampPercent":  0.04
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "omnivampPercent",
+                        "amount":  0.06
+                    }
+                ]
+}

@@ -1,0 +1,16 @@
+﻿{
+    "id":  "958b1faa-7c80-5514-066a-dec92c59b940",
+    "riotId":  1006,
+    "name":  "Rejuvenation Bead",
+    "icon":  "1006.png",
+    "cost":  300,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "baseHealthRegenPercent":  1
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,18 @@
+﻿{
+    "id":  "41f1aa5b-6aab-8eae-86f4-b00c575e842b",
+    "riotId":  3158,
+    "name":  "Ionian Boots of Lucidity",
+    "icon":  "3158.png",
+    "cost":  900,
+    "buildPath":  [
+                      "ae639a00-f269-2346-dd47-eedaa6723936",
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "moveSpeedFlat":  45
+              },
+    "effects":  [
+
+                ]
+}

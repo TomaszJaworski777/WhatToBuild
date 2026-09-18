@@ -1,0 +1,16 @@
+﻿{
+    "id":  "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb",
+    "riotId":  1018,
+    "name":  "Cloak of Agility",
+    "icon":  "1018.png",
+    "cost":  600,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "critChance":  0.15
+              },
+    "effects":  [
+
+                ]
+}

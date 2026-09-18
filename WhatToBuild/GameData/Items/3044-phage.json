@@ -1,0 +1,18 @@
+﻿{
+    "id":  "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f",
+    "riotId":  3044,
+    "name":  "Phage",
+    "icon":  "3044.png",
+    "cost":  1100,
+    "buildPath":  [
+                      "b025024f-832d-4982-6bb7-f6d96e42dc1f",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "health":  200,
+                  "attackDamage":  15
+              },
+    "effects":  [
+
+                ]
+}

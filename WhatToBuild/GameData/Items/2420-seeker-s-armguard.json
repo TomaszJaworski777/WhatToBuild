@@ -1,0 +1,19 @@
+﻿{
+    "id":  "54f20253-dcbc-bd6d-7dbc-ae178263ba25",
+    "riotId":  2420,
+    "name":  "Seeker\u0027s Armguard",
+    "icon":  "2420.png",
+    "cost":  1600,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a",
+                      "0f410f4b-612a-a8f2-7088-728115202ea7",
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "armor":  25,
+                  "abilityPower":  40
+              },
+    "effects":  [
+
+                ]
+}

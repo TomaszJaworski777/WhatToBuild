@@ -1,0 +1,26 @@
+﻿{
+    "id":  "63a834ff-5c16-5e10-f6e4-8ec4e86df0cb",
+    "riotId":  3087,
+    "name":  "Statikk Shiv",
+    "icon":  "3087.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "83ec4976-66ed-d9b1-8549-63e8f319bd86",
+                      "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.04,
+                  "attackDamage":  45,
+                  "abilityPower":  45,
+                  "attackSpeedPercent":  0.3
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "MagicDamage",
+                        "amount":  60,
+                        "cooldown":  4
+                    }
+                ]
+}

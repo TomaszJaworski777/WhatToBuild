@@ -1,0 +1,26 @@
+﻿{
+    "id":  "33f6f169-e182-b78b-768e-81a785567ef8",
+    "riotId":  3078,
+    "name":  "Trinity Force",
+    "icon":  "3078.png",
+    "cost":  3333,
+    "buildPath":  [
+                      "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
+                      "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f",
+                      "205acc24-75bb-97ce-5ae5-75f2d9a91d28"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  333,
+                  "attackDamage":  36,
+                  "attackSpeedPercent":  0.3
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "PhysicalDamage",
+                        "perBaseAd":  2.0,
+                        "cooldown":  1.5
+                    }
+                ]
+}

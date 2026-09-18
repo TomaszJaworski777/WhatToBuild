@@ -1,0 +1,17 @@
+﻿{
+    "id":  "30ae76a1-c9a0-c5b2-07e8-40b4c14d485b",
+    "riotId":  3170,
+    "name":  "Swiftmarch",
+    "icon":  "3170.png",
+    "cost":  1000,
+    "buildPath":  [
+                      "1f25ebdf-c1b9-9b99-ad7d-b7a04cd96297"
+                  ],
+    "stats":  {
+                  "slowResistPercent":  0.25,
+                  "moveSpeedFlat":  65
+              },
+    "effects":  [
+
+                ]
+}

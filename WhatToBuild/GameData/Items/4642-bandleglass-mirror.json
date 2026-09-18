@@ -1,0 +1,20 @@
+﻿{
+    "id":  "5c8ebb64-35e7-84f1-d286-6cb9ea2dacaf",
+    "riotId":  4642,
+    "name":  "Bandleglass Mirror",
+    "icon":  "4642.png",
+    "cost":  900,
+    "buildPath":  [
+                      "e0a9e277-d08c-466b-75b8-996e5767ac6d",
+                      "83c60239-84da-8113-48e7-715da5f0d75a",
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "abilityPower":  20,
+                  "baseManaRegenPercent":  1
+              },
+    "effects":  [
+
+                ]
+}

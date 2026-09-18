@@ -1,0 +1,20 @@
+﻿{
+    "id":  "a6e274df-a55c-0d25-b731-5eb7de29b72d",
+    "riotId":  3504,
+    "name":  "Ardent Censer",
+    "icon":  "3504.png",
+    "cost":  2200,
+    "buildPath":  [
+                      "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",
+                      "f613eb9a-98a0-b948-8531-cbf47e581483"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.04,
+                  "abilityPower":  45,
+                  "healAndShieldPowerPercent":  0.1,
+                  "baseManaRegenPercent":  1.25
+              },
+    "effects":  [
+
+                ]
+}

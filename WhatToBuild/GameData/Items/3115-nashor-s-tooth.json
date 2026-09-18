@@ -1,0 +1,25 @@
+﻿{
+    "id":  "27abf6ff-af66-f212-f7e9-a995a50fd6d2",
+    "riotId":  3115,
+    "name":  "Nashor\u0027s Tooth",
+    "icon":  "3115.png",
+    "cost":  2900,
+    "buildPath":  [
+                      "26f6d9a2-db01-60b5-4767-e52048138836",
+                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "abilityPower":  80,
+                  "attackSpeedPercent":  0.5
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "MagicDamage",
+                        "amount":  15,
+                        "perAp":  0.15
+                    }
+                ]
+}

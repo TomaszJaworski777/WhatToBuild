@@ -1,0 +1,21 @@
+﻿{
+    "id":  "8ecc5283-e778-a527-8d74-a43837c58887",
+    "riotId":  2138,
+    "name":  "Elixir of Iron",
+    "icon":  "2138.png",
+    "cost":  500,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "health",
+                        "amount":  300
+                    }
+                ]
+}

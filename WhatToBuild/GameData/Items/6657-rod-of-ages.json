@@ -1,0 +1,24 @@
+﻿{
+    "id":  "02da9d3d-82e3-c261-0c76-23f9ac1142ca",
+    "riotId":  6657,
+    "name":  "Rod of Ages",
+    "icon":  "6657.png",
+    "cost":  2600,
+    "buildPath":  [
+                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
+                      "703c5b5f-a746-04bd-6e16-faf3e2f9e6a0"
+                  ],
+    "stats":  {
+                  "health":  350,
+                  "abilityPower":  45,
+                  "mana":  500
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "health",
+                        "amount":  100
+                    }
+                ]
+}

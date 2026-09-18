@@ -1,0 +1,21 @@
+﻿{
+    "id":  "abd5d7e8-2ca8-dfcb-0e77-05b2ec9882c3",
+    "riotId":  2139,
+    "name":  "Elixir of Sorcery",
+    "icon":  "2139.png",
+    "cost":  500,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "abilityPower",
+                        "amount":  50
+                    }
+                ]
+}

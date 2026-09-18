@@ -1,0 +1,22 @@
+﻿{
+    "id":  "03ddb74c-7ac0-69b2-326b-0354f67cc223",
+    "riotId":  3168,
+    "name":  "Immortal Path",
+    "icon":  "3168.png",
+    "cost":  1000,
+    "buildPath":  [
+                      "19d00925-d037-92bc-a1a7-090ea1159624"
+                  ],
+    "stats":  {
+                  "moveSpeedFlat":  45,
+                  "omnivampPercent":  0.04
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "omnivampPercent",
+                        "amount":  0.06
+                    }
+                ]
+}

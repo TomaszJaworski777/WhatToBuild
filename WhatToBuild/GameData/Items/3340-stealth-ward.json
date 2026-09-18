@@ -1,0 +1,16 @@
+﻿{
+    "id":  "fa3a8e39-e08f-0b36-e292-9e49dd5db690",
+    "riotId":  3340,
+    "name":  "Stealth Ward",
+    "icon":  "3340.png",
+    "cost":  0,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+
+                ]
+}

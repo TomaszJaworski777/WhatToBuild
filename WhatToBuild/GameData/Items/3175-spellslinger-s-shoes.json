@@ -1,0 +1,18 @@
+﻿{
+    "id":  "4934f94a-e3d8-b9ac-afd6-5a0b06e18bb9",
+    "riotId":  3175,
+    "name":  "Spellslinger\u0027s Shoes",
+    "icon":  "3175.png",
+    "cost":  1100,
+    "buildPath":  [
+                      "65c920ce-88e1-1d04-222d-d58f483a3e22"
+                  ],
+    "stats":  {
+                  "moveSpeedFlat":  45,
+                  "magicPenetrationFlat":  20,
+                  "magicPenetrationPercent":  0.08
+              },
+    "effects":  [
+
+                ]
+}

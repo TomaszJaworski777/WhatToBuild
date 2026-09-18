@@ -1,0 +1,25 @@
+﻿{
+    "id":  "0adfa89e-9cd1-9d44-10c9-f18a6aeecef6",
+    "riotId":  6664,
+    "name":  "Hollow Radiance",
+    "icon":  "6664.png",
+    "cost":  2800,
+    "buildPath":  [
+                      "0e99f246-8cae-0817-d786-4263e76770c8",
+                      "a1621657-ca1a-c297-d0cf-9f5f37d57eba"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "health":  400,
+                  "baseHealthRegenPercent":  1,
+                  "magicResist":  40
+              },
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "MagicDamage",
+                        "amount":  17,
+                        "cooldown":  1
+                    }
+                ]
+}

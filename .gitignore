@@ -54,3 +54,6 @@ TestResult.xml
 nunit-*.xml
 # Visual Studio workspace
 .vs/
+
+# Cached Riot patch data (re-downloaded on demand)
+cache/

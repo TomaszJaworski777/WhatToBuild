@@ -1,0 +1,21 @@
+﻿{
+    "id":  "8b3d3dce-c07a-d122-6dea-9151c1886906",
+    "riotId":  2526,
+    "name":  "Whispering Circlet",
+    "icon":  "2526.png",
+    "cost":  2250,
+    "buildPath":  [
+                      "f613eb9a-98a0-b948-8531-cbf47e581483",
+                      "b025024f-832d-4982-6bb7-f6d96e42dc1f",
+                      "76662942-aad7-36b3-2497-aec87d98b31f"
+                  ],
+    "stats":  {
+                  "health":  200,
+                  "healAndShieldPowerPercent":  0.08,
+                  "mana":  300,
+                  "baseManaRegenPercent":  0.75
+              },
+    "effects":  [
+
+                ]
+}

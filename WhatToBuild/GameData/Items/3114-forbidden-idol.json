@@ -1,0 +1,17 @@
+﻿{
+    "id":  "f613eb9a-98a0-b948-8531-cbf47e581483",
+    "riotId":  3114,
+    "name":  "Forbidden Idol",
+    "icon":  "3114.png",
+    "cost":  600,
+    "buildPath":  [
+                      "e0a9e277-d08c-466b-75b8-996e5767ac6d"
+                  ],
+    "stats":  {
+                  "healAndShieldPowerPercent":  0.08,
+                  "baseManaRegenPercent":  0.5
+              },
+    "effects":  [
+
+                ]
+}

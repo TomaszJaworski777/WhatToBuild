@@ -1,0 +1,16 @@
+﻿{
+    "id":  "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
+    "riotId":  1038,
+    "name":  "B. F. Sword",
+    "icon":  "1038.png",
+    "cost":  1300,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "attackDamage":  40
+              },
+    "effects":  [
+
+                ]
+}

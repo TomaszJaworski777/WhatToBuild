@@ -1,0 +1,16 @@
+﻿{
+    "id":  "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+    "riotId":  1036,
+    "name":  "Long Sword",
+    "icon":  "1036.png",
+    "cost":  350,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "attackDamage":  10
+              },
+    "effects":  [
+
+                ]
+}

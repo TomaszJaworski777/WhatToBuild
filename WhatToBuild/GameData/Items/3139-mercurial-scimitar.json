@@ -1,0 +1,20 @@
+﻿{
+    "id":  "1dba96e0-7bea-23d5-db4b-03d87868a1a9",
+    "riotId":  3139,
+    "name":  "Mercurial Scimitar",
+    "icon":  "3139.png",
+    "cost":  3200,
+    "buildPath":  [
+                      "230b2bb5-eaa6-d707-b004-c9b93f49f338",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb"
+                  ],
+    "stats":  {
+                  "magicResist":  35,
+                  "attackDamage":  50,
+                  "lifeStealPercent":  0.1
+              },
+    "effects":  [
+
+                ]
+}

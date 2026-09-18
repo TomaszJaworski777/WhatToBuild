@@ -1,0 +1,19 @@
+﻿{
+    "id":  "0c82b054-3477-2b93-a13a-8ce1a5ab92c7",
+    "riotId":  3086,
+    "name":  "Zeal",
+    "icon":  "3086.png",
+    "cost":  1200,
+    "buildPath":  [
+                      "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb",
+                      "29012b80-9265-ee3d-3b54-ed05645960db"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.04,
+                  "critChance":  0.15,
+                  "attackSpeedPercent":  0.15
+              },
+    "effects":  [
+
+                ]
+}

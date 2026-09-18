@@ -1,0 +1,20 @@
+﻿{
+    "id":  "737911fb-ca73-f493-d142-a67cabba6b10",
+    "riotId":  2003,
+    "name":  "Health Potion",
+    "icon":  "2003.png",
+    "cost":  50,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "Heal",
+                        "amount":  120
+                    }
+                ]
+}

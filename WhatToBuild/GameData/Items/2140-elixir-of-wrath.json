@@ -1,0 +1,21 @@
+﻿{
+    "id":  "a5546c58-bb1a-a1e4-3586-841df5cae490",
+    "riotId":  2140,
+    "name":  "Elixir of Wrath",
+    "icon":  "2140.png",
+    "cost":  500,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "attackDamage",
+                        "amount":  30
+                    }
+                ]
+}

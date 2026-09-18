@@ -1,0 +1,24 @@
+﻿{
+    "id":  "b7082595-e67f-85a8-7618-936b3eabfe4e",
+    "riotId":  3161,
+    "name":  "Spear of Shojin",
+    "icon":  "3161.png",
+    "cost":  3100,
+    "buildPath":  [
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "066b2773-c9e4-e84b-4d19-ff867aae662a",
+                      "b025024f-832d-4982-6bb7-f6d96e42dc1f"
+                  ],
+    "stats":  {
+                  "health":  450,
+                  "attackDamage":  45
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "damageAmp",
+                        "amount":  0.12
+                    }
+                ]
+}

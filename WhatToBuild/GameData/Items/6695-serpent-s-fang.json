@@ -1,0 +1,22 @@
+﻿{
+    "id":  "97b26770-336e-f7cf-5520-67bd458f7c33",
+    "riotId":  6695,
+    "name":  "Serpent\u0027s Fang",
+    "icon":  "6695.png",
+    "cost":  2500,
+    "buildPath":  [
+                      "dc60a105-9083-edab-aaba-fd9853e3561a",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d"
+                  ],
+    "stats":  {
+                  "attackDamage":  55,
+                  "armorPenetrationFlat":  15
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "ShieldReduction",
+                        "amount":  0.5
+                    }
+                ]
+}

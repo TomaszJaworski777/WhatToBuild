@@ -1,0 +1,18 @@
+﻿{
+    "id":  "0a9627af-d1dd-06e8-74b1-c1820c98a419",
+    "riotId":  3177,
+    "name":  "Guardian\u0027s Blade",
+    "icon":  "3177.png",
+    "cost":  950,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  150,
+                  "attackDamage":  30
+              },
+    "effects":  [
+
+                ]
+}

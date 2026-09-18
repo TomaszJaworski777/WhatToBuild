@@ -1,0 +1,20 @@
+﻿{
+    "id":  "a02eba3d-f1ef-87a5-1541-225c5ac6a62e",
+    "riotId":  2031,
+    "name":  "Refillable Potion",
+    "icon":  "2031.png",
+    "cost":  150,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "Heal",
+                        "amount":  100
+                    }
+                ]
+}

@@ -1,0 +1,25 @@
+﻿{
+    "id":  "efeb62de-b5bb-55e1-91e0-4f5ad9652d53",
+    "riotId":  2504,
+    "name":  "Kaenic Rookern",
+    "icon":  "2504.png",
+    "cost":  2900,
+    "buildPath":  [
+                      "a1621657-ca1a-c297-d0cf-9f5f37d57eba",
+                      "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c"
+                  ],
+    "stats":  {
+                  "health":  400,
+                  "baseHealthRegenPercent":  1,
+                  "magicResist":  80
+              },
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "Shield",
+                        "perMaxHealth":  0.15,
+                        "cooldown":  15,
+                        "versus":  "Magic"
+                    }
+                ]
+}

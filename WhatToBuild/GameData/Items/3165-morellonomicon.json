@@ -1,0 +1,24 @@
+﻿{
+    "id":  "94322f97-d83f-bbc3-9cab-13c891410344",
+    "riotId":  3165,
+    "name":  "Morellonomicon",
+    "icon":  "3165.png",
+    "cost":  2850,
+    "buildPath":  [
+                      "4d050f40-4551-ea6f-45cc-85b6486cb572",
+                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
+                      "dec45a0a-3f4e-628c-abff-7537636197ac"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  350,
+                  "abilityPower":  75
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "GrievousWounds",
+                        "amount":  0.4
+                    }
+                ]
+}

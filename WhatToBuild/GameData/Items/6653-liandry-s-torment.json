@@ -1,0 +1,22 @@
+﻿{
+    "id":  "ee0f0e44-d1a4-41a7-ac38-29eff8739e30",
+    "riotId":  6653,
+    "name":  "Liandry\u0027s Torment",
+    "icon":  "6653.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "147c0ef2-a4af-8467-0faa-a59f452a8c6e",
+                      "c56bd70a-a5e9-852c-0eb5-f4f8efd1cd28"
+                  ],
+    "stats":  {
+                  "health":  300,
+                  "abilityPower":  60
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "MagicDamage",
+                        "perTargetMaxHealth":  0.06
+                    }
+                ]
+}

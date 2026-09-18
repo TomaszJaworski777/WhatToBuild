@@ -1,0 +1,16 @@
+﻿{
+    "id":  "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec",
+    "riotId":  1058,
+    "name":  "Needlessly Large Rod",
+    "icon":  "1058.png",
+    "cost":  1200,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "abilityPower":  65
+              },
+    "effects":  [
+
+                ]
+}

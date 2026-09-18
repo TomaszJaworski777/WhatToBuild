@@ -1,0 +1,16 @@
+﻿{
+    "id":  "3a81d00c-792f-acd0-c485-e5ddc85c87c6",
+    "riotId":  2055,
+    "name":  "Control Ward",
+    "icon":  "2055.png",
+    "cost":  75,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+
+                ]
+}

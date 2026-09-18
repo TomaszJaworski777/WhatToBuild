@@ -1,0 +1,25 @@
+﻿{
+    "id":  "e3e8d945-55d2-e52a-043e-191de08335a1",
+    "riotId":  6662,
+    "name":  "Iceborn Gauntlet",
+    "icon":  "6662.png",
+    "cost":  2900,
+    "buildPath":  [
+                      "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
+                      "b025024f-832d-4982-6bb7-f6d96e42dc1f",
+                      "5dd70522-168e-d7bb-5854-c24b78940297"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  300,
+                  "armor":  50
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "PhysicalDamage",
+                        "perBaseAd":  1.5,
+                        "cooldown":  1.5
+                    }
+                ]
+}

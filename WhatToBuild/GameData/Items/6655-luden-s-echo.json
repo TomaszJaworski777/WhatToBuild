@@ -1,0 +1,25 @@
+﻿{
+    "id":  "819fed86-c0c3-9c69-74ac-6cba524a7ad2",
+    "riotId":  6655,
+    "name":  "Luden\u0027s Echo",
+    "icon":  "6655.png",
+    "cost":  2750,
+    "buildPath":  [
+                      "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
+                      "2310e122-8f59-c9c2-3ae8-f4a33b938440"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "abilityPower":  100,
+                  "mana":  600
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "MagicDamage",
+                        "amount":  75,
+                        "perAp":  0.05,
+                        "cooldown":  12
+                    }
+                ]
+}

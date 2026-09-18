@@ -1,0 +1,24 @@
+﻿{
+    "id":  "e5095b80-76a6-6fe3-ec52-60a26cac91bb",
+    "riotId":  3071,
+    "name":  "Black Cleaver",
+    "icon":  "3071.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f",
+                      "dec45a0a-3f4e-628c-abff-7537636197ac",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d"
+                  ],
+    "stats":  {
+                  "abilityHaste":  20,
+                  "health":  400,
+                  "attackDamage":  45
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "ArmorShred",
+                        "amount":  0.3
+                    }
+                ]
+}

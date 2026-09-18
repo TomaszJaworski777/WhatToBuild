@@ -1,0 +1,24 @@
+﻿{
+    "id":  "01993970-2702-d546-badd-48b78bd80260",
+    "riotId":  6697,
+    "name":  "Hubris",
+    "icon":  "6697.png",
+    "cost":  2800,
+    "buildPath":  [
+                      "dc60a105-9083-edab-aaba-fd9853e3561a",
+                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "attackDamage":  55,
+                  "armorPenetrationFlat":  18
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnTakedown",
+                        "kind":  "StatBuff",
+                        "stat":  "attackDamage",
+                        "amount":  18
+                    }
+                ]
+}

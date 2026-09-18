@@ -1,0 +1,21 @@
+﻿{
+    "id":  "ba0c6f7e-3e71-9ebc-acde-6e5314932c8d",
+    "riotId":  3109,
+    "name":  "Knight\u0027s Vow",
+    "icon":  "3109.png",
+    "cost":  2300,
+    "buildPath":  [
+                      "dec45a0a-3f4e-628c-abff-7537636197ac",
+                      "5dd70522-168e-d7bb-5854-c24b78940297",
+                      "958b1faa-7c80-5514-066a-dec92c59b940"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "health":  200,
+                  "baseHealthRegenPercent":  1,
+                  "armor":  40
+              },
+    "effects":  [
+
+                ]
+}

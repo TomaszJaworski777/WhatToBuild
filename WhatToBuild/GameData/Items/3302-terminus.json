@@ -1,0 +1,28 @@
+﻿{
+    "id":  "eb9ee373-dfb6-4976-e55b-13f47b09d999",
+    "riotId":  3302,
+    "name":  "Terminus",
+    "icon":  "3302.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "205acc24-75bb-97ce-5ae5-75f2d9a91d28",
+                      "26f6d9a2-db01-60b5-4767-e52048138836"
+                  ],
+    "stats":  {
+                  "attackDamage":  30,
+                  "attackSpeedPercent":  0.35
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "MagicDamage",
+                        "amount":  30
+                    },
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "armorPenetrationPercent",
+                        "amount":  0.3
+                    }
+                ]
+}

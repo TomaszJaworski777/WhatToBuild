@@ -1,0 +1,24 @@
+﻿{
+    "id":  "28bbc6fc-5c46-34fc-97df-c76560aabee4",
+    "riotId":  3091,
+    "name":  "Wit\u0027s End",
+    "icon":  "3091.png",
+    "cost":  2800,
+    "buildPath":  [
+                      "26f6d9a2-db01-60b5-4767-e52048138836",
+                      "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c",
+                      "26f6d9a2-db01-60b5-4767-e52048138836"
+                  ],
+    "stats":  {
+                  "tenacityPercent":  0.2,
+                  "magicResist":  45,
+                  "attackSpeedPercent":  0.5
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "MagicDamage",
+                        "amount":  40
+                    }
+                ]
+}

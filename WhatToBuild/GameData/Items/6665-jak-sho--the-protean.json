@@ -1,0 +1,31 @@
+﻿{
+    "id":  "c238e94c-cf27-44dc-3c0c-18e49f7bcf81",
+    "riotId":  6665,
+    "name":  "Jak\u0027Sho, The Protean",
+    "icon":  "6665.png",
+    "cost":  3200,
+    "buildPath":  [
+                      "78a6c7fc-1e70-b5f7-6205-47b1df785d76",
+                      "5dd70522-168e-d7bb-5854-c24b78940297",
+                      "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c"
+                  ],
+    "stats":  {
+                  "health":  350,
+                  "armor":  45,
+                  "magicResist":  45
+              },
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "StatBuff",
+                        "stat":  "armor",
+                        "amount":  14
+                    },
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "StatBuff",
+                        "stat":  "magicResist",
+                        "amount":  14
+                    }
+                ]
+}

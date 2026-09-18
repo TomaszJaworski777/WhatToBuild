@@ -1,0 +1,19 @@
+﻿{
+    "id":  "1313e9c3-b17a-bf48-375c-e8b7a7b516ea",
+    "riotId":  3116,
+    "name":  "Rylai\u0027s Crystal Scepter",
+    "icon":  "3116.png",
+    "cost":  2600,
+    "buildPath":  [
+                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
+                      "78a6c7fc-1e70-b5f7-6205-47b1df785d76",
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "health":  400,
+                  "abilityPower":  65
+              },
+    "effects":  [
+
+                ]
+}

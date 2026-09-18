@@ -1,0 +1,19 @@
+﻿{
+    "id":  "6c2597a0-4bf4-dd58-2fff-8a6c44eb5a94",
+    "riotId":  3111,
+    "name":  "Mercury\u0027s Treads",
+    "icon":  "3111.png",
+    "cost":  1250,
+    "buildPath":  [
+                      "ae639a00-f269-2346-dd47-eedaa6723936",
+                      "cc10ae20-f7e4-c3ce-337e-71a62a15f305"
+                  ],
+    "stats":  {
+                  "tenacityPercent":  0.3,
+                  "moveSpeedFlat":  45,
+                  "magicResist":  20
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,18 @@
+﻿{
+    "id":  "a6ab60f5-9ae8-3b62-97fb-f09220b0c8e4",
+    "riotId":  1055,
+    "name":  "Doran\u0027s Blade",
+    "icon":  "1055.png",
+    "cost":  450,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "health":  80,
+                  "attackDamage":  10,
+                  "omnivampPercent":  0.025
+              },
+    "effects":  [
+
+                ]
+}

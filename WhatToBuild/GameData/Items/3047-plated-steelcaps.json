@@ -1,0 +1,23 @@
+﻿{
+    "id":  "28eaf0dc-17ed-48a1-b29a-a78842a02b75",
+    "riotId":  3047,
+    "name":  "Plated Steelcaps",
+    "icon":  "3047.png",
+    "cost":  1200,
+    "buildPath":  [
+                      "ae639a00-f269-2346-dd47-eedaa6723936",
+                      "0f410f4b-612a-a8f2-7088-728115202ea7"
+                  ],
+    "stats":  {
+                  "moveSpeedFlat":  45,
+                  "armor":  25
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "DamageReduction",
+                        "amount":  0.1,
+                        "versus":  "Attacks"
+                    }
+                ]
+}

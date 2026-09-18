@@ -1,0 +1,23 @@
+﻿{
+    "id":  "921f4a96-2b86-a654-fab6-8978a75f2e17",
+    "riotId":  3026,
+    "name":  "Guardian Angel",
+    "icon":  "3026.png",
+    "cost":  3200,
+    "buildPath":  [
+                      "7fbbf0bb-f67f-dbab-124c-f1fb86a80eca",
+                      "0e4a5126-89bb-99a3-4c15-6b21f7e41e47"
+                  ],
+    "stats":  {
+                  "armor":  45,
+                  "attackDamage":  55
+              },
+    "effects":  [
+                    {
+                        "trigger":  "WhenLow",
+                        "kind":  "Revive",
+                        "amount":  0.5,
+                        "cooldown":  300
+                    }
+                ]
+}

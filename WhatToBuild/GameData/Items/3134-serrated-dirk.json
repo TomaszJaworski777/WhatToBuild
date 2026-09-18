@@ -1,0 +1,18 @@
+﻿{
+    "id":  "dc60a105-9083-edab-aaba-fd9853e3561a",
+    "riotId":  3134,
+    "name":  "Serrated Dirk",
+    "icon":  "3134.png",
+    "cost":  1000,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "attackDamage":  20,
+                  "armorPenetrationFlat":  10
+              },
+    "effects":  [
+
+                ]
+}

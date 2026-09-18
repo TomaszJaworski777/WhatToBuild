@@ -1,0 +1,18 @@
+﻿{
+    "id":  "ca4b565e-b07f-f044-46a5-553953a55775",
+    "riotId":  3035,
+    "name":  "Last Whisper",
+    "icon":  "3035.png",
+    "cost":  1450,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "armorPenetrationPercent":  0.18,
+                  "attackDamage":  20
+              },
+    "effects":  [
+
+                ]
+}

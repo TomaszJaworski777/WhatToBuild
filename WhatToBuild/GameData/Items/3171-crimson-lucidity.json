@@ -1,0 +1,17 @@
+﻿{
+    "id":  "fd7e953c-2430-1f6b-1dd6-53af176c9a7e",
+    "riotId":  3171,
+    "name":  "Crimson Lucidity",
+    "icon":  "3171.png",
+    "cost":  900,
+    "buildPath":  [
+                      "41f1aa5b-6aab-8eae-86f4-b00c575e842b"
+                  ],
+    "stats":  {
+                  "abilityHaste":  20,
+                  "moveSpeedFlat":  45
+              },
+    "effects":  [
+
+                ]
+}

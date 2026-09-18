@@ -1,0 +1,18 @@
+﻿{
+    "id":  "305c7b62-d8c7-8cc3-a707-fe4101ac9252",
+    "riotId":  3172,
+    "name":  "Gunmetal Greaves",
+    "icon":  "3172.png",
+    "cost":  1100,
+    "buildPath":  [
+                      "c2821980-cb70-1ea5-aa5b-035485f74e15"
+                  ],
+    "stats":  {
+                  "moveSpeedFlat":  45,
+                  "attackSpeedPercent":  0.45,
+                  "lifeStealPercent":  0.05
+              },
+    "effects":  [
+
+                ]
+}

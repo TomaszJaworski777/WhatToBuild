@@ -1,0 +1,19 @@
+﻿{
+    "id":  "86a9800b-3f3e-f434-9c96-8c0d03e71107",
+    "riotId":  6694,
+    "name":  "Serylda\u0027s Grudge",
+    "icon":  "6694.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
+                      "ca4b565e-b07f-f044-46a5-553953a55775"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "armorPenetrationPercent":  0.35,
+                  "attackDamage":  45
+              },
+    "effects":  [
+
+                ]
+}

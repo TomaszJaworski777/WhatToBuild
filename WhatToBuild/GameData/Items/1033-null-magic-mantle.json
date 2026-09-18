@@ -1,0 +1,16 @@
+﻿{
+    "id":  "cc10ae20-f7e4-c3ce-337e-71a62a15f305",
+    "riotId":  1033,
+    "name":  "Null-Magic Mantle",
+    "icon":  "1033.png",
+    "cost":  400,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "magicResist":  20
+              },
+    "effects":  [
+
+                ]
+}

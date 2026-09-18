@@ -1,0 +1,19 @@
+﻿{
+    "id":  "c1d72567-208f-fc66-4588-0cba2793a615",
+    "riotId":  4632,
+    "name":  "Verdant Barrier",
+    "icon":  "4632.png",
+    "cost":  1600,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a",
+                      "cc10ae20-f7e4-c3ce-337e-71a62a15f305",
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "magicResist":  25,
+                  "abilityPower":  40
+              },
+    "effects":  [
+
+                ]
+}

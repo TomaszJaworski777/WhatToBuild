@@ -1,0 +1,16 @@
+﻿{
+    "id":  "83c60239-84da-8113-48e7-715da5f0d75a",
+    "riotId":  1052,
+    "name":  "Amplifying Tome",
+    "icon":  "1052.png",
+    "cost":  400,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "abilityPower":  20
+              },
+    "effects":  [
+
+                ]
+}

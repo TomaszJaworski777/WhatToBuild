@@ -1,0 +1,19 @@
+﻿{
+    "id":  "ecd5cc67-98b5-f93b-f81d-4f559dbb6129",
+    "riotId":  6696,
+    "name":  "Axiom Arc",
+    "icon":  "6696.png",
+    "cost":  2750,
+    "buildPath":  [
+                      "22071f8c-f975-7e62-d4fe-906dd72b02fe",
+                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
+                  ],
+    "stats":  {
+                  "abilityHaste":  20,
+                  "attackDamage":  55,
+                  "armorPenetrationFlat":  18
+              },
+    "effects":  [
+
+                ]
+}

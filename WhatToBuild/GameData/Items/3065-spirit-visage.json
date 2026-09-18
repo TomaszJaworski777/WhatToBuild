@@ -1,0 +1,25 @@
+﻿{
+    "id":  "025a9ee0-7cb4-c4bd-62a9-bc8c8040f028",
+    "riotId":  3065,
+    "name":  "Spirit Visage",
+    "icon":  "3065.png",
+    "cost":  2700,
+    "buildPath":  [
+                      "a1621657-ca1a-c297-d0cf-9f5f37d57eba",
+                      "dec45a0a-3f4e-628c-abff-7537636197ac"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "health":  400,
+                  "baseHealthRegenPercent":  1,
+                  "magicResist":  50
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "healAndShieldPowerPercent",
+                        "amount":  0.25
+                    }
+                ]
+}

@@ -1,0 +1,25 @@
+﻿{
+    "id":  "4a9c0209-c77e-6e97-42c1-d466d9775cb4",
+    "riotId":  3119,
+    "name":  "Winter\u0027s Approach",
+    "icon":  "3119.png",
+    "cost":  2400,
+    "buildPath":  [
+                      "76662942-aad7-36b3-2497-aec87d98b31f",
+                      "78a6c7fc-1e70-b5f7-6205-47b1df785d76",
+                      "dec45a0a-3f4e-628c-abff-7537636197ac"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  550,
+                  "mana":  500
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "health",
+                        "amount":  100
+                    }
+                ]
+}

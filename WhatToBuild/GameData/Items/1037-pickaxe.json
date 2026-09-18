@@ -1,0 +1,16 @@
+﻿{
+    "id":  "1d276371-f99d-7615-c4af-a5feab4d274d",
+    "riotId":  1037,
+    "name":  "Pickaxe",
+    "icon":  "1037.png",
+    "cost":  875,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "attackDamage":  25
+              },
+    "effects":  [
+
+                ]
+}

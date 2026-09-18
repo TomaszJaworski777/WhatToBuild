@@ -1,0 +1,21 @@
+﻿{
+    "id":  "2d428f47-fd1f-6cb5-086e-53e3327577ca",
+    "riotId":  3077,
+    "name":  "Tiamat",
+    "icon":  "3077.png",
+    "cost":  1200,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "attackDamage":  25
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "PhysicalDamage",
+                        "perTotalAd":  0.2
+                    }
+                ]
+}

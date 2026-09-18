@@ -1,0 +1,29 @@
+﻿{
+    "id":  "6430bf17-7fe7-21e4-8f47-eff9ad1dedb4",
+    "riotId":  6333,
+    "name":  "Death\u0027s Dance",
+    "icon":  "6333.png",
+    "cost":  3300,
+    "buildPath":  [
+                      "7fbbf0bb-f67f-dbab-124c-f1fb86a80eca",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "armor":  50,
+                  "attackDamage":  60
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "DamageReduction",
+                        "amount":  0.3
+                    },
+                    {
+                        "trigger":  "OnTakedown",
+                        "kind":  "Heal",
+                        "amount":  150
+                    }
+                ]
+}

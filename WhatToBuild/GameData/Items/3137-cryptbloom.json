@@ -1,0 +1,25 @@
+﻿{
+    "id":  "c70fef32-2fa4-2179-94ed-c80bab6832fb",
+    "riotId":  3137,
+    "name":  "Cryptbloom",
+    "icon":  "3137.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "0cb7742f-83a6-9b4e-cf46-bc89cd39b53d",
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6"
+                  ],
+    "stats":  {
+                  "abilityHaste":  20,
+                  "magicPenetrationPercent":  0.3,
+                  "abilityPower":  75
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnTakedown",
+                        "kind":  "Heal",
+                        "amount":  200,
+                        "cooldown":  60
+                    }
+                ]
+}

@@ -1,0 +1,24 @@
+﻿{
+    "id":  "834673d5-2fcc-e469-a7d8-9e3ff6033789",
+    "riotId":  6676,
+    "name":  "The Collector",
+    "icon":  "6676.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "dc60a105-9083-edab-aaba-fd9853e3561a",
+                      "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb"
+                  ],
+    "stats":  {
+                  "critChance":  0.25,
+                  "attackDamage":  50,
+                  "armorPenetrationFlat":  10
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "Execute",
+                        "amount":  0.05
+                    }
+                ]
+}

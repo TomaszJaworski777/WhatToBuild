@@ -1,0 +1,21 @@
+﻿{
+    "id":  "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
+    "riotId":  3057,
+    "name":  "Sheen",
+    "icon":  "3057.png",
+    "cost":  900,
+    "buildPath":  [
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "PhysicalDamage",
+                        "perBaseAd":  1.0,
+                        "cooldown":  1.5
+                    }
+                ]
+}

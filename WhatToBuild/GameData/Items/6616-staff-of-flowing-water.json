@@ -1,0 +1,20 @@
+﻿{
+    "id":  "d726d171-73b1-7d35-238d-de21dd5a3300",
+    "riotId":  6616,
+    "name":  "Staff of Flowing Water",
+    "icon":  "6616.png",
+    "cost":  2250,
+    "buildPath":  [
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
+                      "f613eb9a-98a0-b948-8531-cbf47e581483"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "abilityPower":  35,
+                  "healAndShieldPowerPercent":  0.1,
+                  "baseManaRegenPercent":  1.25
+              },
+    "effects":  [
+
+                ]
+}

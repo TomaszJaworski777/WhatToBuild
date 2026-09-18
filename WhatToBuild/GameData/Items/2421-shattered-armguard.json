@@ -1,0 +1,19 @@
+﻿{
+    "id":  "9297539c-39ff-e58d-e8d0-72d624557645",
+    "riotId":  2421,
+    "name":  "Shattered Armguard",
+    "icon":  "2421.png",
+    "cost":  1600,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a",
+                      "0f410f4b-612a-a8f2-7088-728115202ea7",
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "armor":  25,
+                  "abilityPower":  40
+              },
+    "effects":  [
+
+                ]
+}

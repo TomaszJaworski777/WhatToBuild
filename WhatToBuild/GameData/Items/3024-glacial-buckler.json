@@ -1,0 +1,20 @@
+﻿{
+    "id":  "2fd7f20b-f75c-ca40-24f3-3f491a0a9f13",
+    "riotId":  3024,
+    "name":  "Glacial Buckler",
+    "icon":  "3024.png",
+    "cost":  900,
+    "buildPath":  [
+                      "0f410f4b-612a-a8f2-7088-728115202ea7",
+                      "c72f5413-5483-8f07-5e77-865de4e332a9",
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "armor":  25,
+                  "mana":  300
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,20 @@
+﻿{
+    "id":  "83da990c-ccd8-1b82-7736-18587818b1bf",
+    "riotId":  6621,
+    "name":  "Dawncore",
+    "icon":  "6621.png",
+    "cost":  2500,
+    "buildPath":  [
+                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
+                      "f613eb9a-98a0-b948-8531-cbf47e581483",
+                      "f613eb9a-98a0-b948-8531-cbf47e581483"
+                  ],
+    "stats":  {
+                  "abilityPower":  45,
+                  "healAndShieldPowerPercent":  0.16,
+                  "baseManaRegenPercent":  1
+              },
+    "effects":  [
+
+                ]
+}

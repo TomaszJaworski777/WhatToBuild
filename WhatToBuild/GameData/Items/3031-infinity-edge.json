@@ -1,0 +1,20 @@
+﻿{
+    "id":  "81f53a95-4bed-bc68-fab5-ae1fc82166eb",
+    "riotId":  3031,
+    "name":  "Infinity Edge",
+    "icon":  "3031.png",
+    "cost":  3500,
+    "buildPath":  [
+                      "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb"
+                  ],
+    "stats":  {
+                  "critChance":  0.25,
+                  "critDamage":  0.3,
+                  "attackDamage":  75
+              },
+    "effects":  [
+
+                ]
+}

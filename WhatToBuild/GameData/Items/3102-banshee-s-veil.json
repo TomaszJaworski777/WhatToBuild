@@ -1,0 +1,18 @@
+﻿{
+    "id":  "32c13c4b-cb18-586f-eb98-13dbca363c5b",
+    "riotId":  3102,
+    "name":  "Banshee\u0027s Veil",
+    "icon":  "3102.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec",
+                      "c1d72567-208f-fc66-4588-0cba2793a615"
+                  ],
+    "stats":  {
+                  "magicResist":  40,
+                  "abilityPower":  105
+              },
+    "effects":  [
+
+                ]
+}

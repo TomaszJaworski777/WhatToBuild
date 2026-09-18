@@ -1,0 +1,16 @@
+﻿{
+    "id":  "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
+    "riotId":  1026,
+    "name":  "Blasting Wand",
+    "icon":  "1026.png",
+    "cost":  850,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "abilityPower":  45
+              },
+    "effects":  [
+
+                ]
+}

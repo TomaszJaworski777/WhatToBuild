@@ -1,0 +1,20 @@
+﻿{
+    "id":  "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
+    "riotId":  3802,
+    "name":  "Lost Chapter",
+    "icon":  "3802.png",
+    "cost":  1200,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a",
+                      "c72f5413-5483-8f07-5e77-865de4e332a9",
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "abilityPower":  40,
+                  "mana":  300
+              },
+    "effects":  [
+
+                ]
+}

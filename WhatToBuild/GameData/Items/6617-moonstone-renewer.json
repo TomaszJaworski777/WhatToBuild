@@ -1,0 +1,20 @@
+﻿{
+    "id":  "3f6b06ad-ffe3-1153-379b-f1fcb46a643e",
+    "riotId":  6617,
+    "name":  "Moonstone Renewer",
+    "icon":  "6617.png",
+    "cost":  2200,
+    "buildPath":  [
+                      "dec45a0a-3f4e-628c-abff-7537636197ac",
+                      "5c8ebb64-35e7-84f1-d286-6cb9ea2dacaf"
+                  ],
+    "stats":  {
+                  "abilityHaste":  20,
+                  "health":  200,
+                  "abilityPower":  25,
+                  "baseManaRegenPercent":  1.25
+              },
+    "effects":  [
+
+                ]
+}

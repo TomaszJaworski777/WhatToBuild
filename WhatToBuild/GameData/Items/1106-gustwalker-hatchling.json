@@ -1,0 +1,21 @@
+﻿{
+    "id":  "62d97c1b-27d6-be9c-ffd1-1da31514dede",
+    "riotId":  1106,
+    "name":  "Gustwalker Hatchling",
+    "icon":  "1106.png",
+    "cost":  450,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "omnivampPercent",
+                        "amount":  0.07
+                    }
+                ]
+}

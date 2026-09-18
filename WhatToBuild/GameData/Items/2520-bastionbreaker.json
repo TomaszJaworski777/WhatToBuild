@@ -1,0 +1,24 @@
+﻿{
+    "id":  "e178f4be-7c77-d788-dc12-fa0a0803b23f",
+    "riotId":  2520,
+    "name":  "Bastionbreaker",
+    "icon":  "2520.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "22071f8c-f975-7e62-d4fe-906dd72b02fe",
+                      "dc60a105-9083-edab-aaba-fd9853e3561a"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "attackDamage":  55,
+                  "armorPenetrationFlat":  22
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "TrueDamage",
+                        "amount":  40,
+                        "cooldown":  20
+                    }
+                ]
+}

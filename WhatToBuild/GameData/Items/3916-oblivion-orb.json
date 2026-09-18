@@ -1,0 +1,20 @@
+﻿{
+    "id":  "4d050f40-4551-ea6f-45cc-85b6486cb572",
+    "riotId":  3916,
+    "name":  "Oblivion Orb",
+    "icon":  "3916.png",
+    "cost":  800,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "abilityPower":  25
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "GrievousWounds",
+                        "amount":  0.4
+                    }
+                ]
+}

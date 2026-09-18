@@ -1,0 +1,18 @@
+﻿{
+    "id":  "40aa037c-bd40-9d27-d810-40743af92ab4",
+    "riotId":  3876,
+    "name":  "Solstice Sleigh",
+    "icon":  "3876.png",
+    "cost":  400,
+    "buildPath":  [
+                      "04de6d3f-7fd0-7252-686b-c168d1123cf9"
+                  ],
+    "stats":  {
+                  "health":  200,
+                  "baseHealthRegenPercent":  0.75,
+                  "baseManaRegenPercent":  0.75
+              },
+    "effects":  [
+
+                ]
+}

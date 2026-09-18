@@ -1,0 +1,24 @@
+﻿{
+    "id":  "d74f7730-be05-ea38-1f47-b518f9a04a2d",
+    "riotId":  3173,
+    "name":  "Chainlaced Crushers",
+    "icon":  "3173.png",
+    "cost":  1250,
+    "buildPath":  [
+                      "6c2597a0-4bf4-dd58-2fff-8a6c44eb5a94"
+                  ],
+    "stats":  {
+                  "tenacityPercent":  0.3,
+                  "moveSpeedFlat":  45,
+                  "magicResist":  25
+              },
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "Shield",
+                        "perMaxHealth":  0.08,
+                        "cooldown":  15,
+                        "versus":  "Magic"
+                    }
+                ]
+}

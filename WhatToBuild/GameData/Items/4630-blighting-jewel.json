@@ -1,0 +1,17 @@
+﻿{
+    "id":  "0cb7742f-83a6-9b4e-cf46-bc89cd39b53d",
+    "riotId":  4630,
+    "name":  "Blighting Jewel",
+    "icon":  "4630.png",
+    "cost":  1100,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "magicPenetrationPercent":  0.13,
+                  "abilityPower":  25
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,16 @@
+﻿{
+    "id":  "ae639a00-f269-2346-dd47-eedaa6723936",
+    "riotId":  1001,
+    "name":  "Boots",
+    "icon":  "1001.png",
+    "cost":  300,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "moveSpeedFlat":  25
+              },
+    "effects":  [
+
+                ]
+}

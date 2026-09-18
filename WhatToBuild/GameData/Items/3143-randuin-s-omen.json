@@ -1,0 +1,23 @@
+﻿{
+    "id":  "03fe52e9-28b3-ad58-c870-b54e068d140b",
+    "riotId":  3143,
+    "name":  "Randuin\u0027s Omen",
+    "icon":  "3143.png",
+    "cost":  2700,
+    "buildPath":  [
+                      "de5ed01d-69b0-c2f1-424f-70dd96275b3b",
+                      "78a6c7fc-1e70-b5f7-6205-47b1df785d76"
+                  ],
+    "stats":  {
+                  "health":  350,
+                  "armor":  75
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "DamageReduction",
+                        "amount":  0.3,
+                        "versus":  "Crit"
+                    }
+                ]
+}

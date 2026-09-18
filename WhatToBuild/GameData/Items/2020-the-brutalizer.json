@@ -1,0 +1,19 @@
+﻿{
+    "id":  "22071f8c-f975-7e62-d4fe-906dd72b02fe",
+    "riotId":  2020,
+    "name":  "The Brutalizer",
+    "icon":  "2020.png",
+    "cost":  1337,
+    "buildPath":  [
+                      "55f3dec0-0419-0af1-11f9-b7d5756b8caa",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "attackDamage":  25,
+                  "armorPenetrationFlat":  5
+              },
+    "effects":  [
+
+                ]
+}

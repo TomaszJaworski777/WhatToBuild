@@ -1,0 +1,20 @@
+﻿{
+    "id":  "45f5d794-9cc0-ef21-4ae9-897b5ed81228",
+    "riotId":  3123,
+    "name":  "Executioner\u0027s Calling",
+    "icon":  "3123.png",
+    "cost":  800,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "attackDamage":  15
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "GrievousWounds",
+                        "amount":  0.4
+                    }
+                ]
+}

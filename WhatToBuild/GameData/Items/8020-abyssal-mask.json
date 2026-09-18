@@ -1,0 +1,24 @@
+﻿{
+    "id":  "c90c3490-1d24-4538-e0e0-3fb0d5d80e34",
+    "riotId":  8020,
+    "name":  "Abyssal Mask",
+    "icon":  "8020.png",
+    "cost":  2650,
+    "buildPath":  [
+                      "dec45a0a-3f4e-628c-abff-7537636197ac",
+                      "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  350,
+                  "magicResist":  45
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "enemyMagicDamageAmp",
+                        "amount":  0.12
+                    }
+                ]
+}

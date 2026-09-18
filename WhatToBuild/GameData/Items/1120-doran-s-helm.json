@@ -1,0 +1,18 @@
+﻿{
+    "id":  "2492d7d2-59e6-3bf8-71bd-8a39436affa5",
+    "riotId":  1120,
+    "name":  "Doran\u0027s Helm",
+    "icon":  "1120.png",
+    "cost":  450,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "health":  150,
+                  "armor":  8,
+                  "magicResist":  8
+              },
+    "effects":  [
+
+                ]
+}

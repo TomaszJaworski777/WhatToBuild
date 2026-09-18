@@ -1,0 +1,17 @@
+﻿{
+    "id":  "0c761ffd-91e5-29d3-6839-b78167b0b52b",
+    "riotId":  6690,
+    "name":  "Rectrix",
+    "icon":  "6690.png",
+    "cost":  775,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.04,
+                  "attackDamage":  15
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,30 @@
+﻿{
+    "id":  "283876ab-34be-9c4d-458c-b3d9cf11b0c0",
+    "riotId":  3124,
+    "name":  "Guinsoo\u0027s Rageblade",
+    "icon":  "3124.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a",
+                      "26f6d9a2-db01-60b5-4767-e52048138836",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d"
+                  ],
+    "stats":  {
+                  "attackDamage":  30,
+                  "abilityPower":  30,
+                  "attackSpeedPercent":  0.25
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "MagicDamage",
+                        "amount":  30
+                    },
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "attackSpeedPercent",
+                        "amount":  0.32
+                    }
+                ]
+}

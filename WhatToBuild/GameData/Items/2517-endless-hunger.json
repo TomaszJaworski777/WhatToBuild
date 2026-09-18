@@ -1,0 +1,25 @@
+﻿{
+    "id":  "fce0a19b-26f1-dae2-1380-afc83ec6d704",
+    "riotId":  2517,
+    "name":  "Endless Hunger",
+    "icon":  "2517.png",
+    "cost":  3100,
+    "buildPath":  [
+                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "tenacityPercent":  0.2,
+                  "attackDamage":  65,
+                  "omnivampPercent":  0.05
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnTakedown",
+                        "kind":  "StatBuff",
+                        "stat":  "omnivampPercent",
+                        "amount":  0.15
+                    }
+                ]
+}

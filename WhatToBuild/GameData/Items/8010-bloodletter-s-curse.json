@@ -1,0 +1,23 @@
+﻿{
+    "id":  "d55aa007-0cb9-0a66-622a-890e5099b29a",
+    "riotId":  8010,
+    "name":  "Bloodletter\u0027s Curse",
+    "icon":  "8010.png",
+    "cost":  2900,
+    "buildPath":  [
+                      "147c0ef2-a4af-8467-0faa-a59f452a8c6e",
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  400,
+                  "abilityPower":  65
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "MagicResistShred",
+                        "amount":  0.3
+                    }
+                ]
+}

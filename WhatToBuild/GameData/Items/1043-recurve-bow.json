@@ -1,0 +1,20 @@
+﻿{
+    "id":  "26f6d9a2-db01-60b5-4767-e52048138836",
+    "riotId":  1043,
+    "name":  "Recurve Bow",
+    "icon":  "1043.png",
+    "cost":  700,
+    "buildPath":  [
+                      "29012b80-9265-ee3d-3b54-ed05645960db"
+                  ],
+    "stats":  {
+                  "attackSpeedPercent":  0.15
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAttack",
+                        "kind":  "PhysicalDamage",
+                        "amount":  15
+                    }
+                ]
+}

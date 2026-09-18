@@ -1,0 +1,16 @@
+﻿{
+    "id":  "e0a9e277-d08c-466b-75b8-996e5767ac6d",
+    "riotId":  1004,
+    "name":  "Faerie Charm",
+    "icon":  "1004.png",
+    "cost":  200,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "baseManaRegenPercent":  0.5
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,17 @@
+﻿{
+    "id":  "145ee186-26c7-7885-1382-14226cf0cf1c",
+    "riotId":  1082,
+    "name":  "Dark Seal",
+    "icon":  "1082.png",
+    "cost":  350,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "health":  50,
+                  "abilityPower":  15
+              },
+    "effects":  [
+
+                ]
+}

@@ -1,0 +1,20 @@
+﻿{
+    "id":  "6ba21b69-6db9-e80a-9a10-fa5e04cb72d6",
+    "riotId":  6620,
+    "name":  "Echoes of Helia",
+    "icon":  "6620.png",
+    "cost":  2200,
+    "buildPath":  [
+                      "dec45a0a-3f4e-628c-abff-7537636197ac",
+                      "5c8ebb64-35e7-84f1-d286-6cb9ea2dacaf"
+                  ],
+    "stats":  {
+                  "abilityHaste":  20,
+                  "health":  200,
+                  "abilityPower":  35,
+                  "baseManaRegenPercent":  1.25
+              },
+    "effects":  [
+
+                ]
+}

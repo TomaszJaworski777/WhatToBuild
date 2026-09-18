@@ -1,0 +1,16 @@
+﻿{
+    "id":  "29012b80-9265-ee3d-3b54-ed05645960db",
+    "riotId":  1042,
+    "name":  "Dagger",
+    "icon":  "1042.png",
+    "cost":  250,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "attackSpeedPercent":  0.1
+              },
+    "effects":  [
+
+                ]
+}

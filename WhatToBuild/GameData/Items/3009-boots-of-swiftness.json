@@ -1,0 +1,17 @@
+﻿{
+    "id":  "1f25ebdf-c1b9-9b99-ad7d-b7a04cd96297",
+    "riotId":  3009,
+    "name":  "Boots of Swiftness",
+    "icon":  "3009.png",
+    "cost":  1000,
+    "buildPath":  [
+                      "ae639a00-f269-2346-dd47-eedaa6723936"
+                  ],
+    "stats":  {
+                  "slowResistPercent":  0.25,
+                  "moveSpeedFlat":  55
+              },
+    "effects":  [
+
+                ]
+}

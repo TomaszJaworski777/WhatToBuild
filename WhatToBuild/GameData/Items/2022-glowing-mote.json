@@ -1,0 +1,16 @@
+﻿{
+    "id":  "55f3dec0-0419-0af1-11f9-b7d5756b8caa",
+    "riotId":  2022,
+    "name":  "Glowing Mote",
+    "icon":  "2022.png",
+    "cost":  250,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "abilityHaste":  5
+              },
+    "effects":  [
+
+                ]
+}

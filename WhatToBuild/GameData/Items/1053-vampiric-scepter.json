@@ -1,0 +1,17 @@
+﻿{
+    "id":  "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
+    "riotId":  1053,
+    "name":  "Vampiric Scepter",
+    "icon":  "1053.png",
+    "cost":  900,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "attackDamage":  15,
+                  "lifeStealPercent":  0.07
+              },
+    "effects":  [
+
+                ]
+}

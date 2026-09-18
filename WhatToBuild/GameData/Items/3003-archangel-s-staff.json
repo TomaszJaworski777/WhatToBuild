@@ -1,0 +1,25 @@
+﻿{
+    "id":  "2b67180c-8df8-711f-d66a-b1b9163576ee",
+    "riotId":  3003,
+    "name":  "Archangel\u0027s Staff",
+    "icon":  "3003.png",
+    "cost":  2900,
+    "buildPath":  [
+                      "76662942-aad7-36b3-2497-aec87d98b31f",
+                      "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
+                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6"
+                  ],
+    "stats":  {
+                  "abilityHaste":  25,
+                  "abilityPower":  70,
+                  "mana":  600
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "abilityPower",
+                        "amount":  30
+                    }
+                ]
+}

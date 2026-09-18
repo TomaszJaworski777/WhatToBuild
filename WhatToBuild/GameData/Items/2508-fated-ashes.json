@@ -1,0 +1,20 @@
+﻿{
+    "id":  "c56bd70a-a5e9-852c-0eb5-f4f8efd1cd28",
+    "riotId":  2508,
+    "name":  "Fated Ashes",
+    "icon":  "2508.png",
+    "cost":  900,
+    "buildPath":  [
+                      "83c60239-84da-8113-48e7-715da5f0d75a"
+                  ],
+    "stats":  {
+                  "abilityPower":  30
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "MagicDamage",
+                        "amount":  15
+                    }
+                ]
+}

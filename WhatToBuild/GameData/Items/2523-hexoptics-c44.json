@@ -1,0 +1,24 @@
+﻿{
+    "id":  "5eae0263-66ae-9e62-d270-567f04930714",
+    "riotId":  2523,
+    "name":  "Hexoptics C44",
+    "icon":  "2523.png",
+    "cost":  2800,
+    "buildPath":  [
+                      "1d276371-f99d-7615-c4af-a5feab4d274d",
+                      "c569fe85-3b86-987f-584f-b07a6fd20985",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "critChance":  0.25,
+                  "attackDamage":  55
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "damageAmp",
+                        "amount":  0.1
+                    }
+                ]
+}

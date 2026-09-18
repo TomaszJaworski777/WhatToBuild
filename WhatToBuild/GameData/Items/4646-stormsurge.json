@@ -1,0 +1,25 @@
+﻿{
+    "id":  "6f55404c-1408-0cc1-f27c-888b5d90c51b",
+    "riotId":  4646,
+    "name":  "Stormsurge",
+    "icon":  "4646.png",
+    "cost":  2800,
+    "buildPath":  [
+                      "2310e122-8f59-c9c2-3ae8-f4a33b938440",
+                      "e5a58099-3b77-0410-1e2d-a7cfb43d45b5"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.06,
+                  "magicPenetrationFlat":  15,
+                  "abilityPower":  90
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "MagicDamage",
+                        "amount":  125,
+                        "perAp":  0.1,
+                        "cooldown":  30
+                    }
+                ]
+}

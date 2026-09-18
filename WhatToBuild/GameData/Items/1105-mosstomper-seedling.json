@@ -1,0 +1,21 @@
+﻿{
+    "id":  "71ea0076-eb76-6c06-6432-d7da7584740f",
+    "riotId":  1105,
+    "name":  "Mosstomper Seedling",
+    "icon":  "1105.png",
+    "cost":  450,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+
+              },
+    "effects":  [
+                    {
+                        "trigger":  "InCombat",
+                        "kind":  "Shield",
+                        "amount":  80,
+                        "cooldown":  10
+                    }
+                ]
+}

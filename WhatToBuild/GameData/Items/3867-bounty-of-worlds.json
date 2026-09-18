@@ -1,0 +1,18 @@
+﻿{
+    "id":  "04de6d3f-7fd0-7252-686b-c168d1123cf9",
+    "riotId":  3867,
+    "name":  "Bounty of Worlds",
+    "icon":  "3867.png",
+    "cost":  400,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "health":  200,
+                  "baseHealthRegenPercent":  0.75,
+                  "baseManaRegenPercent":  0.75
+              },
+    "effects":  [
+
+                ]
+}

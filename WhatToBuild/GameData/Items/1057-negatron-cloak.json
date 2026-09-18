@@ -1,0 +1,16 @@
+﻿{
+    "id":  "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c",
+    "riotId":  1057,
+    "name":  "Negatron Cloak",
+    "icon":  "1057.png",
+    "cost":  850,
+    "buildPath":  [
+                      "cc10ae20-f7e4-c3ce-337e-71a62a15f305"
+                  ],
+    "stats":  {
+                  "magicResist":  45
+              },
+    "effects":  [
+
+                ]
+}

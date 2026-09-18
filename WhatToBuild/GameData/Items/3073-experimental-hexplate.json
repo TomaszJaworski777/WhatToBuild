@@ -1,0 +1,25 @@
+﻿{
+    "id":  "c769434f-a83a-31ba-f2ea-80e82a315231",
+    "riotId":  3073,
+    "name":  "Experimental Hexplate",
+    "icon":  "3073.png",
+    "cost":  3000,
+    "buildPath":  [
+                      "066b2773-c9e4-e84b-4d19-ff867aae662a",
+                      "29012b80-9265-ee3d-3b54-ed05645960db",
+                      "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f"
+                  ],
+    "stats":  {
+                  "health":  450,
+                  "attackDamage":  40,
+                  "attackSpeedPercent":  0.2
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "attackSpeedPercent",
+                        "amount":  0.15
+                    }
+                ]
+}

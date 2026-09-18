@@ -1,0 +1,19 @@
+﻿{
+    "id":  "205acc24-75bb-97ce-5ae5-75f2d9a91d28",
+    "riotId":  3051,
+    "name":  "Hearthbound Axe",
+    "icon":  "3051.png",
+    "cost":  1200,
+    "buildPath":  [
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+                      "29012b80-9265-ee3d-3b54-ed05645960db",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "attackDamage":  20,
+                  "attackSpeedPercent":  0.2
+              },
+    "effects":  [
+
+                ]
+}

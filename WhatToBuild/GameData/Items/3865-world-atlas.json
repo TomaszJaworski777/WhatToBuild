@@ -1,0 +1,18 @@
+﻿{
+    "id":  "3fe08ba1-0d1f-3c4b-05ed-a0fdf302fa02",
+    "riotId":  3865,
+    "name":  "World Atlas",
+    "icon":  "3865.png",
+    "cost":  400,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "health":  30,
+                  "baseHealthRegenPercent":  0.25,
+                  "baseManaRegenPercent":  0.25
+              },
+    "effects":  [
+
+                ]
+}

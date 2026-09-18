@@ -1,0 +1,17 @@
+﻿{
+    "id":  "5e029b79-6a4c-26a8-6ca7-ba68cf90c314",
+    "riotId":  1056,
+    "name":  "Doran\u0027s Ring",
+    "icon":  "1056.png",
+    "cost":  400,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "health":  90,
+                  "abilityPower":  18
+              },
+    "effects":  [
+
+                ]
+}

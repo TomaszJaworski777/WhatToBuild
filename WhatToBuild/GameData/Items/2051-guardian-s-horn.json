@@ -1,0 +1,21 @@
+﻿{
+    "id":  "48e5563e-1d5f-881e-a891-03f84dbb2b74",
+    "riotId":  2051,
+    "name":  "Guardian\u0027s Horn",
+    "icon":  "2051.png",
+    "cost":  950,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "health":  150,
+                  "healthRegen":  4
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "DamageReduction",
+                        "amount":  15
+                    }
+                ]
+}

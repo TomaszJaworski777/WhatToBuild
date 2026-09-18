@@ -1,0 +1,22 @@
+﻿{
+    "id":  "8c3548e4-376a-4ba8-c076-0ebb2a699e99",
+    "riotId":  3089,
+    "name":  "Rabadon\u0027s Deathcap",
+    "icon":  "3089.png",
+    "cost":  3500,
+    "buildPath":  [
+                      "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec",
+                      "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec"
+                  ],
+    "stats":  {
+                  "abilityPower":  130
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "abilityPowerAmp",
+                        "amount":  0.3
+                    }
+                ]
+}

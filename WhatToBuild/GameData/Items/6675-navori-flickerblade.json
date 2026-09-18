@@ -1,0 +1,20 @@
+﻿{
+    "id":  "3a9c4d56-1d8d-da77-d12d-975a7722001f",
+    "riotId":  6675,
+    "name":  "Navori Flickerblade",
+    "icon":  "6675.png",
+    "cost":  2650,
+    "buildPath":  [
+                      "29012b80-9265-ee3d-3b54-ed05645960db",
+                      "0c82b054-3477-2b93-a13a-8ce1a5ab92c7",
+                      "29012b80-9265-ee3d-3b54-ed05645960db"
+                  ],
+    "stats":  {
+                  "moveSpeedPercent":  0.04,
+                  "critChance":  0.25,
+                  "attackSpeedPercent":  0.4
+              },
+    "effects":  [
+
+                ]
+}

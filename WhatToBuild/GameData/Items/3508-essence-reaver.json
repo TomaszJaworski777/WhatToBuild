@@ -1,0 +1,25 @@
+﻿{
+    "id":  "a054c83a-b330-2f5e-56a3-69c2681c6991",
+    "riotId":  3508,
+    "name":  "Essence Reaver",
+    "icon":  "3508.png",
+    "cost":  3050,
+    "buildPath":  [
+                      "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
+                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
+                      "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb"
+                  ],
+    "stats":  {
+                  "abilityHaste":  20,
+                  "critChance":  0.25,
+                  "attackDamage":  50
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "PhysicalDamage",
+                        "perBaseAd":  1.25,
+                        "cooldown":  1.5
+                    }
+                ]
+}

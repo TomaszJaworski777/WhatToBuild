@@ -1,0 +1,26 @@
+﻿{
+    "id":  "000a3cb8-d59a-159f-0edf-60f5ab2dab99",
+    "riotId":  3100,
+    "name":  "Lich Bane",
+    "icon":  "3100.png",
+    "cost":  2900,
+    "buildPath":  [
+                      "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
+                      "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",
+                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928"
+                  ],
+    "stats":  {
+                  "abilityHaste":  10,
+                  "moveSpeedPercent":  0.06,
+                  "abilityPower":  100
+              },
+    "effects":  [
+                    {
+                        "trigger":  "OnAbility",
+                        "kind":  "MagicDamage",
+                        "perBaseAd":  0.75,
+                        "perAp":  0.45,
+                        "cooldown":  1.5
+                    }
+                ]
+}

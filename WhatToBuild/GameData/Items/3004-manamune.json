@@ -1,0 +1,25 @@
+﻿{
+    "id":  "a4754940-e136-5feb-9157-cf901d806658",
+    "riotId":  3004,
+    "name":  "Manamune",
+    "icon":  "3004.png",
+    "cost":  2900,
+    "buildPath":  [
+                      "76662942-aad7-36b3-2497-aec87d98b31f",
+                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
+                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "attackDamage":  35,
+                  "mana":  500
+              },
+    "effects":  [
+                    {
+                        "trigger":  "Always",
+                        "kind":  "StatBuff",
+                        "stat":  "attackDamage",
+                        "amount":  25
+                    }
+                ]
+}

@@ -1,0 +1,16 @@
+﻿{
+    "id":  "c72f5413-5483-8f07-5e77-865de4e332a9",
+    "riotId":  1027,
+    "name":  "Sapphire Crystal",
+    "icon":  "1027.png",
+    "cost":  300,
+    "buildPath":  [
+
+                  ],
+    "stats":  {
+                  "mana":  300
+              },
+    "effects":  [
+
+                ]
+}

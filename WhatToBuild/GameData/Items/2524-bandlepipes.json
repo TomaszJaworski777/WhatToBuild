@@ -1,0 +1,21 @@
+﻿{
+    "id":  "dfce9054-8bbf-e63e-82fc-7a0eb3ac35de",
+    "riotId":  2524,
+    "name":  "Bandlepipes",
+    "icon":  "2524.png",
+    "cost":  2300,
+    "buildPath":  [
+                      "dec45a0a-3f4e-628c-abff-7537636197ac",
+                      "0f410f4b-612a-a8f2-7088-728115202ea7",
+                      "cc10ae20-f7e4-c3ce-337e-71a62a15f305"
+                  ],
+    "stats":  {
+                  "abilityHaste":  15,
+                  "health":  200,
+                  "armor":  20,
+                  "magicResist":  20
+              },
+    "effects":  [
+
+                ]
+}
