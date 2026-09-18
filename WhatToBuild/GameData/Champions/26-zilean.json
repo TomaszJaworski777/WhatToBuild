@@ -1,0 +1,39 @@
+﻿{
+    "id":  "dd60f202-c613-df36-1e51-36ce0a669346",
+    "riotId":  26,
+    "internalName":  "Zilean",
+    "name":  "Zilean",
+    "icon":  "Zilean.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  574,
+                 "mana":  452,
+                 "attackDamage":  52,
+                 "armor":  24,
+                 "magicResist":  30,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  5.5,
+                 "manaRegen":  11.35,
+                 "moveSpeed":  335,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  96,
+                     "mana":  50,
+                     "attackDamage":  3,
+                     "armor":  5,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.0213,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.6,
+                 "crowdControl":  0.8,
+                 "ranged":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

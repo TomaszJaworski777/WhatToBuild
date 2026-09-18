@@ -1,0 +1,37 @@
+﻿{
+    "id":  "ee6d5feb-dd18-87a8-3d8c-379dc5fdd80f",
+    "riotId":  51,
+    "internalName":  "Caitlyn",
+    "name":  "Caitlyn",
+    "icon":  "Caitlyn.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  580,
+                 "mana":  315,
+                 "attackDamage":  62,
+                 "armor":  27,
+                 "magicResist":  33,
+                 "attackSpeed":  0.681,
+                 "healthRegen":  3.5,
+                 "manaRegen":  7.4,
+                 "moveSpeed":  325,
+                 "attackRange":  650
+             },
+    "perLevel":  {
+                     "health":  107,
+                     "mana":  40,
+                     "attackDamage":  3.8,
+                     "armor":  4.7,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.04,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

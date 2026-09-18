@@ -1,0 +1,40 @@
+﻿{
+    "id":  "c3accbdc-8752-8053-ffb0-f8c3ae285263",
+    "riotId":  80,
+    "internalName":  "Pantheon",
+    "name":  "Pantheon",
+    "icon":  "Pantheon.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  650,
+                 "mana":  317,
+                 "attackDamage":  64,
+                 "armor":  40,
+                 "magicResist":  28,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  6,
+                 "manaRegen":  7.35,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  31,
+                     "attackDamage":  3.3,
+                     "armor":  4.95,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0295,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "burst":  0.8,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

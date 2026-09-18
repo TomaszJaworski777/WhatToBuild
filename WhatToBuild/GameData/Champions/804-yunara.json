@@ -1,0 +1,36 @@
+﻿{
+    "id":  "bad798fe-cfb0-5f6d-7488-7a12ba24e4e4",
+    "riotId":  804,
+    "internalName":  "Yunara",
+    "name":  "Yunara",
+    "icon":  "Yunara.png",
+    "attackSpeedRatio":  0.65,
+    "base":  {
+                 "health":  590,
+                 "mana":  275,
+                 "attackDamage":  55,
+                 "armor":  25,
+                 "magicResist":  33,
+                 "attackSpeed":  0.65,
+                 "healthRegen":  4,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  325,
+                 "attackRange":  575
+             },
+    "perLevel":  {
+                     "health":  110,
+                     "mana":  45,
+                     "attackDamage":  3,
+                     "armor":  4.4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.75
+                 },
+    "tags":  {
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

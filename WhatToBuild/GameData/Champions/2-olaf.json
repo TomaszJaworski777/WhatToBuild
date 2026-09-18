@@ -1,0 +1,40 @@
+﻿{
+    "id":  "7786aaac-77f6-bfe7-329d-747172a63083",
+    "riotId":  2,
+    "internalName":  "Olaf",
+    "name":  "Olaf",
+    "icon":  "Olaf.png",
+    "attackSpeedRatio":  0.694,
+    "base":  {
+                 "health":  645,
+                 "mana":  316,
+                 "attackDamage":  68,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.72,
+                 "healthRegen":  6.5,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  350,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  119,
+                     "mana":  50,
+                     "attackDamage":  4.7,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.027,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "trueDamage":  0.4,
+                 "melee":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

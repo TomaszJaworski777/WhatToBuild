@@ -1,0 +1,38 @@
+﻿{
+    "id":  "508bc03a-7f19-8cdc-d186-a66de3a59b28",
+    "riotId":  83,
+    "internalName":  "Yorick",
+    "name":  "Yorick",
+    "icon":  "Yorick.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  650,
+                 "mana":  300,
+                 "attackDamage":  62,
+                 "armor":  36,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  114,
+                     "mana":  60,
+                     "attackDamage":  5,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.8,
+                     "manaRegen":  0.75
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

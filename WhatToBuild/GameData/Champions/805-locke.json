@@ -1,0 +1,36 @@
+﻿{
+    "id":  "326c514b-82ca-9c56-1b78-30a0982decb3",
+    "riotId":  805,
+    "internalName":  "Locke",
+    "name":  "Locke",
+    "icon":  "Locke.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  620,
+                 "mana":  280,
+                 "attackDamage":  58,
+                 "armor":  32,
+                 "magicResist":  32,
+                 "attackSpeed":  0.688,
+                 "healthRegen":  9,
+                 "manaRegen":  7,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  70,
+                     "attackDamage":  3,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.033,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,39 @@
+﻿{
+    "id":  "03d36534-e1ef-7db3-789d-f5bb2ced55c6",
+    "riotId":  35,
+    "internalName":  "Shaco",
+    "name":  "Shaco",
+    "icon":  "Shaco.png",
+    "attackSpeedRatio":  0.694,
+    "base":  {
+                 "health":  630,
+                 "mana":  297,
+                 "attackDamage":  63,
+                 "armor":  30,
+                 "magicResist":  32,
+                 "attackSpeed":  0.694,
+                 "healthRegen":  8.5,
+                 "manaRegen":  6,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  40,
+                     "attackDamage":  3,
+                     "armor":  4,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.35
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "apDamageDealer":  0.3,
+                 "burst":  0.85,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

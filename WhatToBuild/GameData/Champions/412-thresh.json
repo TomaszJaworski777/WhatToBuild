@@ -1,0 +1,46 @@
+﻿{
+    "id":  "083c0156-fbf6-e0ce-b590-c1cd73a9cb92",
+    "riotId":  412,
+    "internalName":  "Thresh",
+    "name":  "Thresh",
+    "icon":  "Thresh.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  620,
+                 "mana":  274,
+                 "attackDamage":  56,
+                 "armor":  33,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  7,
+                 "manaRegen":  6,
+                 "moveSpeed":  330,
+                 "attackRange":  450
+             },
+    "perLevel":  {
+                     "health":  120,
+                     "mana":  44,
+                     "attackDamage":  2.2,
+                     "armor":  0,
+                     "magicResist":  1.55,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "tank":  0.7,
+                 "crowdControl":  0.95,
+                 "ranged":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+                     {
+                         "stat":  "armor",
+                         "initialStacksPerMinute":  5
+                     },
+                     {
+                         "stat":  "abilityPower",
+                         "initialStacksPerMinute":  5
+                     }
+                 ]
+}

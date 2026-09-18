@@ -1,0 +1,40 @@
+﻿{
+    "id":  "59621cec-ccb1-4c0e-fe7b-fd41c51da79c",
+    "riotId":  555,
+    "internalName":  "Pyke",
+    "name":  "Pyke",
+    "icon":  "Pyke.png",
+    "attackSpeedRatio":  0.667,
+    "base":  {
+                 "health":  670,
+                 "mana":  415,
+                 "attackDamage":  62,
+                 "armor":  37,
+                 "magicResist":  32,
+                 "attackSpeed":  0.667,
+                 "healthRegen":  7,
+                 "manaRegen":  8,
+                 "moveSpeed":  330,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  110,
+                     "mana":  50,
+                     "attackDamage":  2,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.5,
+                     "manaRegen":  1
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "burst":  0.9,
+                 "crowdControl":  0.7,
+                 "trueDamage":  0.3,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

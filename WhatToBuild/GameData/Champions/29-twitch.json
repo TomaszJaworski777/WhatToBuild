@@ -1,0 +1,38 @@
+﻿{
+    "id":  "fa105cdc-f085-0b79-092c-45b7e8c89058",
+    "riotId":  29,
+    "internalName":  "Twitch",
+    "name":  "Twitch",
+    "icon":  "Twitch.png",
+    "attackSpeedRatio":  0.679,
+    "base":  {
+                 "health":  630,
+                 "mana":  300,
+                 "attackDamage":  59,
+                 "armor":  27,
+                 "magicResist":  33,
+                 "attackSpeed":  0.679,
+                 "healthRegen":  3.75,
+                 "manaRegen":  7.25,
+                 "moveSpeed":  330,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  98,
+                     "mana":  40,
+                     "attackDamage":  3,
+                     "armor":  4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.6,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

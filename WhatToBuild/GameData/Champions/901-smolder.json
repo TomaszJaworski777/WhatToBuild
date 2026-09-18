@@ -1,0 +1,41 @@
+﻿{
+    "id":  "03b92840-c680-e4c0-1f36-c65b0b2caa16",
+    "riotId":  901,
+    "internalName":  "Smolder",
+    "name":  "Smolder",
+    "icon":  "Smolder.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  575,
+                 "mana":  300,
+                 "attackDamage":  58,
+                 "armor":  24,
+                 "magicResist":  33,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  3.75,
+                 "manaRegen":  8.5,
+                 "moveSpeed":  330,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  100,
+                     "mana":  40,
+                     "attackDamage":  2.3,
+                     "armor":  4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.04,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "ranged":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+                     {
+                         "stat":  "abilityDamage",
+                         "initialStacksPerMinute":  10
+                     }
+                 ]
+}

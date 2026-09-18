@@ -1,0 +1,37 @@
+﻿{
+    "id":  "ba7fd6be-fb70-a864-4061-d6343a703104",
+    "riotId":  119,
+    "internalName":  "Draven",
+    "name":  "Draven",
+    "icon":  "Draven.png",
+    "attackSpeedRatio":  0.679,
+    "base":  {
+                 "health":  675,
+                 "mana":  361,
+                 "attackDamage":  62,
+                 "armor":  29,
+                 "magicResist":  33,
+                 "attackSpeed":  0.679,
+                 "healthRegen":  3.75,
+                 "manaRegen":  8.05,
+                 "moveSpeed":  330,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  39,
+                     "attackDamage":  3.4,
+                     "armor":  4.5,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.027,
+                     "healthRegen":  0.7,
+                     "manaRegen":  0.65
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.95,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

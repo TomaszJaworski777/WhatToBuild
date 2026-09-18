@@ -1,0 +1,38 @@
+﻿{
+    "id":  "69f9fcd0-5db2-739f-911d-10c09e69b5a6",
+    "riotId":  895,
+    "internalName":  "Nilah",
+    "name":  "Nilah",
+    "icon":  "Nilah.png",
+    "attackSpeedRatio":  0.67,
+    "base":  {
+                 "health":  570,
+                 "mana":  350,
+                 "attackDamage":  58,
+                 "armor":  27,
+                 "magicResist":  32,
+                 "attackSpeed":  0.697,
+                 "healthRegen":  6,
+                 "manaRegen":  8.2,
+                 "moveSpeed":  340,
+                 "attackRange":  225
+             },
+    "perLevel":  {
+                     "health":  101,
+                     "mana":  35,
+                     "attackDamage":  2,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0125,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

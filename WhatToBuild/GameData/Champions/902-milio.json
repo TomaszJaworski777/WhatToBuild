@@ -1,0 +1,40 @@
+﻿{
+    "id":  "130d0964-801c-5211-39fb-5bfa27276fc3",
+    "riotId":  902,
+    "internalName":  "Milio",
+    "name":  "Milio",
+    "icon":  "Milio.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  560,
+                 "mana":  365,
+                 "attackDamage":  48,
+                 "armor":  26,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  5,
+                 "manaRegen":  11.5,
+                 "moveSpeed":  330,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  88,
+                     "mana":  43,
+                     "attackDamage":  3.2,
+                     "armor":  4.6,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.4
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.3,
+                 "crowdControl":  0.5,
+                 "ranged":  1,
+                 "healing":  0.65,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,39 @@
+﻿{
+    "id":  "752d42d9-4689-0495-2362-49d12bb32a04",
+    "riotId":  164,
+    "internalName":  "Camille",
+    "name":  "Camille",
+    "icon":  "Camille.png",
+    "attackSpeedRatio":  0.644,
+    "base":  {
+                 "health":  650,
+                 "mana":  375,
+                 "attackDamage":  68,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.644,
+                 "healthRegen":  8.5,
+                 "manaRegen":  8.15,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  52,
+                     "attackDamage":  3.8,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.8,
+                     "manaRegen":  0.75
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "trueDamage":  0.5,
+                 "melee":  1,
+                 "shielding":  0.3
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,39 @@
+﻿{
+    "id":  "d00bf4df-0d47-7f3f-6a64-28cb7a7ea577",
+    "riotId":  85,
+    "internalName":  "Kennen",
+    "name":  "Kennen",
+    "icon":  "Kennen.png",
+    "attackSpeedRatio":  0.69,
+    "base":  {
+                 "health":  580,
+                 "mana":  200,
+                 "attackDamage":  48,
+                 "armor":  29,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  5.5,
+                 "manaRegen":  50,
+                 "moveSpeed":  335,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  98,
+                     "mana":  0,
+                     "attackDamage":  3.75,
+                     "armor":  4.95,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.034,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "burst":  0.7,
+                 "crowdControl":  0.8,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

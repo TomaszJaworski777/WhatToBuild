@@ -1,0 +1,50 @@
+﻿{
+    "id":  "bc697b79-984c-05fc-deb8-e4767796887c",
+    "riotId":  86,
+    "internalName":  "Garen",
+    "name":  "Garen",
+    "icon":  "Garen.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  690,
+                 "mana":  0,
+                 "attackDamage":  69,
+                 "armor":  38,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8,
+                 "manaRegen":  0,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  98,
+                     "mana":  0,
+                     "attackDamage":  4.5,
+                     "armor":  4.2,
+                     "magicResist":  1.55,
+                     "attackSpeed":  0.0365,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "tank":  0.6,
+                 "trueDamage":  0.5,
+                 "melee":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+                     {
+                         "max":  30,
+                         "stat":  "armor",
+                         "initialStacksPerMinute":  10
+                     },
+                     {
+                         "max":  30,
+                         "stat":  "magicResist",
+                         "initialStacksPerMinute":  10
+                     }
+                 ]
+}

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "052f155a-7ed8-8ab6-1da6-2aacb149afac",
+    "riotId":  107,
+    "internalName":  "Rengar",
+    "name":  "Rengar",
+    "icon":  "Rengar.png",
+    "attackSpeedRatio":  0.667,
+    "base":  {
+                 "health":  590,
+                 "mana":  4,
+                 "attackDamage":  68,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.667,
+                 "healthRegen":  6,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  0,
+                     "attackDamage":  3,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.9,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

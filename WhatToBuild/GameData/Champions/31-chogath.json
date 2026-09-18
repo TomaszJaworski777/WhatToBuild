@@ -1,0 +1,44 @@
+﻿{
+    "id":  "3fae8dac-064c-4582-181d-9026c6e0662c",
+    "riotId":  31,
+    "internalName":  "Chogath",
+    "name":  "Cho\u0027Gath",
+    "icon":  "Chogath.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  644,
+                 "mana":  270,
+                 "attackDamage":  69,
+                 "armor":  38,
+                 "magicResist":  32,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  9,
+                 "manaRegen":  7.2,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  94,
+                     "mana":  60,
+                     "attackDamage":  4.2,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0144,
+                     "healthRegen":  0.85,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "tank":  0.8,
+                 "apDamageDealer":  0.5,
+                 "crowdControl":  0.7,
+                 "trueDamage":  0.4,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+                     {
+                         "stat":  "health",
+                         "initialStacksPerMinute":  0.4
+                     }
+                 ]
+}

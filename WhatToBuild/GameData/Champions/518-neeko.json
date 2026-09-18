@@ -1,0 +1,39 @@
+﻿{
+    "id":  "66d73ecc-db40-df81-ecbc-c03804fe6eba",
+    "riotId":  518,
+    "internalName":  "Neeko",
+    "name":  "Neeko",
+    "icon":  "Neeko.png",
+    "attackSpeedRatio":  0.67,
+    "base":  {
+                 "health":  610,
+                 "mana":  450,
+                 "attackDamage":  48,
+                 "armor":  21,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  7.5,
+                 "manaRegen":  7,
+                 "moveSpeed":  340,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  30,
+                     "attackDamage":  2.5,
+                     "armor":  5.2,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "burst":  0.7,
+                 "crowdControl":  0.7,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

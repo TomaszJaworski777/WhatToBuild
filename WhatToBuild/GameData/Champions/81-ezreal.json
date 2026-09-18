@@ -1,0 +1,37 @@
+﻿{
+    "id":  "b14787de-0174-f5dd-413b-d4af94afa5a0",
+    "riotId":  81,
+    "internalName":  "Ezreal",
+    "name":  "Ezreal",
+    "icon":  "Ezreal.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  600,
+                 "mana":  375,
+                 "attackDamage":  60,
+                 "armor":  24,
+                 "magicResist":  33,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  4,
+                 "manaRegen":  8.5,
+                 "moveSpeed":  325,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  102,
+                     "mana":  70,
+                     "attackDamage":  3.75,
+                     "armor":  4.2,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.65,
+                     "manaRegen":  1
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

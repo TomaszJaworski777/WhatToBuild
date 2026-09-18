@@ -1,0 +1,38 @@
+﻿{
+    "id":  "c1d8f115-ee14-4508-ba64-a9c14e245571",
+    "riotId":  105,
+    "internalName":  "Fizz",
+    "name":  "Fizz",
+    "icon":  "Fizz.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  640,
+                 "mana":  317,
+                 "attackDamage":  58,
+                 "armor":  26,
+                 "magicResist":  32,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  8,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  106,
+                     "mana":  52,
+                     "attackDamage":  3,
+                     "armor":  4.6,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.031,
+                     "healthRegen":  0.7,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "burst":  0.9,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

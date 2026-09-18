@@ -1,0 +1,39 @@
+﻿{
+    "id":  "ed013abf-bd98-aad5-9267-cad9da3af346",
+    "riotId":  11,
+    "internalName":  "MasterYi",
+    "name":  "Master Yi",
+    "icon":  "MasterYi.png",
+    "attackSpeedRatio":  0.679,
+    "base":  {
+                 "health":  640,
+                 "mana":  251,
+                 "attackDamage":  65,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.679,
+                 "healthRegen":  7.5,
+                 "manaRegen":  7.25,
+                 "moveSpeed":  355,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  42,
+                     "attackDamage":  2.5,
+                     "armor":  5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "trueDamage":  0.5,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

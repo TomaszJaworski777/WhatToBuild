@@ -1,0 +1,41 @@
+﻿{
+    "id":  "e7301c9b-08cd-6f51-3b78-b4a59d878dc3",
+    "riotId":  897,
+    "internalName":  "KSante",
+    "name":  "K\u0027Sante",
+    "icon":  "KSante.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  625,
+                 "mana":  320,
+                 "attackDamage":  64,
+                 "armor":  36,
+                 "magicResist":  30,
+                 "attackSpeed":  0.688,
+                 "healthRegen":  9.5,
+                 "manaRegen":  7,
+                 "moveSpeed":  330,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  120,
+                     "mana":  60,
+                     "attackDamage":  3.5,
+                     "armor":  5.2,
+                     "magicResist":  2.1,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  1,
+                     "manaRegen":  1
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "adDamageDealer":  0.6,
+                 "crowdControl":  0.7,
+                 "trueDamage":  0.3,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

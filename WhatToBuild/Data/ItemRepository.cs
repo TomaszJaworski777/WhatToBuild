@@ -1,23 +1,11 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json;
 
 namespace WhatToBuild.Data;
 
-/// <summary>
-/// Reads the hand-written game data. Nothing here writes: moving to a new patch is a
-/// commit, not a runtime operation.
-/// </summary>
 public class ItemRepository
 {
     public const string FolderName = "Items";
     public const string PatchFileName = "_patch.json";
-
-    private static readonly JsonSerializerOptions Json = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = true,
-        Converters = { new JsonStringEnumConverter() },
-    };
 
     private readonly Dictionary<Guid, Item> _byId;
     private readonly Dictionary<int, Item> _byRiotId;
@@ -31,7 +19,6 @@ public class ItemRepository
         _byRiotId = list.ToDictionary(i => i.RiotId);
     }
 
-    /// <summary>The patch these numbers were taken from, e.g. "16.18.1".</summary>
     public string Patch { get; }
 
     public IReadOnlyCollection<Item> All => _byId.Values;
@@ -65,12 +52,11 @@ public class ItemRepository
     {
         try
         {
-            return JsonSerializer.Deserialize<Item>(File.ReadAllText(path), Json)
+            return JsonSerializer.Deserialize<Item>(File.ReadAllText(path), GameDataJson.Options)
                    ?? throw new InvalidDataException("empty file");
         }
         catch (Exception ex)
         {
-            // Name the file: a typo in one item should not be a mystery stack trace.
             throw new InvalidDataException($"{Path.GetFileName(path)} is not a valid item: {ex.Message}", ex);
         }
     }

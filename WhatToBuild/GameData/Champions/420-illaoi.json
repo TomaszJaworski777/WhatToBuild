@@ -1,0 +1,38 @@
+﻿{
+    "id":  "5bb55d84-a5e9-52b5-2485-c40f21675f66",
+    "riotId":  420,
+    "internalName":  "Illaoi",
+    "name":  "Illaoi",
+    "icon":  "Illaoi.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  656,
+                 "mana":  350,
+                 "attackDamage":  65,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  9.5,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  350,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  115,
+                     "mana":  50,
+                     "attackDamage":  5,
+                     "armor":  5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.8,
+                     "manaRegen":  0.75
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

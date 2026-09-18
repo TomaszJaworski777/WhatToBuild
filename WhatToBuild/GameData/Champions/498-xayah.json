@@ -1,0 +1,38 @@
+﻿{
+    "id":  "03101269-78bb-0fd8-33f7-ea2bfd61ae9d",
+    "riotId":  498,
+    "internalName":  "Xayah",
+    "name":  "Xayah",
+    "icon":  "Xayah.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  630,
+                 "mana":  340,
+                 "attackDamage":  60,
+                 "armor":  25,
+                 "magicResist":  33,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  3.25,
+                 "manaRegen":  8.25,
+                 "moveSpeed":  330,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  107,
+                     "mana":  40,
+                     "attackDamage":  3.5,
+                     "armor":  4.2,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.039,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "crowdControl":  0.6,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

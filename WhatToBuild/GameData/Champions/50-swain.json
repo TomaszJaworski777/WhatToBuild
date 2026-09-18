@@ -1,0 +1,42 @@
+﻿{
+    "id":  "13d4836e-55c1-358f-76d1-8e31fd0d4146",
+    "riotId":  50,
+    "internalName":  "Swain",
+    "name":  "Swain",
+    "icon":  "Swain.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  595,
+                 "mana":  400,
+                 "attackDamage":  58,
+                 "armor":  25,
+                 "magicResist":  31,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  3,
+                 "manaRegen":  10,
+                 "moveSpeed":  330,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  29,
+                     "attackDamage":  2.7,
+                     "armor":  4.7,
+                     "magicResist":  1.55,
+                     "attackSpeed":  0.0211,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "crowdControl":  0.7,
+                 "ranged":  1,
+                 "healing":  0.8
+             },
+    "stacking":  [
+                     {
+                         "stat":  "health",
+                         "initialStacksPerMinute":  4
+                     }
+                 ]
+}

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "ea89f3aa-799f-07b2-f7aa-9057dffa62e2",
+    "riotId":  42,
+    "internalName":  "Corki",
+    "name":  "Corki",
+    "icon":  "Corki.png",
+    "attackSpeedRatio":  0.644,
+    "base":  {
+                 "health":  610,
+                 "mana":  350,
+                 "attackDamage":  52,
+                 "armor":  27,
+                 "magicResist":  33,
+                 "attackSpeed":  0.644,
+                 "healthRegen":  5.5,
+                 "manaRegen":  7.4,
+                 "moveSpeed":  325,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  100,
+                     "mana":  40,
+                     "attackDamage":  2.5,
+                     "armor":  4.5,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.028,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.6,
+                 "apDamageDealer":  0.5,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

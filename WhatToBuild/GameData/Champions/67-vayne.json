@@ -1,0 +1,38 @@
+﻿{
+    "id":  "179cb4c3-9abb-d41e-741f-047cccd493f5",
+    "riotId":  67,
+    "internalName":  "Vayne",
+    "name":  "Vayne",
+    "icon":  "Vayne.png",
+    "attackSpeedRatio":  0.67,
+    "base":  {
+                 "health":  580,
+                 "mana":  232,
+                 "attackDamage":  60,
+                 "armor":  23,
+                 "magicResist":  33,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  4,
+                 "manaRegen":  7,
+                 "moveSpeed":  330,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  98,
+                     "mana":  35,
+                     "attackDamage":  2.35,
+                     "armor":  4.6,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.028,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.4
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "trueDamage":  0.8,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

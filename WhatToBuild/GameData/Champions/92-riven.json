@@ -1,0 +1,39 @@
+﻿{
+    "id":  "05466063-bb75-60fb-aaa9-fa102e507cf9",
+    "riotId":  92,
+    "internalName":  "Riven",
+    "name":  "Riven",
+    "icon":  "Riven.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  630,
+                 "mana":  0,
+                 "attackDamage":  64,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8.5,
+                 "manaRegen":  0,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  100,
+                     "mana":  0,
+                     "attackDamage":  3,
+                     "armor":  4.4,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

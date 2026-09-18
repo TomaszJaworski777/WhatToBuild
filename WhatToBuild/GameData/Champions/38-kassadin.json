@@ -1,0 +1,39 @@
+﻿{
+    "id":  "040cceb9-7668-7b79-19bc-71a1a6bd6deb",
+    "riotId":  38,
+    "internalName":  "Kassadin",
+    "name":  "Kassadin",
+    "icon":  "Kassadin.png",
+    "attackSpeedRatio":  0.64,
+    "base":  {
+                 "health":  646,
+                 "mana":  400,
+                 "attackDamage":  59,
+                 "armor":  21,
+                 "magicResist":  30,
+                 "attackSpeed":  0.64,
+                 "healthRegen":  6,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  113,
+                     "mana":  87,
+                     "attackDamage":  3.9,
+                     "armor":  4,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.037,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,39 @@
+﻿{
+    "id":  "ca71c965-7abd-37a5-c4a6-34d9902ada37",
+    "riotId":  68,
+    "internalName":  "Rumble",
+    "name":  "Rumble",
+    "icon":  "Rumble.png",
+    "attackSpeedRatio":  0.644,
+    "base":  {
+                 "health":  640,
+                 "mana":  150,
+                 "attackDamage":  64,
+                 "armor":  36,
+                 "magicResist":  28,
+                 "attackSpeed":  0.644,
+                 "healthRegen":  7,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  0,
+                     "attackDamage":  3.2,
+                     "armor":  4.7,
+                     "magicResist":  1.55,
+                     "attackSpeed":  0.0185,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

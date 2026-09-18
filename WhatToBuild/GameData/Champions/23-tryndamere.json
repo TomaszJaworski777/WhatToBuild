@@ -1,0 +1,38 @@
+﻿{
+    "id":  "c4bcdab7-cc74-185e-45e4-fdb91f5a84fa",
+    "riotId":  23,
+    "internalName":  "Tryndamere",
+    "name":  "Tryndamere",
+    "icon":  "Tryndamere.png",
+    "attackSpeedRatio":  0.725,
+    "base":  {
+                 "health":  696,
+                 "mana":  100,
+                 "attackDamage":  66,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.67,
+                 "healthRegen":  8.5,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  108,
+                     "mana":  0,
+                     "attackDamage":  4.5,
+                     "armor":  4.8,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.034,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

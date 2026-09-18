@@ -1,0 +1,39 @@
+﻿{
+    "id":  "540c8268-46ac-4af1-5719-6bc6d877add8",
+    "riotId":  102,
+    "internalName":  "Shyvana",
+    "name":  "Shyvana",
+    "icon":  "Shyvana.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  625,
+                 "mana":  100,
+                 "attackDamage":  62,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  7,
+                 "manaRegen":  0,
+                 "moveSpeed":  350,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  95,
+                     "mana":  0,
+                     "attackDamage":  4,
+                     "armor":  4,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.7,
+                 "apDamageDealer":  0.4,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

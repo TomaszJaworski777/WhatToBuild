@@ -1,0 +1,40 @@
+﻿{
+    "id":  "2d1e5f8a-7271-3464-d12a-c16a22ac8cda",
+    "riotId":  98,
+    "internalName":  "Shen",
+    "name":  "Shen",
+    "icon":  "Shen.png",
+    "attackSpeedRatio":  0.651,
+    "base":  {
+                 "health":  610,
+                 "mana":  400,
+                 "attackDamage":  64,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.751,
+                 "healthRegen":  8.5,
+                 "manaRegen":  50,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  0,
+                     "attackDamage":  3,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "crowdControl":  0.6,
+                 "trueDamage":  0.1,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

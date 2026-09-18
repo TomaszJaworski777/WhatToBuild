@@ -1,0 +1,39 @@
+﻿{
+    "id":  "e67e1616-e473-f9c8-f09c-43193d5c4653",
+    "riotId":  27,
+    "internalName":  "Singed",
+    "name":  "Singed",
+    "icon":  "Singed.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  650,
+                 "mana":  330,
+                 "attackDamage":  63,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.7,
+                 "healthRegen":  9.5,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  96,
+                     "mana":  45,
+                     "attackDamage":  3.4,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.019,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.55
+                 },
+    "tags":  {
+                 "tank":  0.8,
+                 "apDamageDealer":  0.6,
+                 "crowdControl":  0.5,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

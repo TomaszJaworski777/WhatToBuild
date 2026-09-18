@@ -1,0 +1,40 @@
+﻿{
+    "id":  "f5088472-78bf-3905-c846-067be3b49e55",
+    "riotId":  44,
+    "internalName":  "Taric",
+    "name":  "Taric",
+    "icon":  "Taric.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  645,
+                 "mana":  300,
+                 "attackDamage":  55,
+                 "armor":  40,
+                 "magicResist":  28,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  6,
+                 "manaRegen":  8.5,
+                 "moveSpeed":  340,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  60,
+                     "attackDamage":  3.5,
+                     "armor":  4.3,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "tank":  0.7,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,39 @@
+﻿{
+    "id":  "ef81941e-3737-122b-dea1-6e28e7d9134d",
+    "riotId":  120,
+    "internalName":  "Hecarim",
+    "name":  "Hecarim",
+    "icon":  "Hecarim.png",
+    "attackSpeedRatio":  0.67,
+    "base":  {
+                 "health":  625,
+                 "mana":  280,
+                 "attackDamage":  66,
+                 "armor":  32,
+                 "magicResist":  32,
+                 "attackSpeed":  0.67,
+                 "healthRegen":  7,
+                 "manaRegen":  7,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  106,
+                     "mana":  40,
+                     "attackDamage":  3.7,
+                     "armor":  5.45,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "crowdControl":  0.45,
+                 "melee":  1,
+                 "healing":  0.45
+             },
+    "stacking":  [
+
+                 ]
+}

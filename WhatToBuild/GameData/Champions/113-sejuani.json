@@ -1,0 +1,39 @@
+﻿{
+    "id":  "b21c1508-d638-0566-4d95-27d3abe95c7e",
+    "riotId":  113,
+    "internalName":  "Sejuani",
+    "name":  "Sejuani",
+    "icon":  "Sejuani.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  630,
+                 "mana":  400,
+                 "attackDamage":  66,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.688,
+                 "healthRegen":  8.5,
+                 "manaRegen":  7,
+                 "moveSpeed":  340,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  114,
+                     "mana":  40,
+                     "attackDamage":  4,
+                     "armor":  5.45,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  1,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "crowdControl":  0.9,
+                 "apDamageDealer":  0.3,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

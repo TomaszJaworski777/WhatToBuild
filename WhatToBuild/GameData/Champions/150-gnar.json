@@ -1,0 +1,39 @@
+﻿{
+    "id":  "bca6ec19-1d08-15ce-52dd-156ec3091e24",
+    "riotId":  150,
+    "internalName":  "Gnar",
+    "name":  "Gnar",
+    "icon":  "Gnar.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  540,
+                 "mana":  100,
+                 "attackDamage":  60,
+                 "armor":  32,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  4.5,
+                 "manaRegen":  0,
+                 "moveSpeed":  335,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  79,
+                     "mana":  0,
+                     "attackDamage":  3.2,
+                     "armor":  3.7,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.06,
+                     "healthRegen":  1.25,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.6,
+                 "tank":  0.6,
+                 "crowdControl":  0.7,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

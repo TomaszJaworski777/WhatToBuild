@@ -1,0 +1,38 @@
+﻿{
+    "id":  "9c1369a6-b40e-42a2-da39-39ad8b333681",
+    "riotId":  55,
+    "internalName":  "Katarina",
+    "name":  "Katarina",
+    "icon":  "Katarina.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  672,
+                 "mana":  0,
+                 "attackDamage":  58,
+                 "armor":  32,
+                 "magicResist":  32,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  7.5,
+                 "manaRegen":  0,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  108,
+                     "mana":  0,
+                     "attackDamage":  3.2,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0274,
+                     "healthRegen":  0.7,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "burst":  0.95,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

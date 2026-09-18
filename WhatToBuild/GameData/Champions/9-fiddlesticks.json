@@ -1,0 +1,40 @@
+﻿{
+    "id":  "cc22a72d-277c-51dc-b36f-702af10ba287",
+    "riotId":  9,
+    "internalName":  "Fiddlesticks",
+    "name":  "Fiddlesticks",
+    "icon":  "Fiddlesticks.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  650,
+                 "mana":  500,
+                 "attackDamage":  55,
+                 "armor":  34,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  5.5,
+                 "manaRegen":  8,
+                 "moveSpeed":  335,
+                 "attackRange":  480
+             },
+    "perLevel":  {
+                     "health":  106,
+                     "mana":  28,
+                     "attackDamage":  2.65,
+                     "armor":  4.7,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.0211,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "crowdControl":  0.7,
+                 "ranged":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

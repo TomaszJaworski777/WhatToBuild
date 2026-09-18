@@ -1,0 +1,44 @@
+﻿{
+    "id":  "c758c458-3d1a-49eb-4d66-c6c45220873c",
+    "riotId":  14,
+    "internalName":  "Sion",
+    "name":  "Sion",
+    "icon":  "Sion.png",
+    "attackSpeedRatio":  0.679,
+    "base":  {
+                 "health":  655,
+                 "mana":  400,
+                 "attackDamage":  68,
+                 "armor":  36,
+                 "magicResist":  32,
+                 "attackSpeed":  0.679,
+                 "healthRegen":  9,
+                 "manaRegen":  8,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  87,
+                     "mana":  52,
+                     "attackDamage":  4,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.013,
+                     "healthRegen":  0.8,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "adDamageDealer":  0.5,
+                 "crowdControl":  0.8,
+                 "melee":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+                     {
+                         "stat":  "health",
+                         "initialStacksPerMinute":  5
+                     }
+                 ]
+}

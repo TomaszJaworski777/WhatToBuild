@@ -1,0 +1,37 @@
+﻿{
+    "id":  "d0ed5889-f9c3-6754-1474-12cb7ac9c7e7",
+    "riotId":  236,
+    "internalName":  "Lucian",
+    "name":  "Lucian",
+    "icon":  "Lucian.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  641,
+                 "mana":  320,
+                 "attackDamage":  60,
+                 "armor":  28,
+                 "magicResist":  33,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  3.75,
+                 "manaRegen":  7,
+                 "moveSpeed":  335,
+                 "attackRange":  500
+             },
+    "perLevel":  {
+                     "health":  100,
+                     "mana":  43,
+                     "attackDamage":  2.5,
+                     "armor":  4.2,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "7b8ed78a-5820-3398-a027-2245393e2b69",
+    "riotId":  110,
+    "internalName":  "Varus",
+    "name":  "Varus",
+    "icon":  "Varus.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  600,
+                 "mana":  320,
+                 "attackDamage":  59,
+                 "armor":  24,
+                 "magicResist":  33,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  3.5,
+                 "manaRegen":  8,
+                 "moveSpeed":  330,
+                 "attackRange":  575
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  40,
+                     "attackDamage":  3.4,
+                     "armor":  4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "crowdControl":  0.6,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

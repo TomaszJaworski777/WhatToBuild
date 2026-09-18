@@ -1,0 +1,40 @@
+﻿{
+    "id":  "04e30f34-b55b-472c-474d-60a8f62ac48c",
+    "riotId":  131,
+    "internalName":  "Diana",
+    "name":  "Diana",
+    "icon":  "Diana.png",
+    "attackSpeedRatio":  0.694,
+    "base":  {
+                 "health":  640,
+                 "mana":  375,
+                 "attackDamage":  57,
+                 "armor":  31,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  6.5,
+                 "manaRegen":  8,
+                 "moveSpeed":  345,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  25,
+                     "attackDamage":  3,
+                     "armor":  4.3,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.85,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

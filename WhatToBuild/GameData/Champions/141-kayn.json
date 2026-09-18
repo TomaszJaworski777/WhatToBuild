@@ -1,0 +1,39 @@
+﻿{
+    "id":  "61d9c339-9ade-efa6-8c04-c4854436f1e3",
+    "riotId":  141,
+    "internalName":  "Kayn",
+    "name":  "Kayn",
+    "icon":  "Kayn.png",
+    "attackSpeedRatio":  0.669,
+    "base":  {
+                 "health":  655,
+                 "mana":  410,
+                 "attackDamage":  68,
+                 "armor":  38,
+                 "magicResist":  32,
+                 "attackSpeed":  0.669,
+                 "healthRegen":  8,
+                 "manaRegen":  11.5,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  103,
+                     "mana":  50,
+                     "attackDamage":  3.3,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.027,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.95
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "melee":  1,
+                 "healing":  0.65
+             },
+    "stacking":  [
+
+                 ]
+}

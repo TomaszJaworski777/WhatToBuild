@@ -1,0 +1,39 @@
+﻿{
+    "id":  "9fdfe296-96ad-4562-2cd9-488807453349",
+    "riotId":  163,
+    "internalName":  "Taliyah",
+    "name":  "Taliyah",
+    "icon":  "Taliyah.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  550,
+                 "mana":  470,
+                 "attackDamage":  58,
+                 "armor":  18,
+                 "magicResist":  28,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  6.5,
+                 "manaRegen":  8,
+                 "moveSpeed":  330,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  30,
+                     "attackDamage":  3.3,
+                     "armor":  4.7,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.0136,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "burst":  0.7,
+                 "crowdControl":  0.8,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

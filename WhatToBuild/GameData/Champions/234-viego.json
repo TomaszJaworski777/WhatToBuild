@@ -1,0 +1,38 @@
+﻿{
+    "id":  "8ddcc5dc-fd42-b166-0923-0c47a30a5d80",
+    "riotId":  234,
+    "internalName":  "Viego",
+    "name":  "Viego",
+    "icon":  "Viego.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  630,
+                 "mana":  10000,
+                 "attackDamage":  57,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  7,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  200
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  0,
+                     "attackDamage":  4,
+                     "armor":  4.6,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0275,
+                     "healthRegen":  0.7,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "melee":  1,
+                 "healing":  0.7
+             },
+    "stacking":  [
+
+                 ]
+}

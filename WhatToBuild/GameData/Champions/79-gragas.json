@@ -1,0 +1,40 @@
+﻿{
+    "id":  "96afc02e-381a-776b-fc8f-cf99167d65d4",
+    "riotId":  79,
+    "internalName":  "Gragas",
+    "name":  "Gragas",
+    "icon":  "Gragas.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  640,
+                 "mana":  400,
+                 "attackDamage":  64,
+                 "armor":  38,
+                 "magicResist":  32,
+                 "attackSpeed":  0.675,
+                 "healthRegen":  5.5,
+                 "manaRegen":  6,
+                 "moveSpeed":  330,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  115,
+                     "mana":  47,
+                     "attackDamage":  3.5,
+                     "armor":  5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0205,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.7,
+                 "tank":  0.6,
+                 "crowdControl":  0.8,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

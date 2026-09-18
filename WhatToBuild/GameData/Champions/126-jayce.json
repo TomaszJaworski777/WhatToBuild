@@ -1,0 +1,38 @@
+﻿{
+    "id":  "b45ed497-f0d7-f297-e79c-177cfa1534ed",
+    "riotId":  126,
+    "internalName":  "Jayce",
+    "name":  "Jayce",
+    "icon":  "Jayce.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  590,
+                 "mana":  375,
+                 "attackDamage":  59,
+                 "armor":  22,
+                 "magicResist":  30,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  6,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  45,
+                     "attackDamage":  4.25,
+                     "armor":  5,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

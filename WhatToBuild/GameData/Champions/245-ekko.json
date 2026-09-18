@@ -1,0 +1,41 @@
+﻿{
+    "id":  "3af2bbc9-0e7a-75e3-c01d-078beef06519",
+    "riotId":  245,
+    "internalName":  "Ekko",
+    "name":  "Ekko",
+    "icon":  "Ekko.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  655,
+                 "mana":  280,
+                 "attackDamage":  58,
+                 "armor":  32,
+                 "magicResist":  32,
+                 "attackSpeed":  0.688,
+                 "healthRegen":  9,
+                 "manaRegen":  7,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  70,
+                     "attackDamage":  3,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.033,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "burst":  0.7,
+                 "crowdControl":  0.5,
+                 "melee":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

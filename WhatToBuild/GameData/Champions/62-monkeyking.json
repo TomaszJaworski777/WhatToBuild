@@ -1,0 +1,39 @@
+﻿{
+    "id":  "bf085690-773d-099b-a593-ff1f95f30af4",
+    "riotId":  62,
+    "internalName":  "MonkeyKing",
+    "name":  "Wukong",
+    "icon":  "MonkeyKing.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  610,
+                 "mana":  330,
+                 "attackDamage":  66,
+                 "armor":  31,
+                 "magicResist":  28,
+                 "attackSpeed":  0.69,
+                 "healthRegen":  3.5,
+                 "manaRegen":  8,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  65,
+                     "attackDamage":  3.5,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "burst":  0.7,
+                 "crowdControl":  0.7,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

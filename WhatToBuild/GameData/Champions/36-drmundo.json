@@ -1,0 +1,38 @@
+﻿{
+    "id":  "02ae737b-cdc3-da01-8729-63fefe412b34",
+    "riotId":  36,
+    "internalName":  "DrMundo",
+    "name":  "Dr. Mundo",
+    "icon":  "DrMundo.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  640,
+                 "mana":  0,
+                 "attackDamage":  61,
+                 "armor":  32,
+                 "magicResist":  29,
+                 "attackSpeed":  0.67,
+                 "healthRegen":  7,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  103,
+                     "mana":  0,
+                     "attackDamage":  2.5,
+                     "armor":  4.5,
+                     "magicResist":  2.3,
+                     "attackSpeed":  0.033,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "tank":  0.95,
+                 "melee":  1,
+                 "healing":  0.8
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "17023b1e-517f-93c2-5e33-e80eaca537e2",
+    "riotId":  22,
+    "internalName":  "Ashe",
+    "name":  "Ashe",
+    "icon":  "Ashe.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  610,
+                 "mana":  280,
+                 "attackDamage":  59,
+                 "armor":  26,
+                 "magicResist":  33,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  3.5,
+                 "manaRegen":  7,
+                 "moveSpeed":  325,
+                 "attackRange":  600
+             },
+    "perLevel":  {
+                     "health":  101,
+                     "mana":  35,
+                     "attackDamage":  3.5,
+                     "armor":  4.6,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.65
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "crowdControl":  0.7,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

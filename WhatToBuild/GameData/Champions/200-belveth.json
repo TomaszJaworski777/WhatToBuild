@@ -1,0 +1,41 @@
+﻿{
+    "id":  "d4187b01-7e23-8003-26f5-003681cdaa8d",
+    "riotId":  200,
+    "internalName":  "Belveth",
+    "name":  "Bel\u0027Veth",
+    "icon":  "Belveth.png",
+    "attackSpeedRatio":  0.67,
+    "base":  {
+                 "health":  580,
+                 "mana":  45,
+                 "attackDamage":  55,
+                 "armor":  28,
+                 "magicResist":  32,
+                 "attackSpeed":  0.67,
+                 "healthRegen":  6,
+                 "manaRegen":  0,
+                 "moveSpeed":  340,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  0,
+                     "attackDamage":  1.5,
+                     "armor":  5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+                     {
+                         "stat":  "attackSpeed",
+                         "initialStacksPerMinute":  4
+                     }
+                 ]
+}

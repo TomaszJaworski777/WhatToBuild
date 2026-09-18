@@ -1,0 +1,38 @@
+﻿{
+    "id":  "2a8445a6-6a73-6c3b-48ed-1f795d2f6bb1",
+    "riotId":  201,
+    "internalName":  "Braum",
+    "name":  "Braum",
+    "icon":  "Braum.png",
+    "attackSpeedRatio":  0.644,
+    "base":  {
+                 "health":  610,
+                 "mana":  311,
+                 "attackDamage":  55,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.644,
+                 "healthRegen":  8.5,
+                 "manaRegen":  7,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  112,
+                     "mana":  45,
+                     "attackDamage":  3.2,
+                     "armor":  5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  1,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "crowdControl":  0.8,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

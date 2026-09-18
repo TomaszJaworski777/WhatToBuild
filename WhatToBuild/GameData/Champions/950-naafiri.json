@@ -1,0 +1,40 @@
+﻿{
+    "id":  "b65dbc6b-8340-9096-bb8f-23e27006e90e",
+    "riotId":  950,
+    "internalName":  "Naafiri",
+    "name":  "Naafiri",
+    "icon":  "Naafiri.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  610,
+                 "mana":  400,
+                 "attackDamage":  55,
+                 "armor":  28,
+                 "magicResist":  32,
+                 "attackSpeed":  0.663,
+                 "healthRegen":  6.25,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  55,
+                     "attackDamage":  2,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.021,
+                     "healthRegen":  0.6,
+                     "manaRegen":  1
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "melee":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

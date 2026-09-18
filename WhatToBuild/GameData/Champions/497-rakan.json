@@ -1,0 +1,39 @@
+﻿{
+    "id":  "c9a5ae5c-b5d5-6aba-fb3c-f9170d36036d",
+    "riotId":  497,
+    "internalName":  "Rakan",
+    "name":  "Rakan",
+    "icon":  "Rakan.png",
+    "attackSpeedRatio":  0.635,
+    "base":  {
+                 "health":  610,
+                 "mana":  315,
+                 "attackDamage":  62,
+                 "armor":  30,
+                 "magicResist":  32,
+                 "attackSpeed":  0.635,
+                 "healthRegen":  5,
+                 "manaRegen":  8.75,
+                 "moveSpeed":  335,
+                 "attackRange":  300
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  50,
+                     "attackDamage":  3.5,
+                     "armor":  4.9,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.5
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.4,
+                 "crowdControl":  0.85,
+                 "melee":  1,
+                 "shielding":  0.65
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "93a90777-3fc2-88a7-41ed-95caf56ffaf6",
+    "riotId":  133,
+    "internalName":  "Quinn",
+    "name":  "Quinn",
+    "icon":  "Quinn.png",
+    "attackSpeedRatio":  0.668,
+    "base":  {
+                 "health":  565,
+                 "mana":  269,
+                 "attackDamage":  59,
+                 "armor":  28,
+                 "magicResist":  33,
+                 "attackSpeed":  0.668,
+                 "healthRegen":  5.5,
+                 "manaRegen":  7,
+                 "moveSpeed":  330,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  107,
+                     "mana":  35,
+                     "attackDamage":  3.2,
+                     "armor":  4.7,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.031,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.4
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "burst":  0.7,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

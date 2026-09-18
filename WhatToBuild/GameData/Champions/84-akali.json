@@ -1,0 +1,38 @@
+﻿{
+    "id":  "c53fb84c-f3e9-5e3b-5338-bc25642a950c",
+    "riotId":  84,
+    "internalName":  "Akali",
+    "name":  "Akali",
+    "icon":  "Akali.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  600,
+                 "mana":  200,
+                 "attackDamage":  62,
+                 "armor":  23,
+                 "magicResist":  37,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  9,
+                 "manaRegen":  50,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  119,
+                     "mana":  0,
+                     "attackDamage":  3.3,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.032,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "burst":  0.8,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

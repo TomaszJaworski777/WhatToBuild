@@ -1,0 +1,39 @@
+﻿{
+    "id":  "dca9f294-cfdf-91b0-e53e-d3e192a09faf",
+    "riotId":  122,
+    "internalName":  "Darius",
+    "name":  "Darius",
+    "icon":  "Darius.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  652,
+                 "mana":  263,
+                 "attackDamage":  64,
+                 "armor":  37,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  10,
+                 "manaRegen":  6.6,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  114,
+                     "mana":  58,
+                     "attackDamage":  5,
+                     "armor":  5.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.01,
+                     "healthRegen":  0.95,
+                     "manaRegen":  0.35
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "crowdControl":  0.5,
+                 "trueDamage":  0.3,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

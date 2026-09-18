@@ -1,0 +1,39 @@
+﻿{
+    "id":  "9cc6dbda-faf1-c108-1f2d-4b185d35ee89",
+    "riotId":  101,
+    "internalName":  "Xerath",
+    "name":  "Xerath",
+    "icon":  "Xerath.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  575,
+                 "mana":  400,
+                 "attackDamage":  55,
+                 "armor":  22,
+                 "magicResist":  30,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  5.5,
+                 "manaRegen":  6.85,
+                 "moveSpeed":  340,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  106,
+                     "mana":  22,
+                     "attackDamage":  3,
+                     "armor":  4.7,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.0136,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.9,
+                 "burst":  0.85,
+                 "crowdControl":  0.5,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

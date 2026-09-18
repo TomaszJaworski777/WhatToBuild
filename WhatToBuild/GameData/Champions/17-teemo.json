@@ -1,0 +1,39 @@
+﻿{
+    "id":  "13db1cfb-a8b1-110e-c9d7-3e442e98a8c0",
+    "riotId":  17,
+    "internalName":  "Teemo",
+    "name":  "Teemo",
+    "icon":  "Teemo.png",
+    "attackSpeedRatio":  0.69,
+    "base":  {
+                 "health":  615,
+                 "mana":  334,
+                 "attackDamage":  54,
+                 "armor":  24,
+                 "magicResist":  30,
+                 "attackSpeed":  0.69,
+                 "healthRegen":  5.5,
+                 "manaRegen":  9.6,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  25,
+                     "attackDamage":  3,
+                     "armor":  4.5,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.0338,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.7,
+                 "adDamageDealer":  0.4,
+                 "crowdControl":  0.5,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

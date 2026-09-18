@@ -1,0 +1,40 @@
+﻿{
+    "id":  "bfdb9688-66c9-5258-1c94-66f8e4cbcf90",
+    "riotId":  266,
+    "internalName":  "Aatrox",
+    "name":  "Aatrox",
+    "icon":  "Aatrox.png",
+    "attackSpeedRatio":  0.651,
+    "base":  {
+                 "health":  650,
+                 "mana":  0,
+                 "attackDamage":  60,
+                 "armor":  38,
+                 "magicResist":  32,
+                 "attackSpeed":  0.651,
+                 "healthRegen":  3,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  114,
+                     "mana":  0,
+                     "attackDamage":  5,
+                     "armor":  4.8,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "crowdControl":  0.5,
+                 "tank":  0.3,
+                 "melee":  1,
+                 "healing":  0.7
+             },
+    "stacking":  [
+
+                 ]
+}

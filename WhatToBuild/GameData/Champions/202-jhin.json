@@ -1,0 +1,39 @@
+﻿{
+    "id":  "1f1425d4-78c4-4f03-329d-6df2d043f8ba",
+    "riotId":  202,
+    "internalName":  "Jhin",
+    "name":  "Jhin",
+    "icon":  "Jhin.png",
+    "attackSpeedRatio":  0,
+    "base":  {
+                 "health":  655,
+                 "mana":  300,
+                 "attackDamage":  61,
+                 "armor":  24,
+                 "magicResist":  33,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  3.75,
+                 "manaRegen":  6,
+                 "moveSpeed":  330,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  107,
+                     "mana":  50,
+                     "attackDamage":  4.4,
+                     "armor":  4.7,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.8,
+                 "crowdControl":  0.5,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

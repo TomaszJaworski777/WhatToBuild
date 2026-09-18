@@ -1,0 +1,39 @@
+﻿{
+    "id":  "01b8da60-d189-f867-0f46-424936662c7f",
+    "riotId":  799,
+    "internalName":  "Ambessa",
+    "name":  "Ambessa",
+    "icon":  "Ambessa.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  630,
+                 "mana":  200,
+                 "attackDamage":  63,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8.5,
+                 "manaRegen":  50,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  110,
+                     "mana":  0,
+                     "attackDamage":  3,
+                     "armor":  4.9,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "burst":  0.6,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

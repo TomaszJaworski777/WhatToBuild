@@ -1,0 +1,38 @@
+﻿{
+    "id":  "4a1c7cfe-50ef-248f-c132-02bb9067118a",
+    "riotId":  360,
+    "internalName":  "Samira",
+    "name":  "Samira",
+    "icon":  "Samira.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  630,
+                 "mana":  349,
+                 "attackDamage":  57,
+                 "armor":  26,
+                 "magicResist":  33,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  3.25,
+                 "manaRegen":  8.2,
+                 "moveSpeed":  335,
+                 "attackRange":  500
+             },
+    "perLevel":  {
+                     "health":  108,
+                     "mana":  38,
+                     "attackDamage":  3,
+                     "armor":  4.7,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.033,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.8,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

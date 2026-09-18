@@ -1,0 +1,38 @@
+﻿{
+    "id":  "ed2e647c-7a49-0fc1-4493-0cb7ce03da41",
+    "riotId":  238,
+    "internalName":  "Zed",
+    "name":  "Zed",
+    "icon":  "Zed.png",
+    "attackSpeedRatio":  0.651,
+    "base":  {
+                 "health":  654,
+                 "mana":  200,
+                 "attackDamage":  63,
+                 "armor":  32,
+                 "magicResist":  29,
+                 "attackSpeed":  0.651,
+                 "healthRegen":  7,
+                 "manaRegen":  50,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  0,
+                     "attackDamage":  3.4,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.033,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.95,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

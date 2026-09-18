@@ -1,0 +1,39 @@
+﻿{
+    "id":  "4eb419e4-b435-cfaa-c1d0-e981c033d9bb",
+    "riotId":  12,
+    "internalName":  "Alistar",
+    "name":  "Alistar",
+    "icon":  "Alistar.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  685,
+                 "mana":  350,
+                 "attackDamage":  62,
+                 "armor":  40,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8.5,
+                 "manaRegen":  8.5,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  120,
+                     "mana":  40,
+                     "attackDamage":  3.75,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02125,
+                     "healthRegen":  0.85,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "crowdControl":  0.95,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

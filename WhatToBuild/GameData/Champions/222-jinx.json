@@ -1,0 +1,37 @@
+﻿{
+    "id":  "57f8a413-604f-8c97-697c-1d52d6fbe412",
+    "riotId":  222,
+    "internalName":  "Jinx",
+    "name":  "Jinx",
+    "icon":  "Jinx.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  630,
+                 "mana":  260,
+                 "attackDamage":  59,
+                 "armor":  26,
+                 "magicResist":  33,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  3.75,
+                 "manaRegen":  6.7,
+                 "moveSpeed":  325,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  50,
+                     "attackDamage":  3.25,
+                     "armor":  4.2,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.01,
+                     "healthRegen":  0.5,
+                     "manaRegen":  1
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.95,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

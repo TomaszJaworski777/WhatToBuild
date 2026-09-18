@@ -1,0 +1,39 @@
+﻿{
+    "id":  "77d017c5-ca33-55b2-8343-d1bb24cf0a50",
+    "riotId":  166,
+    "internalName":  "Akshan",
+    "name":  "Akshan",
+    "icon":  "Akshan.png",
+    "attackSpeedRatio":  0.4,
+    "base":  {
+                 "health":  610,
+                 "mana":  350,
+                 "attackDamage":  52,
+                 "armor":  26,
+                 "magicResist":  33,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  3.75,
+                 "manaRegen":  8.2,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "perLevel":  {
+                     "health":  107,
+                     "mana":  40,
+                     "attackDamage":  3,
+                     "armor":  4.7,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.04,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "burst":  0.5,
+                 "ranged":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

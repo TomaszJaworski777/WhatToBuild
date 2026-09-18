@@ -1,0 +1,38 @@
+﻿{
+    "id":  "89d1c69c-fb19-dff8-b472-1935918c156c",
+    "riotId":  876,
+    "internalName":  "Lillia",
+    "name":  "Lillia",
+    "icon":  "Lillia.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  605,
+                 "mana":  410,
+                 "attackDamage":  61,
+                 "armor":  22,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  2.5,
+                 "manaRegen":  11.5,
+                 "moveSpeed":  330,
+                 "attackRange":  325
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  50,
+                     "attackDamage":  3.1,
+                     "armor":  4.5,
+                     "magicResist":  1.55,
+                     "attackSpeed":  0.027,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.95
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.75,
+                 "crowdControl":  0.6,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

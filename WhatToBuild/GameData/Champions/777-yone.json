@@ -1,0 +1,39 @@
+﻿{
+    "id":  "aa832c23-5b56-113e-eaaf-14295eea0c90",
+    "riotId":  777,
+    "internalName":  "Yone",
+    "name":  "Yone",
+    "icon":  "Yone.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  620,
+                 "mana":  500,
+                 "attackDamage":  62,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  7.5,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  105,
+                     "mana":  0,
+                     "attackDamage":  2,
+                     "armor":  4.6,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "apDamageDealer":  0.3,
+                 "burst":  0.7,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

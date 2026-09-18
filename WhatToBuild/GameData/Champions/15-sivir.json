@@ -1,0 +1,37 @@
+﻿{
+    "id":  "c65f3d74-c363-e7e0-d21b-ce70b1b1ef94",
+    "riotId":  15,
+    "internalName":  "Sivir",
+    "name":  "Sivir",
+    "icon":  "Sivir.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  600,
+                 "mana":  340,
+                 "attackDamage":  60,
+                 "armor":  30,
+                 "magicResist":  33,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  3.25,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  500
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  45,
+                     "attackDamage":  2.5,
+                     "armor":  4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.016,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

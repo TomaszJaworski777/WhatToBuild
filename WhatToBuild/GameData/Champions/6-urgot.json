@@ -1,0 +1,40 @@
+﻿{
+    "id":  "072e35c7-7615-5a14-4508-0cb60b985116",
+    "riotId":  6,
+    "internalName":  "Urgot",
+    "name":  "Urgot",
+    "icon":  "Urgot.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  655,
+                 "mana":  340,
+                 "attackDamage":  63,
+                 "armor":  36,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  7.5,
+                 "manaRegen":  7.25,
+                 "moveSpeed":  330,
+                 "attackRange":  350
+             },
+    "perLevel":  {
+                     "health":  102,
+                     "mana":  45,
+                     "attackDamage":  4,
+                     "armor":  5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0375,
+                     "healthRegen":  0.7,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "tank":  0.5,
+                 "crowdControl":  0.6,
+                 "ranged":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

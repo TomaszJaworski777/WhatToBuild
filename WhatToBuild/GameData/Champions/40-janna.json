@@ -1,0 +1,40 @@
+﻿{
+    "id":  "0cb45611-cfc0-f675-ad6c-9977a1a11f24",
+    "riotId":  40,
+    "internalName":  "Janna",
+    "name":  "Janna",
+    "icon":  "Janna.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  570,
+                 "mana":  360,
+                 "attackDamage":  47,
+                 "armor":  28,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  5.5,
+                 "manaRegen":  11.5,
+                 "moveSpeed":  325,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  90,
+                     "mana":  50,
+                     "attackDamage":  2.5,
+                     "armor":  4.5,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.4
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.4,
+                 "crowdControl":  0.7,
+                 "ranged":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

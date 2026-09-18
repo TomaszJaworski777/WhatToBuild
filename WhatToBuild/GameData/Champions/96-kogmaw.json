@@ -1,0 +1,39 @@
+﻿{
+    "id":  "94959e3b-e574-34a1-b414-24a28c2f5b85",
+    "riotId":  96,
+    "internalName":  "KogMaw",
+    "name":  "Kog\u0027Maw",
+    "icon":  "KogMaw.png",
+    "attackSpeedRatio":  0.665,
+    "base":  {
+                 "health":  635,
+                 "mana":  325,
+                 "attackDamage":  61,
+                 "armor":  24,
+                 "magicResist":  33,
+                 "attackSpeed":  0.665,
+                 "healthRegen":  3.75,
+                 "manaRegen":  8.75,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  40,
+                     "attackDamage":  3.1,
+                     "armor":  4.45,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.0265,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "apDamageDealer":  0.3,
+                 "trueDamage":  0.4,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

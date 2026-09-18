@@ -1,4 +1,4 @@
-using WhatToBuild.Data;
+﻿using WhatToBuild.Data;
 
 namespace WhatToBuild.Tests;
 
@@ -15,24 +15,17 @@ public class ItemTests
     private const int DeathsDance = 6333;
     private const int Shieldbow = 6673;
     private const int BlackCleaver = 3071;
+    private const int AbyssalMask = 8020;
     private const int RanduinsOmen = 3143;
     private const int PlatedSteelcaps = 3047;
     private const int MawOfMalmortius = 3156;
     private const int LordDominiks = 3036;
-
-    /// <summary>Stat names that are not <see cref="ItemStats"/> fields, per the README.</summary>
-    private static readonly HashSet<string> SyntheticStats = new()
-    {
-        "damageAmp", "abilityPowerAmp", "enemyAttackSpeedPercent", "enemyMagicDamageAmp",
-    };
 
     private static ItemRepository _items = null!;
 
     [ClassInitialize]
     public static void Load(TestContext context)
     {
-        // Throws with the offending file name if any hand-written file is malformed,
-        // including an unknown trigger or kind.
         _items = ItemRepository.Load(Path.Combine(AppContext.BaseDirectory, "GameData"));
     }
 
@@ -54,7 +47,6 @@ public class ItemTests
     {
         Assert.AreEqual(0.30, _items.ByRiotId(InfinityEdge)!.Stats.CritDamage, 0.001);
 
-        // Lethality lives in a differently named field and was silently dropped once.
         Assert.AreEqual(10, _items.ByRiotId(TheCollector)!.Stats.ArmorPenetrationFlat, 0.001);
     }
 
@@ -93,7 +85,6 @@ public class ItemTests
     [TestMethod]
     public void PureStatItemsHaveNoEffects()
     {
-        // Infinity Edge is entirely stats. An effect here would mean we invented one.
         Assert.IsEmpty(_items.ByRiotId(InfinityEdge)!.Effects);
         Assert.IsEmpty(_items.ByRiotId(BfSword)!.Effects);
     }
@@ -118,7 +109,6 @@ public class ItemTests
         Assert.AreEqual(EffectKind.GrievousWounds, _items.ByRiotId(MortalReminder)!.Effects.Single().Kind);
         Assert.AreEqual(EffectKind.ArmorShred, _items.ByRiotId(BlackCleaver)!.Effects.Single().Kind);
 
-        // Death's Dance is mitigation plus a takedown heal.
         var dd = _items.ByRiotId(DeathsDance)!.Effects;
         Assert.HasCount(2, dd);
         Assert.IsTrue(dd.Any(e => e.Kind == EffectKind.DamageReduction));
@@ -132,8 +122,6 @@ public class ItemTests
     [TestMethod]
     public void EveryEffectCarriesAMagnitude()
     {
-        // An effect with no amount and no scaling contributes nothing and is a
-        // half-finished entry.
         foreach (var item in _items.All)
         {
             foreach (var e in item.Effects)
@@ -151,30 +139,32 @@ public class ItemTests
     [TestMethod]
     public void StatBuffsNameARealStat()
     {
-        var statFields = typeof(ItemStats).GetProperties().Select(p => p.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-
         foreach (var item in _items.All)
         {
             foreach (var e in item.Effects.Where(e => e.Kind == EffectKind.StatBuff))
             {
                 Assert.IsNotNull(e.Stat, $"{item.Name} has a StatBuff with no stat named.");
-                Assert.IsTrue(
-                    statFields.Contains(e.Stat) || SyntheticStats.Contains(e.Stat),
-                    $"{item.Name} buffs unknown stat '{e.Stat}'.");
+                Assert.Contains(e.Stat, Stats.All, $"{item.Name} buffs an unregistered stat.");
             }
         }
     }
 
     [TestMethod]
+    public void EnemyFacingStatsAreMarked()
+    {
+        var abyssal = _items.ByRiotId(AbyssalMask)!.Effects.Single();
+
+        Assert.IsTrue(abyssal.Stat!.TargetsEnemy);
+        Assert.IsTrue(abyssal.Stat.IsFraction);
+        Assert.IsFalse(Stats.AttackDamage.TargetsEnemy);
+    }
+
+    [TestMethod]
     public void ConditionalMitigationSaysWhatItAppliesTo()
     {
-        // Randuin's 30% is crit-only and Steelcaps' 10% is attacks-only. Treating
-        // either as blanket mitigation overrates it against comps it is not bought
-        // for - and Kindred is a crit champion on the receiving end of both.
         Assert.AreEqual(DamageSource.Crit, _items.ByRiotId(RanduinsOmen)!.Effects.Single().Versus);
         Assert.AreEqual(DamageSource.Attacks, _items.ByRiotId(PlatedSteelcaps)!.Effects.Single().Versus);
 
-        // Lifeline shields differ the same way: Maw only absorbs magic, Shieldbow all.
         Assert.AreEqual(DamageSource.Magic, _items.ByRiotId(MawOfMalmortius)!.Effects.Single().Versus);
         Assert.AreEqual(DamageSource.All, _items.ByRiotId(Shieldbow)!.Effects.Single().Versus);
     }
@@ -182,8 +172,6 @@ public class ItemTests
     [TestMethod]
     public void ConditionalEffectsCarryTheirCondition()
     {
-        // Giant Slayer is worthless against a squishy. Without the condition the
-        // planner would price it as a flat 15% amp and buy it into any comp.
         var ldr = _items.ByRiotId(LordDominiks)!.Effects.Single();
 
         var condition = ldr.When.Single();
@@ -216,8 +204,6 @@ public class ItemTests
     [TestMethod]
     public void EnemyHealingAndShieldingIsDiscoverableFromEffects()
     {
-        // TeamNeeds decides anti-heal and Serpent's Fang partly from enemy items, so
-        // healing and shielding have to be findable without reading item names.
         var healers = _items.All.Where(i => i.Effects.Any(e => e.Kind == EffectKind.Heal)).ToList();
         var shielders = _items.All.Where(i => i.Effects.Any(e => e.Kind == EffectKind.Shield)).ToList();
 

@@ -1,0 +1,39 @@
+﻿{
+    "id":  "da12dc66-64b6-6a5a-1300-1d41376da4b4",
+    "riotId":  78,
+    "internalName":  "Poppy",
+    "name":  "Poppy",
+    "icon":  "Poppy.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  610,
+                 "mana":  300,
+                 "attackDamage":  56,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  9,
+                 "manaRegen":  7,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  110,
+                     "mana":  45,
+                     "attackDamage":  4,
+                     "armor":  5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.8,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "tank":  0.85,
+                 "crowdControl":  0.8,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

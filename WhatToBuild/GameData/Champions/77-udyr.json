@@ -1,0 +1,41 @@
+﻿{
+    "id":  "a1a59e5b-be15-4f67-bb22-ca88d3bcb5bf",
+    "riotId":  77,
+    "internalName":  "Udyr",
+    "name":  "Udyr",
+    "icon":  "Udyr.png",
+    "attackSpeedRatio":  0.65,
+    "base":  {
+                 "health":  664,
+                 "mana":  271,
+                 "attackDamage":  62,
+                 "armor":  31,
+                 "magicResist":  32,
+                 "attackSpeed":  0.65,
+                 "healthRegen":  6,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  350,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  92,
+                     "mana":  50,
+                     "attackDamage":  4,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.7,
+                 "apDamageDealer":  0.4,
+                 "tank":  0.5,
+                 "melee":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

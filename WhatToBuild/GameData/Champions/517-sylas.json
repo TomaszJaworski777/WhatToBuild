@@ -1,0 +1,39 @@
+﻿{
+    "id":  "d797fdb5-40ad-a964-4a69-7505d124e88b",
+    "riotId":  517,
+    "internalName":  "Sylas",
+    "name":  "Sylas",
+    "icon":  "Sylas.png",
+    "attackSpeedRatio":  0.645,
+    "base":  {
+                 "health":  600,
+                 "mana":  400,
+                 "attackDamage":  61,
+                 "armor":  29,
+                 "magicResist":  32,
+                 "attackSpeed":  0.645,
+                 "healthRegen":  9,
+                 "manaRegen":  8,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  122,
+                     "mana":  70,
+                     "attackDamage":  3,
+                     "armor":  5.2,
+                     "magicResist":  2.55,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "crowdControl":  0.5,
+                 "melee":  1,
+                 "healing":  0.7
+             },
+    "stacking":  [
+
+                 ]
+}

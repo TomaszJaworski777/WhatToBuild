@@ -1,0 +1,40 @@
+﻿{
+    "id":  "efb505f0-3aef-922f-da70-9525b2cc88c4",
+    "riotId":  19,
+    "internalName":  "Warwick",
+    "name":  "Warwick",
+    "icon":  "Warwick.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  620,
+                 "mana":  280,
+                 "attackDamage":  65,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  4,
+                 "manaRegen":  7.45,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  35,
+                     "attackDamage":  2.5,
+                     "armor":  4.4,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "tank":  0.5,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "healing":  0.85
+             },
+    "stacking":  [
+
+                 ]
+}

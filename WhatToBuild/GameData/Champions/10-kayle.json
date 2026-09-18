@@ -1,0 +1,39 @@
+﻿{
+    "id":  "01c53716-39fb-5494-f214-0c7fc7eecbd0",
+    "riotId":  10,
+    "internalName":  "Kayle",
+    "name":  "Kayle",
+    "icon":  "Kayle.png",
+    "attackSpeedRatio":  0.667,
+    "base":  {
+                 "health":  670,
+                 "mana":  330,
+                 "attackDamage":  50,
+                 "armor":  26,
+                 "magicResist":  22,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  5,
+                 "manaRegen":  8,
+                 "moveSpeed":  335,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  92,
+                     "mana":  50,
+                     "attackDamage":  2.5,
+                     "armor":  4.2,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.015,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.7,
+                 "adDamageDealer":  0.5,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

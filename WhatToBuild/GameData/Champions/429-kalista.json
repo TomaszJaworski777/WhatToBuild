@@ -1,0 +1,37 @@
+﻿{
+    "id":  "88728fe4-29b3-5f46-4d5c-0a0431831b47",
+    "riotId":  429,
+    "internalName":  "Kalista",
+    "name":  "Kalista",
+    "icon":  "Kalista.png",
+    "attackSpeedRatio":  0.694,
+    "base":  {
+                 "health":  560,
+                 "mana":  300,
+                 "attackDamage":  57,
+                 "armor":  24,
+                 "magicResist":  33,
+                 "attackSpeed":  0.694,
+                 "healthRegen":  4,
+                 "manaRegen":  6.3,
+                 "moveSpeed":  330,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  114,
+                     "mana":  45,
+                     "attackDamage":  4.75,
+                     "armor":  5.2,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.045,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

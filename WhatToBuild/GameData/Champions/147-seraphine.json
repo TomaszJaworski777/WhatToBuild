@@ -1,0 +1,40 @@
+﻿{
+    "id":  "0ddb47d8-4008-a150-3103-e7cfc2871c60",
+    "riotId":  147,
+    "internalName":  "Seraphine",
+    "name":  "Seraphine",
+    "icon":  "Seraphine.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  570,
+                 "mana":  360,
+                 "attackDamage":  50,
+                 "armor":  26,
+                 "magicResist":  30,
+                 "attackSpeed":  0.669,
+                 "healthRegen":  6.5,
+                 "manaRegen":  11.5,
+                 "moveSpeed":  330,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  95,
+                     "mana":  40,
+                     "attackDamage":  3,
+                     "armor":  4.2,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.95
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.75,
+                 "crowdControl":  0.7,
+                 "ranged":  1,
+                 "healing":  0.4,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

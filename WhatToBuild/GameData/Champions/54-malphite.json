@@ -1,0 +1,39 @@
+﻿{
+    "id":  "bac825f1-6593-8c89-aba5-1e15a080054e",
+    "riotId":  54,
+    "internalName":  "Malphite",
+    "name":  "Malphite",
+    "icon":  "Malphite.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  665,
+                 "mana":  280,
+                 "attackDamage":  62,
+                 "armor":  40,
+                 "magicResist":  28,
+                 "attackSpeed":  0.736,
+                 "healthRegen":  7,
+                 "manaRegen":  7.3,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  60,
+                     "attackDamage":  4,
+                     "armor":  4.95,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.034,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.55
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "apDamageDealer":  0.4,
+                 "crowdControl":  0.85,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,6 +1,5 @@
-namespace WhatToBuild.Data;
+﻿namespace WhatToBuild.Data;
 
-/// <summary>Flat values are game units; percent values are fractions (0.25 = 25%).</summary>
 public class ItemStats
 {
     public double AttackDamage { get; set; }

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "acab1078-54f2-3712-c970-f0f6efc351b6",
+    "riotId":  523,
+    "internalName":  "Aphelios",
+    "name":  "Aphelios",
+    "icon":  "Aphelios.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  600,
+                 "mana":  348,
+                 "attackDamage":  55,
+                 "armor":  26,
+                 "magicResist":  33,
+                 "attackSpeed":  0.665,
+                 "healthRegen":  3.25,
+                 "manaRegen":  6.5,
+                 "moveSpeed":  325,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  102,
+                     "mana":  42,
+                     "attackDamage":  2.3,
+                     "armor":  4.2,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.021,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.4
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "ranged":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

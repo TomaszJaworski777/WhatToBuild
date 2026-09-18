@@ -1,0 +1,39 @@
+﻿{
+    "id":  "01eb0d1e-6ca2-8044-c032-8f53f28ea9fb",
+    "riotId":  117,
+    "internalName":  "Lulu",
+    "name":  "Lulu",
+    "icon":  "Lulu.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  565,
+                 "mana":  350,
+                 "attackDamage":  47,
+                 "armor":  26,
+                 "magicResist":  30,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  6,
+                 "manaRegen":  11,
+                 "moveSpeed":  330,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  92,
+                     "mana":  55,
+                     "attackDamage":  2.6,
+                     "armor":  4.6,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.0225,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.4,
+                 "crowdControl":  0.7,
+                 "ranged":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

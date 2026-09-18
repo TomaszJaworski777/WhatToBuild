@@ -1,0 +1,40 @@
+﻿{
+    "id":  "502906c7-458a-fc82-32fe-750d19a9e804",
+    "riotId":  350,
+    "internalName":  "Yuumi",
+    "name":  "Yuumi",
+    "icon":  "Yuumi.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  500,
+                 "mana":  440,
+                 "attackDamage":  49,
+                 "armor":  25,
+                 "magicResist":  25,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  5,
+                 "manaRegen":  10,
+                 "moveSpeed":  330,
+                 "attackRange":  425
+             },
+    "perLevel":  {
+                     "health":  69,
+                     "mana":  45,
+                     "attackDamage":  3.1,
+                     "armor":  4.2,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.01,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.4
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.5,
+                 "crowdControl":  0.5,
+                 "ranged":  1,
+                 "healing":  0.75,
+                 "shielding":  0.65
+             },
+    "stacking":  [
+
+                 ]
+}

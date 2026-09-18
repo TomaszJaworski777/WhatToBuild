@@ -1,0 +1,38 @@
+﻿{
+    "id":  "36377a9e-0dc2-f7a4-39ff-2351d7c09431",
+    "riotId":  72,
+    "internalName":  "Skarner",
+    "name":  "Skarner",
+    "icon":  "Skarner.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  630,
+                 "mana":  320,
+                 "attackDamage":  63,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  7.5,
+                 "manaRegen":  7.2,
+                 "moveSpeed":  335,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  110,
+                     "mana":  40,
+                     "attackDamage":  5,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.75
+                 },
+    "tags":  {
+                 "tank":  0.8,
+                 "crowdControl":  0.9,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

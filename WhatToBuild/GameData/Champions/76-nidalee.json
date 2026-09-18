@@ -1,0 +1,39 @@
+﻿{
+    "id":  "74ce4efa-5f35-e915-5cda-a0113fc55ffe",
+    "riotId":  76,
+    "internalName":  "Nidalee",
+    "name":  "Nidalee",
+    "icon":  "Nidalee.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  610,
+                 "mana":  295,
+                 "attackDamage":  58,
+                 "armor":  32,
+                 "magicResist":  30,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  6,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  525
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  45,
+                     "attackDamage":  3.5,
+                     "armor":  5,
+                     "magicResist":  1.45,
+                     "attackSpeed":  0.0322,
+                     "healthRegen":  0.6,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "burst":  0.8,
+                 "ranged":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

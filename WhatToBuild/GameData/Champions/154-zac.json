@@ -1,0 +1,40 @@
+﻿{
+    "id":  "c5529e82-c0f8-cd18-f48d-d2e7f3538ef1",
+    "riotId":  154,
+    "internalName":  "Zac",
+    "name":  "Zac",
+    "icon":  "Zac.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  685,
+                 "mana":  0,
+                 "attackDamage":  60,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.736,
+                 "healthRegen":  5,
+                 "manaRegen":  0,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  0,
+                     "attackDamage":  3.4,
+                     "armor":  5.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.016,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "apDamageDealer":  0.4,
+                 "crowdControl":  0.8,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

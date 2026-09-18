@@ -1,0 +1,40 @@
+﻿{
+    "id":  "d9802dcf-b1ad-3855-2a08-f973376cf511",
+    "riotId":  57,
+    "internalName":  "Maokai",
+    "name":  "Maokai",
+    "icon":  "Maokai.png",
+    "attackSpeedRatio":  0.695,
+    "base":  {
+                 "health":  665,
+                 "mana":  375,
+                 "attackDamage":  64,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.8,
+                 "healthRegen":  5,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  43,
+                     "attackDamage":  3.3,
+                     "armor":  5.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02125,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "tank":  0.85,
+                 "apDamageDealer":  0.4,
+                 "crowdControl":  0.8,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

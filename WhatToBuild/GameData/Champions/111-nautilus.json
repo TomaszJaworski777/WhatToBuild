@@ -1,0 +1,39 @@
+﻿{
+    "id":  "5f1c0d5d-41f1-899d-1193-71fe29e9b2f4",
+    "riotId":  111,
+    "internalName":  "Nautilus",
+    "name":  "Nautilus",
+    "icon":  "Nautilus.png",
+    "attackSpeedRatio":  0.612,
+    "base":  {
+                 "health":  646,
+                 "mana":  400,
+                 "attackDamage":  58,
+                 "armor":  39,
+                 "magicResist":  32,
+                 "attackSpeed":  0.706,
+                 "healthRegen":  8.5,
+                 "manaRegen":  8.65,
+                 "moveSpeed":  325,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  100,
+                     "mana":  47,
+                     "attackDamage":  3.3,
+                     "armor":  4.95,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.01,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.5
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "crowdControl":  0.95,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

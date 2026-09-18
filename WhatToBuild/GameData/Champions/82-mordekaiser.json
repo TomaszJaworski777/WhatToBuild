@@ -1,0 +1,39 @@
+﻿{
+    "id":  "c258065e-633a-0da4-f691-52ca6694abc7",
+    "riotId":  82,
+    "internalName":  "Mordekaiser",
+    "name":  "Mordekaiser",
+    "icon":  "Mordekaiser.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  645,
+                 "mana":  100,
+                 "attackDamage":  61,
+                 "armor":  37,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  5,
+                 "manaRegen":  0,
+                 "moveSpeed":  335,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  0,
+                     "attackDamage":  4,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.01,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "crowdControl":  0.5,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

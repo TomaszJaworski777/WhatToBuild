@@ -1,0 +1,38 @@
+﻿{
+    "id":  "a041199e-7df3-262e-3086-67f3f3176fe9",
+    "riotId":  33,
+    "internalName":  "Rammus",
+    "name":  "Rammus",
+    "icon":  "Rammus.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  645,
+                 "mana":  310,
+                 "attackDamage":  65,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.7,
+                 "healthRegen":  8,
+                 "manaRegen":  7.85,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  100,
+                     "mana":  33,
+                     "attackDamage":  2.75,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02215,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.5
+                 },
+    "tags":  {
+                 "tank":  0.95,
+                 "crowdControl":  0.8,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

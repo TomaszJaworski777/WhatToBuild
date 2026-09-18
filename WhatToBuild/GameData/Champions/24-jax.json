@@ -1,0 +1,37 @@
+﻿{
+    "id":  "cf543206-2f21-ca59-5626-3357b234442a",
+    "riotId":  24,
+    "internalName":  "Jax",
+    "name":  "Jax",
+    "icon":  "Jax.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  650,
+                 "mana":  339,
+                 "attackDamage":  68,
+                 "armor":  36,
+                 "magicResist":  32,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  8.5,
+                 "manaRegen":  8.2,
+                 "moveSpeed":  350,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  103,
+                     "mana":  52,
+                     "attackDamage":  4.25,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.034,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

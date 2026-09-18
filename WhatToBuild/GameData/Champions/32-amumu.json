@@ -1,0 +1,39 @@
+﻿{
+    "id":  "4ad1a27c-8344-5548-2d46-75dca5cf30ae",
+    "riotId":  32,
+    "internalName":  "Amumu",
+    "name":  "Amumu",
+    "icon":  "Amumu.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  685,
+                 "mana":  285,
+                 "attackDamage":  57,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.736,
+                 "healthRegen":  9,
+                 "manaRegen":  7.4,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  94,
+                     "mana":  40,
+                     "attackDamage":  3.8,
+                     "armor":  4,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0218,
+                     "healthRegen":  0.85,
+                     "manaRegen":  0.55
+                 },
+    "tags":  {
+                 "tank":  0.85,
+                 "apDamageDealer":  0.5,
+                 "crowdControl":  0.9,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

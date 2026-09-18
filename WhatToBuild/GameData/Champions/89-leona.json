@@ -1,0 +1,38 @@
+﻿{
+    "id":  "475f0a13-e35c-5207-d2a1-b573b24b0e34",
+    "riotId":  89,
+    "internalName":  "Leona",
+    "name":  "Leona",
+    "icon":  "Leona.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  646,
+                 "mana":  302,
+                 "attackDamage":  60,
+                 "armor":  43,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8.5,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  101,
+                     "mana":  40,
+                     "attackDamage":  3,
+                     "armor":  4.8,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.029,
+                     "healthRegen":  0.85,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "tank":  0.9,
+                 "crowdControl":  0.95,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

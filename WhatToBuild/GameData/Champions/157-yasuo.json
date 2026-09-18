@@ -1,0 +1,38 @@
+﻿{
+    "id":  "152b79f7-4f70-9f4f-cdf1-97002789b02d",
+    "riotId":  157,
+    "internalName":  "Yasuo",
+    "name":  "Yasuo",
+    "icon":  "Yasuo.png",
+    "attackSpeedRatio":  0.67,
+    "base":  {
+                 "health":  590,
+                 "mana":  100,
+                 "attackDamage":  60,
+                 "armor":  32,
+                 "magicResist":  32,
+                 "attackSpeed":  0.697,
+                 "healthRegen":  6.5,
+                 "manaRegen":  0,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  110,
+                     "mana":  0,
+                     "attackDamage":  2.5,
+                     "armor":  4.6,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "crowdControl":  0.5,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

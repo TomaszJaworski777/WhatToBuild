@@ -1,0 +1,43 @@
+﻿{
+    "id":  "e14900b6-4533-2389-d82e-15f29dc7b973",
+    "riotId":  75,
+    "internalName":  "Nasus",
+    "name":  "Nasus",
+    "icon":  "Nasus.png",
+    "attackSpeedRatio":  0.638,
+    "base":  {
+                 "health":  650,
+                 "mana":  326,
+                 "attackDamage":  67,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.638,
+                 "healthRegen":  9,
+                 "manaRegen":  7.45,
+                 "moveSpeed":  350,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  62,
+                     "attackDamage":  4,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0348,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0.5
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "tank":  0.6,
+                 "crowdControl":  0.5,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+                     {
+                         "stat":  "abilityDamage",
+                         "initialStacksPerMinute":  14
+                     }
+                 ]
+}

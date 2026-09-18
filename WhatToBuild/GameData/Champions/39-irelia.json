@@ -1,0 +1,38 @@
+﻿{
+    "id":  "f0c02d69-eefe-5ddc-4ab4-72c6e6730a9d",
+    "riotId":  39,
+    "internalName":  "Irelia",
+    "name":  "Irelia",
+    "icon":  "Irelia.png",
+    "attackSpeedRatio":  0.656,
+    "base":  {
+                 "health":  630,
+                 "mana":  350,
+                 "attackDamage":  65,
+                 "armor":  36,
+                 "magicResist":  30,
+                 "attackSpeed":  0.656,
+                 "healthRegen":  3.5,
+                 "manaRegen":  8,
+                 "moveSpeed":  335,
+                 "attackRange":  200
+             },
+    "perLevel":  {
+                     "health":  115,
+                     "mana":  50,
+                     "attackDamage":  3.5,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.85,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

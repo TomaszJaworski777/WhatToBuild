@@ -1,0 +1,37 @@
+﻿{
+    "id":  "7ecc9c5d-5ac9-5c30-1a2e-be3aa9d3a7ee",
+    "riotId":  13,
+    "internalName":  "Ryze",
+    "name":  "Ryze",
+    "icon":  "Ryze.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  620,
+                 "mana":  300,
+                 "attackDamage":  55,
+                 "armor":  22,
+                 "magicResist":  32,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  8,
+                 "manaRegen":  8,
+                 "moveSpeed":  340,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  124,
+                     "mana":  70,
+                     "attackDamage":  3,
+                     "armor":  4.2,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.0211,
+                     "healthRegen":  0.8,
+                     "manaRegen":  1
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

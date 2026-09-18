@@ -1,0 +1,39 @@
+﻿{
+    "id":  "db7c5c7d-331f-c085-d88a-98de748ec998",
+    "riotId":  5,
+    "internalName":  "XinZhao",
+    "name":  "Xin Zhao",
+    "icon":  "XinZhao.png",
+    "attackSpeedRatio":  0.645,
+    "base":  {
+                 "health":  620,
+                 "mana":  274,
+                 "attackDamage":  63,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.645,
+                 "healthRegen":  8,
+                 "manaRegen":  7.25,
+                 "moveSpeed":  345,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  106,
+                     "mana":  55,
+                     "attackDamage":  3,
+                     "armor":  4.4,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.035,
+                     "healthRegen":  0.7,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

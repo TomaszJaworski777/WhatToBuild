@@ -1,0 +1,40 @@
+﻿{
+    "id":  "4f26bfdf-3f58-b5a8-1fa2-951e7ef39405",
+    "riotId":  3,
+    "internalName":  "Galio",
+    "name":  "Galio",
+    "icon":  "Galio.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  600,
+                 "mana":  410,
+                 "attackDamage":  59,
+                 "armor":  24,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8,
+                 "manaRegen":  9.5,
+                 "moveSpeed":  340,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  126,
+                     "mana":  40,
+                     "attackDamage":  3.5,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.015,
+                     "healthRegen":  0.8,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "tank":  0.8,
+                 "apDamageDealer":  0.6,
+                 "crowdControl":  0.8,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

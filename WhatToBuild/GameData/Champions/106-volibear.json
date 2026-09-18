@@ -1,0 +1,40 @@
+﻿{
+    "id":  "1bad7845-32ad-0777-d3c6-1ee3ea90bfe6",
+    "riotId":  106,
+    "internalName":  "Volibear",
+    "name":  "Volibear",
+    "icon":  "Volibear.png",
+    "attackSpeedRatio":  0.7,
+    "base":  {
+                 "health":  650,
+                 "mana":  350,
+                 "attackDamage":  65,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  9,
+                 "manaRegen":  6.25,
+                 "moveSpeed":  340,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  70,
+                     "attackDamage":  3.5,
+                     "armor":  5.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.5
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "tank":  0.6,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

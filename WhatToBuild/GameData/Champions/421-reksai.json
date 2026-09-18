@@ -1,0 +1,40 @@
+﻿{
+    "id":  "2740efab-8544-6db3-5cd4-a54af51e661d",
+    "riotId":  421,
+    "internalName":  "RekSai",
+    "name":  "Rek\u0027Sai",
+    "icon":  "RekSai.png",
+    "attackSpeedRatio":  0.667,
+    "base":  {
+                 "health":  600,
+                 "mana":  100,
+                 "attackDamage":  62,
+                 "armor":  35,
+                 "magicResist":  32,
+                 "attackSpeed":  0.667,
+                 "healthRegen":  2.5,
+                 "manaRegen":  0,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  0,
+                     "attackDamage":  3,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "burst":  0.6,
+                 "trueDamage":  0.4,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

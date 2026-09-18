@@ -1,0 +1,38 @@
+﻿{
+    "id":  "3e858038-e405-9f47-a568-83ec53f9cb05",
+    "riotId":  91,
+    "internalName":  "Talon",
+    "name":  "Talon",
+    "icon":  "Talon.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  658,
+                 "mana":  400,
+                 "attackDamage":  68,
+                 "armor":  30,
+                 "magicResist":  36,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  8.5,
+                 "manaRegen":  7.6,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  37,
+                     "attackDamage":  3.1,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.029,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.95,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

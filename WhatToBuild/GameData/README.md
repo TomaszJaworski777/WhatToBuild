@@ -76,9 +76,12 @@ know would be false precision.
 
 - `amount` — flat magnitude per occurrence.
 - `cooldown` — seconds between occurrences. `0` means every time.
-- `stat` — for `StatBuff` and shreds, which stat, by `ItemStats` field name, plus
-  four that are not real stats: `damageAmp`, `abilityPowerAmp`,
-  `enemyAttackSpeedPercent`, `enemyMagicDamageAmp`.
+- `stat` — for `StatBuff` and shreds, which stat. It is written as a name but parses
+  into a `Stat` type, so an unknown name fails the load instead of reaching the
+  simulation. Each type knows whether it is a fraction and whether it applies to the
+  enemy rather than to you, which is how `enemyAttackSpeedPercent` and
+  `enemyMagicDamageAmp` stay distinguishable from your own stats. `Stats.All` is the
+  full list.
 - `versus` — for `DamageReduction` and `Shield`, what it applies to: `All` (the
   default), `Attacks`, `Abilities`, `Crit`, `Physical` or `Magic`. This is the one
   place the ballpark is not allowed to round off, because it decides *who* an item
@@ -141,6 +144,71 @@ mobility into damage, which is already the scoring currency.
 
 ## Champions
 
+One file per champion, in `Champions/`, named `<riotId>-<internalName>.json`.
+
+```json
+{
+  "id": "54868bae-e663-138e-97e9-7f47d48bf4f9",
+  "riotId": 203,
+  "internalName": "Kindred",
+  "name": "Kindred",
+  "icon": "Kindred.png",
+  "attackSpeedRatio": 0.625,
+  "base":     { "health": 595, "attackDamage": 65, "armor": 29, "attackSpeed": 0.625 },
+  "perLevel": { "health": 104, "attackDamage": 3.25, "armor": 4.7, "attackSpeed": 0.035 },
+  "tags": { "adDamageDealer": 0.9, "ranged": 1.0, "healing": 0.4 },
+  "stacking": []
+}
+```
+
+Both ids are needed: champ select reports the numeric `riotId`, the Live Client API
+reports `internalName`, and the two differ more often than expected — Wukong is
+`MonkeyKing`.
+
+`base` and `perLevel` are the same stat sheet twice: level 1 values, and growth per
+level. The growth curve is not linear, but that formula belongs in `StatCalculator`;
+these files are only data.
+
+Two traps, both of which silently produce wrong damage:
+
+- Data Dragon publishes `attackdamageperlevel` as **0 for every champion**, so
+  `perLevel.attackDamage` comes from CommunityDragon's game data instead. Senna is
+  the one champion where 0 is real — she gains attack damage from souls.
+- Attack speed growth is a percent in Data Dragon (`3.5`) and a fraction here
+  (`0.035`), like every other percent in this repo.
+
+`attackSpeedRatio` sits outside the sheets because it does not grow. Bonus attack
+speed scales off it rather than off base attack speed, and Data Dragon does not
+publish it at all. Jhin is the exception with no ratio: his attack speed is fixed.
+
+### Stacking
+
+Champions that permanently gain a stat as the game goes on:
+
+```json
+"stacking": [ { "stat": "armor", "initialStacksPerMinute": 10, "max": 30 } ]
+```
+
+`initialStacksPerMinute` is **only the prediction used at game start**, before there
+is anything to measure. Once the game is running, the current stack count comes from
+game state and the real rate is extrapolated from that, which replaces this number.
+It is a starting prior, not a fact, and the values here are estimates.
+
+Thirteen champions stack. Six grow an ordinary stat — Veigar, Thresh, Swain, Garen,
+Senna, Bel'Veth — and three more grow max health: Cho'Gath, Sion and Swain again.
+The rest grow `abilityDamage`: Nasus, Smolder, Kindred, Aurelion Sol and Viktor.
+
+`abilityDamage` is not a stat anything can apply, because champion abilities are not
+simulated. It exists so that threat estimation can tell a 900-stack Nasus from a
+fresh one; without it he reads as his base kit all game, which is badly wrong.
+
+This matters only for enemies. Your own stats arrive from the Live Client API with
+stacks already included, but enemies are reconstructed from base + growth + items,
+so without this a 30-minute Veigar reads as having only his item AP.
+
+Two of these champions show it in their growth as well: Senna has no attack damage
+per level and Thresh has no armor per level, because both gain it from stacks.
+
 Champion files carry **weighted tags** instead of a full ability model, so the
 evaluator can reason about matchups it does not simulate:
 
@@ -151,9 +219,28 @@ evaluator can reason about matchups it does not simulate:
 Each weight is 0–1 strength, not a yes/no. A champion with `healing: 0.9` makes
 Grievous Wounds urgent; `healing: 0.2` does not.
 
-Vocabulary: `tank`, `adDamageDealer`, `apDamageDealer`, `burst`, `sustained`,
-`splitPusher`, `healing`, `shielding`, `ranged`, `melee`, `mobile`, `crowdControl`,
-`trueDamage`.
+Vocabulary: `tank`, `adDamageDealer`, `apDamageDealer`, `burst`, `trueDamage`,
+`healing`, `shielding`, `crowdControl`, `ranged`, `melee`. A tag that does not apply
+is omitted, not written as `0`.
+
+Every tag has to change which items you buy. Playstyle traits like mobility or
+split-pushing were deliberately dropped: they describe the champion without telling
+the planner anything.
+
+`healing` and `shielding` are derived from Riot's own spell data - the structured
+`leveltip` labels, which say what a spell scales rather than what its flavour text
+mentions - and weighted by how many abilities provide it. Nine champions whose
+single source dominates their kit carry a hand-set value instead.
+
+`ranged` and `melee` come from attack range, with the cutoff at 325.
+
+`tank`, `adDamageDealer`, `apDamageDealer`, `burst`, `trueDamage` and `crowdControl`
+are hand-assigned opinions and should be read as such.
+
+Three champions — Yunara, Locke and Zaahen — have no damage profile, because they
+were released after these were written and guessing would be worse than a gap. Their
+`healing` and `shielding` are still correct, since those come from the data. A test
+pins the list so it stays visible rather than silent.
 
 These answer questions the item data alone cannot. Whether anti-heal is worth buying
 depends on enemy healing from **both** sides: champion tags cover abilities, while

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "044c0786-0bba-95e0-6cdc-cd8b9878e868",
+    "riotId":  18,
+    "internalName":  "Tristana",
+    "name":  "Tristana",
+    "icon":  "Tristana.png",
+    "attackSpeedRatio":  0.694,
+    "base":  {
+                 "health":  640,
+                 "mana":  300,
+                 "attackDamage":  60,
+                 "armor":  30,
+                 "magicResist":  33,
+                 "attackSpeed":  0.656,
+                 "healthRegen":  4,
+                 "manaRegen":  7.2,
+                 "moveSpeed":  325,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  102,
+                     "mana":  32,
+                     "attackDamage":  3.4,
+                     "armor":  4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.015,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.7,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

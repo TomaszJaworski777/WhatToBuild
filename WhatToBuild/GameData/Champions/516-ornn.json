@@ -1,0 +1,39 @@
+﻿{
+    "id":  "df92f39d-8282-8f3c-0aa3-290ffefb7e19",
+    "riotId":  516,
+    "internalName":  "Ornn",
+    "name":  "Ornn",
+    "icon":  "Ornn.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  660,
+                 "mana":  341,
+                 "attackDamage":  69,
+                 "armor":  33,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  9,
+                 "manaRegen":  8,
+                 "moveSpeed":  335,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  109,
+                     "mana":  65,
+                     "attackDamage":  3.5,
+                     "armor":  5.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "tank":  0.95,
+                 "crowdControl":  0.8,
+                 "apDamageDealer":  0.3,
+                 "melee":  1
+             },
+    "stacking":  [
+
+                 ]
+}

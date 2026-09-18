@@ -1,0 +1,39 @@
+﻿{
+    "id":  "5abdce31-0f2e-f366-e7d2-1cd9d744d557",
+    "riotId":  28,
+    "internalName":  "Evelynn",
+    "name":  "Evelynn",
+    "icon":  "Evelynn.png",
+    "attackSpeedRatio":  0.667,
+    "base":  {
+                 "health":  642,
+                 "mana":  315,
+                 "attackDamage":  61,
+                 "armor":  37,
+                 "magicResist":  32,
+                 "attackSpeed":  0.667,
+                 "healthRegen":  8.5,
+                 "manaRegen":  8.11,
+                 "moveSpeed":  335,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  98,
+                     "mana":  42,
+                     "attackDamage":  3,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.021,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.85,
+                 "burst":  0.9,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

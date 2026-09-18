@@ -1,0 +1,46 @@
+﻿{
+    "id":  "4666fe10-d6ef-1b1b-32f5-35d53cedc4c5",
+    "riotId":  235,
+    "internalName":  "Senna",
+    "name":  "Senna",
+    "icon":  "Senna.png",
+    "attackSpeedRatio":  0.4,
+    "base":  {
+                 "health":  530,
+                 "mana":  350,
+                 "attackDamage":  50,
+                 "armor":  25,
+                 "magicResist":  33,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  3.5,
+                 "manaRegen":  11.5,
+                 "moveSpeed":  330,
+                 "attackRange":  600
+             },
+    "perLevel":  {
+                     "health":  89,
+                     "mana":  45,
+                     "attackDamage":  0,
+                     "armor":  4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.026,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "ranged":  1,
+                 "healing":  0.3,
+                 "shielding":  0.3
+             },
+    "stacking":  [
+                     {
+                         "stat":  "attackDamage",
+                         "initialStacksPerMinute":  5
+                     },
+                     {
+                         "stat":  "critChance",
+                         "initialStacksPerMinute":  5
+                     }
+                 ]
+}

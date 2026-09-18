@@ -1,0 +1,40 @@
+﻿{
+    "id":  "88cda26a-04fa-765b-78a9-0a89a8cf6ccc",
+    "riotId":  48,
+    "internalName":  "Trundle",
+    "name":  "Trundle",
+    "icon":  "Trundle.png",
+    "attackSpeedRatio":  0.67,
+    "base":  {
+                 "health":  650,
+                 "mana":  340,
+                 "attackDamage":  68,
+                 "armor":  37,
+                 "magicResist":  32,
+                 "attackSpeed":  0.67,
+                 "healthRegen":  6,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  350,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  110,
+                     "mana":  45,
+                     "attackDamage":  4.5,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.029,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.6
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "tank":  0.5,
+                 "crowdControl":  0.6,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

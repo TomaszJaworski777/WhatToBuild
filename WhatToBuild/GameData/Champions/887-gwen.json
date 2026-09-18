@@ -1,0 +1,39 @@
+﻿{
+    "id":  "0ace460e-08a5-6606-7147-58edd922bde5",
+    "riotId":  887,
+    "internalName":  "Gwen",
+    "name":  "Gwen",
+    "icon":  "Gwen.png",
+    "attackSpeedRatio":  0.69,
+    "base":  {
+                 "health":  620,
+                 "mana":  330,
+                 "attackDamage":  63,
+                 "armor":  39,
+                 "magicResist":  32,
+                 "attackSpeed":  0.69,
+                 "healthRegen":  9,
+                 "manaRegen":  7.5,
+                 "moveSpeed":  340,
+                 "attackRange":  150
+             },
+    "perLevel":  {
+                     "health":  115,
+                     "mana":  40,
+                     "attackDamage":  3,
+                     "armor":  4.9,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0225,
+                     "healthRegen":  0.9,
+                     "manaRegen":  0.7
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.8,
+                 "trueDamage":  0.5,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

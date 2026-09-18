@@ -1,0 +1,40 @@
+﻿{
+    "id":  "dd307db0-ee55-fa9e-a1c6-a3a5cd4142ff",
+    "riotId":  59,
+    "internalName":  "JarvanIV",
+    "name":  "Jarvan IV",
+    "icon":  "JarvanIV.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  640,
+                 "mana":  300,
+                 "attackDamage":  64,
+                 "armor":  36,
+                 "magicResist":  32,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  8,
+                 "manaRegen":  6.5,
+                 "moveSpeed":  340,
+                 "attackRange":  175
+             },
+    "perLevel":  {
+                     "health":  104,
+                     "mana":  55,
+                     "attackDamage":  3,
+                     "armor":  4.6,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.025,
+                     "healthRegen":  0.7,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.75,
+                 "crowdControl":  0.8,
+                 "tank":  0.4,
+                 "melee":  1,
+                 "shielding":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

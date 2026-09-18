@@ -1,0 +1,38 @@
+﻿{
+    "id":  "3bf6098f-eba6-f2ab-35fa-e473e854853c",
+    "riotId":  21,
+    "internalName":  "MissFortune",
+    "name":  "Miss Fortune",
+    "icon":  "MissFortune.png",
+    "attackSpeedRatio":  0.656,
+    "base":  {
+                 "health":  625,
+                 "mana":  300,
+                 "attackDamage":  55,
+                 "armor":  25,
+                 "magicResist":  33,
+                 "attackSpeed":  0.656,
+                 "healthRegen":  3.75,
+                 "manaRegen":  8,
+                 "moveSpeed":  325,
+                 "attackRange":  550
+             },
+    "perLevel":  {
+                     "health":  100,
+                     "mana":  40,
+                     "attackDamage":  2.4,
+                     "armor":  4,
+                     "magicResist":  1.1,
+                     "attackSpeed":  0.03,
+                     "healthRegen":  0.65,
+                     "manaRegen":  0.8
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.85,
+                 "burst":  0.7,
+                 "ranged":  1
+             },
+    "stacking":  [
+
+                 ]
+}

@@ -1,0 +1,38 @@
+﻿{
+    "id":  "86f16e19-0138-055c-a108-29fde8e11afc",
+    "riotId":  233,
+    "internalName":  "Briar",
+    "name":  "Briar",
+    "icon":  "Briar.png",
+    "attackSpeedRatio":  0.669,
+    "base":  {
+                 "health":  625,
+                 "mana":  0,
+                 "attackDamage":  60,
+                 "armor":  30,
+                 "magicResist":  32,
+                 "attackSpeed":  0.644,
+                 "healthRegen":  0,
+                 "manaRegen":  0,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  95,
+                     "mana":  0,
+                     "attackDamage":  2.5,
+                     "armor":  4.5,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "melee":  1,
+                 "healing":  0.85
+             },
+    "stacking":  [
+
+                 ]
+}

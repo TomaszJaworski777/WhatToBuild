@@ -1,0 +1,41 @@
+﻿{
+    "id":  "fa93ea8a-7f7a-0ffa-3b7d-fca4b048f8e7",
+    "riotId":  875,
+    "internalName":  "Sett",
+    "name":  "Sett",
+    "icon":  "Sett.png",
+    "attackSpeedRatio":  0.625,
+    "base":  {
+                 "health":  670,
+                 "mana":  0,
+                 "attackDamage":  60,
+                 "armor":  33,
+                 "magicResist":  28,
+                 "attackSpeed":  0.625,
+                 "healthRegen":  7,
+                 "manaRegen":  0,
+                 "moveSpeed":  340,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  114,
+                     "mana":  0,
+                     "attackDamage":  4,
+                     "armor":  4.7,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.0175,
+                     "healthRegen":  0.5,
+                     "manaRegen":  0
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.8,
+                 "tank":  0.6,
+                 "crowdControl":  0.6,
+                 "trueDamage":  0.3,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

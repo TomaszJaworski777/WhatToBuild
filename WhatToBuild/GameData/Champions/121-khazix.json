@@ -1,0 +1,39 @@
+﻿{
+    "id":  "01c3c87c-582f-82e8-35e2-cf3c58793e1a",
+    "riotId":  121,
+    "internalName":  "Khazix",
+    "name":  "Kha\u0027Zix",
+    "icon":  "Khazix.png",
+    "attackSpeedRatio":  0.668,
+    "base":  {
+                 "health":  643,
+                 "mana":  327,
+                 "attackDamage":  60,
+                 "armor":  32,
+                 "magicResist":  32,
+                 "attackSpeed":  0.668,
+                 "healthRegen":  7.5,
+                 "manaRegen":  7.59,
+                 "moveSpeed":  345,
+                 "attackRange":  125
+             },
+    "perLevel":  {
+                     "health":  99,
+                     "mana":  40,
+                     "attackDamage":  3.1,
+                     "armor":  4.2,
+                     "magicResist":  2.05,
+                     "attackSpeed":  0.027,
+                     "healthRegen":  0.75,
+                     "manaRegen":  0.5
+                 },
+    "tags":  {
+                 "adDamageDealer":  0.9,
+                 "burst":  0.9,
+                 "melee":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}

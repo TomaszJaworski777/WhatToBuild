@@ -1,0 +1,39 @@
+﻿{
+    "id":  "88acb029-5096-9fd1-1a7d-591066c3b7a4",
+    "riotId":  432,
+    "internalName":  "Bard",
+    "name":  "Bard",
+    "icon":  "Bard.png",
+    "attackSpeedRatio":  0.658,
+    "base":  {
+                 "health":  630,
+                 "mana":  350,
+                 "attackDamage":  52,
+                 "armor":  32,
+                 "magicResist":  30,
+                 "attackSpeed":  0.658,
+                 "healthRegen":  5.5,
+                 "manaRegen":  6,
+                 "moveSpeed":  335,
+                 "attackRange":  500
+             },
+    "perLevel":  {
+                     "health":  103,
+                     "mana":  50,
+                     "attackDamage":  3,
+                     "armor":  4.7,
+                     "magicResist":  1.3,
+                     "attackSpeed":  0.02,
+                     "healthRegen":  0.55,
+                     "manaRegen":  0.45
+                 },
+    "tags":  {
+                 "apDamageDealer":  0.4,
+                 "crowdControl":  0.7,
+                 "ranged":  1,
+                 "healing":  0.4
+             },
+    "stacking":  [
+
+                 ]
+}
