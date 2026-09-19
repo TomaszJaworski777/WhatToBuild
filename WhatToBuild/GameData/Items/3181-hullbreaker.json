@@ -19,9 +19,10 @@
         {
             "trigger": "OnAttack",
             "kind": "PhysicalDamage",
-            "perTotalAd": 1.2,
-            "cooldown": 6,
-            "rangedMultiplier": 0.5833
+            "rangedMultiplier": 0.5833,
+            "everyAttacks": 5,
+            "perBaseAd": 1.2,
+            "perMaxHealth": 0.05
         }
     ]
 }

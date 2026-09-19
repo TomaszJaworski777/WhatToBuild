@@ -1,26 +1,27 @@
 ﻿{
-    "id":  "f613d0be-3868-63ff-0549-b97aaa4f112a",
-    "riotId":  3107,
-    "name":  "Redemption",
-    "icon":  "3107.png",
-    "cost":  2300,
-    "unique":  true,
-    "buildPath":  [
-                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
-                      "f613eb9a-98a0-b948-8531-cbf47e581483"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "abilityPower":  30,
-                  "healAndShieldPowerPercent":  0.1,
-                  "baseManaRegenPercent":  1
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "Heal",
-                        "amount":  250,
-                        "cooldown":  90
-                    }
-                ]
+    "id": "f613d0be-3868-63ff-0549-b97aaa4f112a",
+    "riotId": 3107,
+    "name": "Redemption",
+    "icon": "3107.png",
+    "cost": 2300,
+    "unique": true,
+    "buildPath": [
+        "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
+        "f613eb9a-98a0-b948-8531-cbf47e581483"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "abilityPower": 30,
+        "healAndShieldPowerPercent": 0.1,
+        "baseManaRegenPercent": 1
+    },
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "Heal",
+            "amount": 150,
+            "cooldown": 90,
+            "perLevel": 11.7647
+        }
+    ]
 }

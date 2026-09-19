@@ -22,5 +22,37 @@ public class Item
 
     public List<Effect> Effects { get; set; } = new();
 
+    public ItemStacking? Stacking { get; set; }
+
     public override string ToString() => $"{Name} ({Cost}g)";
+}
+
+public class StackGain
+{
+    public Stat Stat { get; set; } = Stats.Health;
+
+    public double Amount { get; set; }
+
+    public double PerMaxHealth { get; set; }
+}
+
+public class ItemStacking
+{
+    public string Per { get; set; } = "";
+
+    public List<StackGain> Gains { get; set; } = new();
+
+    public double Max { get; set; }
+
+    public double RangedMultiplier { get; set; } = 1;
+
+    public double StacksPerMinute { get; set; }
+
+    public string RateSource { get; set; } = "";
+
+    public double StacksAfter(double? minutesOwned, bool ranged)
+    {
+        var stacks = StacksPerMinute * (ranged ? RangedMultiplier : 1) * Math.Max(0, minutesOwned ?? 0);
+        return Max > 0 ? Math.Min(Max, stacks) : stacks;
+    }
 }

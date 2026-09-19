@@ -129,7 +129,9 @@ public class ItemTests
             {
                 var hasMagnitude = e.Amount != 0
                                    || e.PerBaseAd != 0 || e.PerTotalAd != 0 || e.PerAp != 0
-                                   || e.PerMaxHealth != 0
+                                   || e.PerMaxHealth != 0 || e.PerLevel != 0 || e.PerBonusAd != 0
+                                   || e.PerBonusHealth != 0 || e.PerBonusArmor != 0 || e.PerBonusMagicResist != 0
+                                   || e.PerLethality != 0 || e.PerCritChance != 0
                                    || e.PerTargetMaxHealth != 0 || e.PerTargetCurrentHealth != 0;
 
                 Assert.IsTrue(hasMagnitude, $"{item.Name} has a {e.Kind} effect with no magnitude.");

@@ -13,15 +13,15 @@
     "stats": {},
     "effects": [
         {
-            "trigger": "InCombat",
-            "kind": "Shield",
-            "amount": 80,
-            "cooldown": 10
-        },
-        {
             "trigger": "OnAttack",
             "kind": "TrueDamage",
-            "amount": 37,
+            "amount": 20,
+            "perLevel": 7.6471,
+            "perBonusAd": 0.1,
+            "perAp": 0.16,
+            "perBonusHealth": 0.04,
+            "perBonusArmor": 0.25,
+            "perBonusMagicResist": 0.25,
             "area": true,
             "byCompanion": true,
             "when": [

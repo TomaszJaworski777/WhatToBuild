@@ -1,26 +1,38 @@
 ﻿{
-    "id":  "3d3692c2-a85c-23de-56ca-b4f493c89de4",
-    "riotId":  3084,
-    "name":  "Heartsteel",
-    "icon":  "3084.png",
-    "cost":  3000,
-    "unique":  true,
-    "buildPath":  [
-                      "78a6c7fc-1e70-b5f7-6205-47b1df785d76",
-                      "89073bf4-4168-ad32-5757-46dfedad2a55",
-                      "78a6c7fc-1e70-b5f7-6205-47b1df785d76"
-                  ],
-    "stats":  {
-                  "health":  900,
-                  "baseHealthRegenPercent":  1
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "amount":  70,
-                        "perMaxHealth":  0.06,
-                        "cooldown":  30
-                    }
-                ]
+    "id": "3d3692c2-a85c-23de-56ca-b4f493c89de4",
+    "riotId": 3084,
+    "name": "Heartsteel",
+    "icon": "3084.png",
+    "cost": 3000,
+    "unique": true,
+    "buildPath": [
+        "78a6c7fc-1e70-b5f7-6205-47b1df785d76",
+        "89073bf4-4168-ad32-5757-46dfedad2a55",
+        "78a6c7fc-1e70-b5f7-6205-47b1df785d76"
+    ],
+    "stats": {
+        "health": 900,
+        "baseHealthRegenPercent": 1
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "amount": 70,
+            "perMaxHealth": 0.06,
+            "cooldown": 30
+        }
+    ],
+    "stacking": {
+        "per": "proc on a champion (at most every 30s per target)",
+        "gains": [
+            {
+                "stat": "health",
+                "amount": 7,
+                "perMaxHealth": 0.006
+            }
+        ],
+        "stacksPerMinute": 1,
+        "rateSource": "estimate"
+    }
 }

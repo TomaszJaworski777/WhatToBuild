@@ -1,25 +1,25 @@
 ﻿{
-    "id":  "b96fce5b-470a-4bb0-34e5-a139cc7828d0",
-    "riotId":  3118,
-    "name":  "Malignance",
-    "icon":  "3118.png",
-    "cost":  2700,
-    "unique":  true,
-    "buildPath":  [
-                      "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
-                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "abilityPower":  90,
-                  "mana":  600
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAbility",
-                        "kind":  "MagicDamage",
-                        "amount":  60,
-                        "perAp":  0.05
-                    }
-                ]
+    "id": "b96fce5b-470a-4bb0-34e5-a139cc7828d0",
+    "riotId": 3118,
+    "name": "Malignance",
+    "icon": "3118.png",
+    "cost": 2700,
+    "unique": true,
+    "buildPath": [
+        "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
+        "25bc422e-c041-8b19-b8e4-9cd95a0cd928"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "abilityPower": 90,
+        "mana": 600
+    },
+    "effects": [
+        {
+            "trigger": "OnAbility",
+            "kind": "MagicDamage",
+            "amount": 180,
+            "perAp": 0.15
+        }
+    ]
 }

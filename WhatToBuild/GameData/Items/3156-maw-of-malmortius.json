@@ -20,10 +20,11 @@
         {
             "trigger": "WhenLow",
             "kind": "Shield",
-            "amount": 350,
+            "amount": 200,
             "cooldown": 90,
             "versus": "Magic",
-            "rangedMultiplier": 0.75
+            "rangedMultiplier": 0.75,
+            "perBonusAd": 1.5
         }
     ]
 }

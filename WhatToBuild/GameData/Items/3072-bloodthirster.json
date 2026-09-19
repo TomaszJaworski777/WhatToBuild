@@ -1,25 +1,27 @@
 ﻿{
-    "id":  "84407203-878e-6a65-9b75-3dd9630d9569",
-    "riotId":  3072,
-    "name":  "Bloodthirster",
-    "icon":  "3072.png",
-    "cost":  3400,
-    "unique":  true,
-    "buildPath":  [
-                      "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
-                      "1d276371-f99d-7615-c4af-a5feab4d274d",
-                      "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb"
-                  ],
-    "stats":  {
-                  "attackDamage":  80,
-                  "lifeStealPercent":  0.15
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "Shield",
-                        "amount":  300,
-                        "cooldown":  25
-                    }
-                ]
+    "id": "84407203-878e-6a65-9b75-3dd9630d9569",
+    "riotId": 3072,
+    "name": "Bloodthirster",
+    "icon": "3072.png",
+    "cost": 3400,
+    "unique": true,
+    "buildPath": [
+        "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
+        "1d276371-f99d-7615-c4af-a5feab4d274d",
+        "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb"
+    ],
+    "stats": {
+        "attackDamage": 80,
+        "lifeStealPercent": 0.15
+    },
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "Shield",
+            "amount": 165,
+            "cooldown": 25,
+            "perLevel": 15,
+            "perLevelFrom": 9
+        }
+    ]
 }

@@ -10,6 +10,7 @@ namespace WhatToBuild.Tests;
 public class KindredInGameTests
 {
     private const double MeasuredAttackDamage = 75;
+    private const double HealthScalingShardAtLevelThree = 30;
     private const double PressTheAttackExposure = 0.08;
 
     private static ChampionRepository _champions = null!;
@@ -33,7 +34,11 @@ public class KindredInGameTests
 
     private static ChampionState LevelThreeKindred(params Item[] items)
     {
-        var runes = new StatSheet { AttackDamage = MeasuredAttackDamage - new ChampionState(Kindred, 3).Stats.AttackDamage };
+        var runes = new StatSheet
+        {
+            AttackDamage = MeasuredAttackDamage - new ChampionState(Kindred, 3).Stats.AttackDamage,
+            Health = HealthScalingShardAtLevelThree,
+        };
         return new ChampionState(Kindred, 3, items, adjustment: runes);
     }
 
@@ -74,7 +79,7 @@ public class KindredInGameTests
         var bite = AttackerHits.ForEffect(Gustwalker.Effects.First(e => e.Kind == EffectKind.TrueDamage), kindred, red)!.Attack().Run().HealthDamage;
 
         Assert.AreEqual(58, Attack(kindred, red), 1);
-        Assert.AreEqual(37, bite, 0.001);
+        Assert.AreEqual(37, bite, 0.3);
     }
 
     [TestMethod]

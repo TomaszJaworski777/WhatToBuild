@@ -1,29 +1,32 @@
 ﻿{
-    "id":  "c6dff196-0dbd-6bb3-6291-8b80bd6f5fd0",
-    "riotId":  2510,
-    "name":  "Dusk and Dawn",
-    "icon":  "2510.png",
-    "cost":  3100,
-    "unique":  true,
-    "groups":  [ "Spellblade" ],
-    "buildPath":  [
-                      "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
-                      "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
-                      "dec45a0a-3f4e-628c-abff-7537636197ac",
-                      "29012b80-9265-ee3d-3b54-ed05645960db"
-                  ],
-    "stats":  {
-                  "abilityHaste":  20,
-                  "health":  300,
-                  "abilityPower":  60,
-                  "attackSpeedPercent":  0.2
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAbility",
-                        "kind":  "MagicDamage",
-                        "perBaseAd":  1.0,
-                        "cooldown":  1.5
-                    }
-                ]
+    "id": "c6dff196-0dbd-6bb3-6291-8b80bd6f5fd0",
+    "riotId": 2510,
+    "name": "Dusk and Dawn",
+    "icon": "2510.png",
+    "cost": 3100,
+    "unique": true,
+    "groups": [
+        "Spellblade"
+    ],
+    "buildPath": [
+        "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
+        "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
+        "dec45a0a-3f4e-628c-abff-7537636197ac",
+        "29012b80-9265-ee3d-3b54-ed05645960db"
+    ],
+    "stats": {
+        "abilityHaste": 20,
+        "health": 300,
+        "abilityPower": 60,
+        "attackSpeedPercent": 0.2
+    },
+    "effects": [
+        {
+            "trigger": "OnAbility",
+            "kind": "MagicDamage",
+            "perBaseAd": 0.75,
+            "cooldown": 1.5,
+            "perAp": 0.1
+        }
+    ]
 }

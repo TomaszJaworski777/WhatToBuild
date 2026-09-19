@@ -115,8 +115,20 @@ CommunityDragon's `items.cdtb.bin.json` rather than written from memory.
   Maw's shield is `Magic`; calling any of them blanket mitigation would recommend
   them against comps they do nothing to.
 - Scaling, any of which may be combined with `amount`:
-  `perBaseAd`, `perTotalAd`, `perAp`, `perMaxHealth`, `perTargetMaxHealth`,
-  `perTargetCurrentHealth`.
+  `perBaseAd`, `perTotalAd`, `perBonusAd`, `perAp`, `perMaxHealth`, `perBonusHealth`,
+  `perBonusArmor`, `perBonusMagicResist`, `perTargetMaxHealth`, `perTargetCurrentHealth`.
+  "Bonus" is the stat minus the champion's base at its level, so items, runes and
+  dragons all count.
+  `perLethality` scales with the lethality from items, `perCritChance` with crit
+  chance (50 means +50 at 100% crit). `perLevel` grows from level 2 unless
+  `perLevelFrom` says otherwise (Bloodthirster's shield grows from level 9).
+  Permanent `StatBuff`s may use `perBaseAd` and `perBonusHealth` (Sterak's +50% base AD,
+  Riftmaker's 2% bonus health as AP).
+- Where an item's bin has a formula for an effect (`mItemCalculations` in
+  `items.cdtb.bin.json`), the effect copies it: Sterak's shield is `ShieldSize` = 60%
+  bonus health, Sunfire is `DamagePerTick` = 20 + 1.5% bonus health, and so on. The stat
+  numbers in those formulas read as 0 AP, 1 armor, 2 AD, 6 magic resist, 8 crit
+  chance, 12 health, 29 lethality, with formula 1 = base and 2 = bonus.
 
 Anything absent is zero, so the simulation always reads a number and never has to
 check whether a key exists.
@@ -502,10 +514,10 @@ pinned by `KindredInGameTests`. Each entry records the measurement that justifie
   and showed 38 for attack + pounce with Press the Attack's +8% (the model gives
   (15 + 20.5) × 1.08 = 38.3). Read measurements with that in mind: the pounce alone
   is the merged number minus the attack.
-- The jungle pet bites for 37 true damage per attack (measured on red at level 3; the
-  companion data says `baseDamage` 35 with no growth, so where the extra 2 comes from is
-  unknown). The +10% does not apply to it: that buff is on the champion, and the pet is
-  its own unit, hence `byCompanion`.
+- The jungle pet's bite is true damage, and the +10% does not apply to it: that buff is
+  on the champion, and the pet is its own unit, hence `byCompanion`. Its size follows
+  the formula below; at level 3 with 75 AD and the health scaling rune shard (~30 bonus
+  health) it gives 37.0, which is what red took in game.
 - Our own champion's AD, AP, health, resists and ability haste come from the Live
   Client API (runes included). The simulation rebuilds stats from base + items and then
   adds the difference, so rune shards count; a level 3 Kindred measured 75 AD against
@@ -517,12 +529,44 @@ pinned by `KindredInGameTests`. Each entry records the measurement that justifie
 The three jungle pets (Scorchclaw, Gustwalker, Mosstomper, two item ids each) carry
 two effects, both `when` the target is a monster:
 
-- 37 true damage on every attack (measured, see above), with `area: true` and
-  `byCompanion: true`. The companion is its own unit
-  in `sru_jungle_companions.bin.json` with `baseDamage` 35 and attack speed 0.625; firing
-  on every one of our attacks and hitting the whole camp is a deliberate simplification.
+- True damage on every attack, sized by `PetDPS` on `SummonerSmite` in
+  `shared.cdtb.bin.json` (the item tooltip names it): 20 to 150 across levels 1 to 18
+  (`amount` 20, `perLevel` 7.6471) + 10% bonus AD + 16% AP + 4% bonus health + 25% bonus
+  armor + 25% bonus magic resist. The stat numbers in that formula are read as 2 AD,
+  0 AP, 12 health, 1 armor, 6 magic resist, with formula 2 meaning the bonus part.
+  `area: true` and `byCompanion: true`. The companion's own `baseDamage` 35 in
+  `sru_jungle_companions.bin.json` is not used. Firing on every one of our attacks and
+  hitting the whole camp is a deliberate simplification.
 - +10% damage (`damageAmp` 0.1), from `DamageAmp` 1.1 on `PuppyControllerBuff` in the
   same file.
 
 `MonsterDamageTaken` 0.5 (monsters deal half damage to you) is left out, because nothing
 simulates monsters hitting back yet.
+
+## Item stacking
+
+Items that grow over the game carry a `stacking` block. This is deliberately naive: it
+does not simulate how stacks are earned, it only makes stacking items worth more the
+earlier they are bought.
+
+```json
+"stacking": { "per": "minute owned", "gains": [ { "stat": "health", "amount": 10 },
+  { "stat": "mana", "amount": 30 }, { "stat": "abilityPower", "amount": 3 } ],
+  "max": 10, "stacksPerMinute": 1, "rateSource": "game data: SecondsPerStack 60" }
+```
+
+- Stacks = `stacksPerMinute` × minutes owned × `rangedMultiplier` (for ranged
+  champions), capped at `max`.
+- `gains` is what one stack gives, from the item's data values: `amount`, optionally
+  `perMaxHealth` (Heartsteel: 10% of its proc, 7 + 0.6% max health).
+- `stacksPerMinute` is game data only for Rod of Ages (one per minute). Every other rate
+  is an estimate (`rateSource: "estimate"`) meant to be tuned: Heartsteel 1, Hubris 0.2,
+  Mejai's 0.5, Dark Seal 0.3, the omnivamp boots 0.5, Yun Tal 15 (half when ranged, max
+  62.5 = 25% crit), The Collector 0.2 kills, Cull 7 minions.
+- Minutes owned come from when the app first saw the item on that player; an item that
+  was already there when the app started counts from that moment.
+- In the build path, an item not bought yet is valued with the stacks it would have by
+  30:00 if bought at its expected time, so the same item scores higher the earlier it
+  fits in.
+- Your own champion's stats already include stacks through the Live Client API; the
+  simulation adjusts to them instead of adding stacks on top.

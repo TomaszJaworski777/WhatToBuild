@@ -28,6 +28,7 @@ public sealed class SampleRecommendations : IRecommendationSource
     public const int InventorySlots = 6;
     public const int CompletedItemMinCost = 2000;
     public const int NeedOptionCount = 3;
+    public const double StackHorizonSeconds = 30 * 60;
 
     private static readonly int[] PlanOrder = [6672, 3006, 3031, 3036, 3033, 3026, 3072, 3046, 3094];
     private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
@@ -37,6 +38,8 @@ public sealed class SampleRecommendations : IRecommendationSource
     private readonly string _patch;
     private readonly HashSet<Guid> _components;
     private readonly ChampionKits _kits;
+
+    private OurFights? _fights;
 
     public SampleRecommendations(ItemRepository items, NeutralRepository neutrals, ChampionKits kits)
     {
@@ -54,11 +57,13 @@ public sealed class SampleRecommendations : IRecommendationSource
             return null;
         }
 
-        var context = new PlanContext(state, OurFights.For(state, _neutrals, _kits)!, stack);
+        _fights = OurFights.For(state, _neutrals, _kits)!;
+        var context = new PlanContext(state, _fights, stack);
         var owned = me.Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)).ToList();
         var inventory = owned.ToList();
 
         var steps = new List<BuildStepDto>();
+        var projected = new Dictionary<Guid, double>();
         var planned = new List<PlannedItem>();
         var skipped = new List<SkippedItemDto>();
         var goldAhead = state.CurrentGold;
@@ -101,7 +106,13 @@ public sealed class SampleRecommendations : IRecommendationSource
 
             var status = isNext ? BuildStepDto.Next : BuildStepDto.Planned;
             var eta = state.GameTime + etaSoFar;
-            var impact = Impact(context, inventory, full.InventoryAfter);
+            var stacksBefore = new Dictionary<Guid, double>(projected);
+            if (item.Stacking is { } stacking)
+            {
+                projected[item.Id] = stacking.StacksAfter((StackHorizonSeconds - eta) / 60, me.Champion.IsRanged);
+            }
+
+            var impact = Impact(context, inventory, full.InventoryAfter, stacksBefore, projected);
 
             steps.Add(new BuildStepDto(
                 Map(item),
@@ -110,7 +121,7 @@ public sealed class SampleRecommendations : IRecommendationSource
                 Math.Max(20, etaSoFar * 0.25),
                 (int)Math.Ceiling(need),
                 impact,
-                Why(item, context, impact, full.InventoryAfter, isNext ? need : null)));
+                Why(item, context, impact, full.InventoryAfter, isNext ? need : null, projected.GetValueOrDefault(item.Id), eta)));
 
             planned.Add(new PlannedItem(item, status, eta));
             inventory = full.InventoryAfter.ToList();
@@ -158,12 +169,17 @@ public sealed class SampleRecommendations : IRecommendationSource
         public double Income { get; }
     }
 
-    private ImpactDto Impact(PlanContext context, IReadOnlyList<Item> before, IReadOnlyList<Item> after)
+    private ImpactDto Impact(
+        PlanContext context,
+        IReadOnlyList<Item> before,
+        IReadOnlyList<Item> after,
+        IReadOnlyDictionary<Guid, double> stacksBefore,
+        IReadOnlyDictionary<Guid, double> stacksAfter)
     {
         var fights = context.Enemies
             .Select(e => (e.Player, e.Entity,
-                Before: context.Scorer.Against(before, e.Entity),
-                After: context.Scorer.Against(after, e.Entity)))
+                Before: context.Scorer.Against(before, e.Entity, stacksBefore),
+                After: context.Scorer.Against(after, e.Entity, stacksAfter)))
             .ToList();
 
         var perEnemy = fights
@@ -184,7 +200,7 @@ public sealed class SampleRecommendations : IRecommendationSource
             perEnemy);
     }
 
-    private IReadOnlyList<string> Why(Item item, PlanContext context, ImpactDto impact, IReadOnlyList<Item> after, double? goldNeeded)
+    private IReadOnlyList<string> Why(Item item, PlanContext context, ImpactDto impact, IReadOnlyList<Item> after, double? goldNeeded, double stacksAtHorizon, double eta)
     {
         var reasons = new List<string>
         {
@@ -250,6 +266,11 @@ public sealed class SampleRecommendations : IRecommendationSource
             reasons.Add(burst.Count > 0
                 ? $"Revive against burst from {string.Join(", ", burst)}"
                 : "Revive, though no enemy has heavy burst");
+        }
+
+        if (item.Stacking is not null)
+        {
+            reasons.Add($"Stacking item: ~{stacksAtHorizon:0} stacks by {Clock(StackHorizonSeconds)} if bought at ~{Clock(eta)}; buying it earlier gives more");
         }
 
         foreach (var need in Needs(context).Where(n => n.Covers(item)))
@@ -369,11 +390,9 @@ public sealed class SampleRecommendations : IRecommendationSource
             return new PurchaseDto("", [], 0, gold, false, "Build complete", []);
         }
 
-        var summary = plan.CompletesTarget
-            ? $"Buy {plan.Target.Name}"
-            : plan.Buy.Count > 0
-                ? $"Buy {string.Join(" + ", plan.Buy.Select(i => i.Name))} toward {plan.Target.Name}"
-                : $"Save up: nothing from {plan.Target.Name} fits in {Math.Floor(gold):0} gold";
+        var summary = plan.Buy.Count > 0
+            ? string.Join(" + ", plan.Buy.Select(i => i.Name))
+            : $"Save up for {plan.Target.Name}";
 
         var why = new List<string>();
         if (plan.Buy.Count > 0)
@@ -398,7 +417,8 @@ public sealed class SampleRecommendations : IRecommendationSource
             why);
     }
 
-    private ItemDto Map(Item item) => GameStateMapper.MapItem(item, 1, _patch);
+    private ItemDto Map(Item item) =>
+        GameStateMapper.MapItem(item, 1, _patch, owner: _fights?.Scorer.Us([.. _fights.Owned, item]));
 
     private static double Gain(double before, double after) => before > 0 ? after / before - 1 : 0;
 

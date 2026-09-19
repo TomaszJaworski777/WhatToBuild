@@ -1,26 +1,27 @@
 ﻿{
-    "id":  "71e4e0de-ed35-d1a4-cfa7-ddd66c010798",
-    "riotId":  3152,
-    "name":  "Hextech Rocketbelt",
-    "icon":  "3152.png",
-    "cost":  2650,
-    "unique":  true,
-    "buildPath":  [
-                      "2310e122-8f59-c9c2-3ae8-f4a33b938440",
-                      "dec45a0a-3f4e-628c-abff-7537636197ac",
-                      "b025024f-832d-4982-6bb7-f6d96e42dc1f"
-                  ],
-    "stats":  {
-                  "abilityHaste":  20,
-                  "health":  350,
-                  "abilityPower":  60
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAbility",
-                        "kind":  "MagicDamage",
-                        "amount":  150,
-                        "cooldown":  50
-                    }
-                ]
+    "id": "71e4e0de-ed35-d1a4-cfa7-ddd66c010798",
+    "riotId": 3152,
+    "name": "Hextech Rocketbelt",
+    "icon": "3152.png",
+    "cost": 2650,
+    "unique": true,
+    "buildPath": [
+        "2310e122-8f59-c9c2-3ae8-f4a33b938440",
+        "dec45a0a-3f4e-628c-abff-7537636197ac",
+        "b025024f-832d-4982-6bb7-f6d96e42dc1f"
+    ],
+    "stats": {
+        "abilityHaste": 20,
+        "health": 350,
+        "abilityPower": 60
+    },
+    "effects": [
+        {
+            "trigger": "OnAbility",
+            "kind": "MagicDamage",
+            "amount": 100,
+            "cooldown": 50,
+            "perAp": 0.1
+        }
+    ]
 }

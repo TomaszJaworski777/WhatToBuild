@@ -747,15 +747,6 @@ img {
     box-shadow: 0 0 10px rgba(200, 170, 110, 0.4);
 }
 
-.step-skipped .slot {
-    filter: grayscale(1);
-    opacity: 0.4;
-}
-
-.step-skipped .step-eta {
-    color: var(--chaos);
-}
-
 .why {
     margin: 0;
     padding-left: 16px;

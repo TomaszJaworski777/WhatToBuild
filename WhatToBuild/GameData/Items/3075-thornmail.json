@@ -1,31 +1,34 @@
 ﻿{
-    "id":  "ded16819-fecd-6c4e-0dbf-9d12231f730b",
-    "riotId":  3075,
-    "name":  "Thornmail",
-    "icon":  "3075.png",
-    "cost":  2450,
-    "unique":  true,
-    "groups":  [ "Thorns" ],
-    "buildPath":  [
-                      "df07c8cd-9270-9112-8069-d873029c189e",
-                      "5dd70522-168e-d7bb-5854-c24b78940297",
-                      "b025024f-832d-4982-6bb7-f6d96e42dc1f"
-                  ],
-    "stats":  {
-                  "health":  150,
-                  "armor":  75
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "MagicDamage",
-                        "amount":  30,
-                        "cooldown":  1
-                    },
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "GrievousWounds",
-                        "amount":  0.4
-                    }
-                ]
+    "id": "ded16819-fecd-6c4e-0dbf-9d12231f730b",
+    "riotId": 3075,
+    "name": "Thornmail",
+    "icon": "3075.png",
+    "cost": 2450,
+    "unique": true,
+    "groups": [
+        "Thorns"
+    ],
+    "buildPath": [
+        "df07c8cd-9270-9112-8069-d873029c189e",
+        "5dd70522-168e-d7bb-5854-c24b78940297",
+        "b025024f-832d-4982-6bb7-f6d96e42dc1f"
+    ],
+    "stats": {
+        "health": 150,
+        "armor": 75
+    },
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "MagicDamage",
+            "amount": 20,
+            "cooldown": 1,
+            "perBonusArmor": 0.1
+        },
+        {
+            "trigger": "InCombat",
+            "kind": "GrievousWounds",
+            "amount": 0.4
+        }
+    ]
 }

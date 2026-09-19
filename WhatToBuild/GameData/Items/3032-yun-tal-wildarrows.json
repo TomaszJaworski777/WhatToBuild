@@ -1,25 +1,31 @@
 ﻿{
-    "id":  "fe0c2430-2249-03bd-7772-6f27542ed3ec",
-    "riotId":  3032,
-    "name":  "Yun Tal Wildarrows",
-    "icon":  "3032.png",
-    "cost":  3000,
-    "unique":  true,
-    "buildPath":  [
-                      "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
-                      "83ec4976-66ed-d9b1-8549-63e8f319bd86",
-                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
-                  ],
-    "stats":  {
-                  "attackDamage":  50,
-                  "attackSpeedPercent":  0.45
-              },
-    "effects":  [
-                    {
-                        "trigger":  "Always",
-                        "kind":  "StatBuff",
-                        "stat":  "critChance",
-                        "amount":  0.25
-                    }
-                ]
+    "id": "fe0c2430-2249-03bd-7772-6f27542ed3ec",
+    "riotId": 3032,
+    "name": "Yun Tal Wildarrows",
+    "icon": "3032.png",
+    "cost": 3000,
+    "unique": true,
+    "buildPath": [
+        "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
+        "83ec4976-66ed-d9b1-8549-63e8f319bd86",
+        "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+    ],
+    "stats": {
+        "attackDamage": 50,
+        "attackSpeedPercent": 0.45
+    },
+    "effects": [],
+    "stacking": {
+        "per": "attack",
+        "gains": [
+            {
+                "stat": "critChance",
+                "amount": 0.004
+            }
+        ],
+        "rangedMultiplier": 0.5,
+        "stacksPerMinute": 15,
+        "rateSource": "estimate",
+        "max": 62.5
+    }
 }

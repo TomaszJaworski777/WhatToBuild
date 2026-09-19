@@ -1,16 +1,24 @@
 ﻿{
-    "id":  "473168a1-14a9-afa6-c8fd-6ae0b8b544b6",
-    "riotId":  1083,
-    "name":  "Cull",
-    "icon":  "1083.png",
-    "cost":  450,
-    "buildPath":  [
-
-                  ],
-    "stats":  {
-                  "attackDamage":  7
-              },
-    "effects":  [
-
-                ]
+    "id": "473168a1-14a9-afa6-c8fd-6ae0b8b544b6",
+    "riotId": 1083,
+    "name": "Cull",
+    "icon": "1083.png",
+    "cost": 450,
+    "buildPath": [],
+    "stats": {
+        "attackDamage": 7
+    },
+    "effects": [],
+    "stacking": {
+        "per": "minion kill",
+        "gains": [
+            {
+                "stat": "gold",
+                "amount": 1
+            }
+        ],
+        "max": 100,
+        "stacksPerMinute": 7,
+        "rateSource": "estimate"
+    }
 }

@@ -20,6 +20,8 @@ public sealed class GameTracker
 
     public GameStack Stack { get; private set; } = new();
 
+    private readonly Dictionary<(string Champion, int Item), double> _firstSeen = new();
+
     public async Task<GameState?> PollAsync(CancellationToken ct = default)
     {
         var json = await _client.GetAllGameDataAsync(ct);
@@ -34,10 +36,31 @@ public sealed class GameTracker
         if (Stack.Latest is { } latest && state.GameTime + NewGameThresholdSeconds < latest.GameTime)
         {
             Stack = new GameStack();
+            _firstSeen.Clear();
         }
 
+        TrackPurchases(state);
         Stack.Push(state);
 
         return state;
+    }
+
+    private void TrackPurchases(GameState state)
+    {
+        var owned = state.Players
+            .SelectMany(p => p.Items.Select(i => (p.Champion.Name, i.Item.RiotId)))
+            .ToHashSet();
+
+        foreach (var key in _firstSeen.Keys.Where(k => !owned.Contains(k)).ToList())
+        {
+            _firstSeen.Remove(key);
+        }
+
+        foreach (var key in owned)
+        {
+            _firstSeen.TryAdd(key, state.GameTime);
+        }
+
+        state.ItemFirstSeen = new Dictionary<(string Champion, int Item), double>(_firstSeen);
     }
 }

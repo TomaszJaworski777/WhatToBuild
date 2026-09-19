@@ -1,31 +1,36 @@
 ﻿{
-    "id":  "020fef1d-4d3d-bd98-bf46-d3b60979c747",
-    "riotId":  3174,
-    "name":  "Armored Advance",
-    "icon":  "3174.png",
-    "cost":  1200,
-    "unique":  true,
-    "groups":  [ "Boots" ],
-    "buildPath":  [
-                      "28eaf0dc-17ed-48a1-b29a-a78842a02b75"
-                  ],
-    "stats":  {
-                  "moveSpeedFlat":  45,
-                  "armor":  35
-              },
-    "effects":  [
-                    {
-                        "trigger":  "Always",
-                        "kind":  "DamageReduction",
-                        "amount":  0.1,
-                        "versus":  "Attacks"
-                    },
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "Shield",
-                        "perMaxHealth":  0.08,
-                        "cooldown":  15,
-                        "versus":  "Physical"
-                    }
-                ]
+    "id": "020fef1d-4d3d-bd98-bf46-d3b60979c747",
+    "riotId": 3174,
+    "name": "Armored Advance",
+    "icon": "3174.png",
+    "cost": 1200,
+    "unique": true,
+    "groups": [
+        "Boots"
+    ],
+    "buildPath": [
+        "28eaf0dc-17ed-48a1-b29a-a78842a02b75"
+    ],
+    "stats": {
+        "moveSpeedFlat": 45,
+        "armor": 35
+    },
+    "effects": [
+        {
+            "trigger": "Always",
+            "kind": "DamageReduction",
+            "amount": 0.1,
+            "versus": "Attacks"
+        },
+        {
+            "trigger": "InCombat",
+            "kind": "Shield",
+            "cooldown": 15,
+            "versus": "Physical",
+            "amount": 90,
+            "perLevel": 10,
+            "perLevelFrom": 9,
+            "perBonusHealth": 0.08
+        }
+    ]
 }

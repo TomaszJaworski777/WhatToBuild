@@ -1,22 +1,22 @@
 ﻿{
-    "id":  "2310e122-8f59-c9c2-3ae8-f4a33b938440",
-    "riotId":  3145,
-    "name":  "Hextech Alternator",
-    "icon":  "3145.png",
-    "cost":  1100,
-    "buildPath":  [
-                      "83c60239-84da-8113-48e7-715da5f0d75a",
-                      "83c60239-84da-8113-48e7-715da5f0d75a"
-                  ],
-    "stats":  {
-                  "abilityPower":  45
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAbility",
-                        "kind":  "MagicDamage",
-                        "amount":  80,
-                        "cooldown":  40
-                    }
-                ]
+    "id": "2310e122-8f59-c9c2-3ae8-f4a33b938440",
+    "riotId": 3145,
+    "name": "Hextech Alternator",
+    "icon": "3145.png",
+    "cost": 1100,
+    "buildPath": [
+        "83c60239-84da-8113-48e7-715da5f0d75a",
+        "83c60239-84da-8113-48e7-715da5f0d75a"
+    ],
+    "stats": {
+        "abilityPower": 45
+    },
+    "effects": [
+        {
+            "trigger": "OnAbility",
+            "kind": "MagicDamage",
+            "amount": 65,
+            "cooldown": 40
+        }
+    ]
 }

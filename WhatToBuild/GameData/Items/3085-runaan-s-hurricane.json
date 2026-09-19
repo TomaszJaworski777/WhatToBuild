@@ -18,7 +18,7 @@
         {
             "trigger": "OnAttack",
             "kind": "PhysicalDamage",
-            "perTotalAd": 0.8,
+            "perTotalAd": 0.65,
             "splash": true
         }
     ]

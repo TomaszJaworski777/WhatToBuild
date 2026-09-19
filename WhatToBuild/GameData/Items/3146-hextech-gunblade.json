@@ -1,26 +1,28 @@
 ﻿{
-    "id":  "dff14997-50c2-91ca-c1eb-b0662191c2d7",
-    "riotId":  3146,
-    "name":  "Hextech Gunblade",
-    "icon":  "3146.png",
-    "cost":  3000,
-    "unique":  true,
-    "buildPath":  [
-                      "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
-                      "2310e122-8f59-c9c2-3ae8-f4a33b938440",
-                      "83c60239-84da-8113-48e7-715da5f0d75a"
-                  ],
-    "stats":  {
-                  "attackDamage":  40,
-                  "abilityPower":  80,
-                  "omnivampPercent":  0.1
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAbility",
-                        "kind":  "MagicDamage",
-                        "amount":  175,
-                        "cooldown":  60
-                    }
-                ]
+    "id": "dff14997-50c2-91ca-c1eb-b0662191c2d7",
+    "riotId": 3146,
+    "name": "Hextech Gunblade",
+    "icon": "3146.png",
+    "cost": 3000,
+    "unique": true,
+    "buildPath": [
+        "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
+        "2310e122-8f59-c9c2-3ae8-f4a33b938440",
+        "83c60239-84da-8113-48e7-715da5f0d75a"
+    ],
+    "stats": {
+        "attackDamage": 40,
+        "abilityPower": 80,
+        "omnivampPercent": 0.1
+    },
+    "effects": [
+        {
+            "trigger": "OnAbility",
+            "kind": "MagicDamage",
+            "amount": 175,
+            "cooldown": 60,
+            "perLevel": 4.5882,
+            "perAp": 0.3
+        }
+    ]
 }

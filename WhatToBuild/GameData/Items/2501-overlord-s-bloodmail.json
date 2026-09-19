@@ -1,32 +1,38 @@
 ﻿{
-    "id":  "cd6e46f2-61c9-2253-7708-ad8bbf293f7b",
-    "riotId":  2501,
-    "name":  "Overlord\u0027s Bloodmail",
-    "icon":  "2501.png",
-    "cost":  3300,
-    "unique":  true,
-    "buildPath":  [
-                      "066b2773-c9e4-e84b-4d19-ff867aae662a",
-                      "066b2773-c9e4-e84b-4d19-ff867aae662a"
-                  ],
-    "stats":  {
-                  "health":  550,
-                  "attackDamage":  30
-              },
-    "effects":  [
-                    {
-                        "trigger":  "Always",
-                        "kind":  "StatBuff",
-                        "stat":  "attackDamage",
-                        "amount":  14,
-                        "when":  [
-                                     {
-                                         "subject":  "Self",
-                                         "property":  "HealthPercent",
-                                         "op":  "AtMost",
-                                         "value":  0.7
-                                     }
-                                 ]
-                    }
-                ]
+    "id": "cd6e46f2-61c9-2253-7708-ad8bbf293f7b",
+    "riotId": 2501,
+    "name": "Overlord's Bloodmail",
+    "icon": "2501.png",
+    "cost": 3300,
+    "unique": true,
+    "buildPath": [
+        "066b2773-c9e4-e84b-4d19-ff867aae662a",
+        "066b2773-c9e4-e84b-4d19-ff867aae662a"
+    ],
+    "stats": {
+        "health": 550,
+        "attackDamage": 30
+    },
+    "effects": [
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "attackDamage",
+            "amount": 14,
+            "when": [
+                {
+                    "subject": "Self",
+                    "property": "HealthPercent",
+                    "op": "AtMost",
+                    "value": 0.7
+                }
+            ]
+        },
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "attackDamage",
+            "perBonusHealth": 0.025
+        }
+    ]
 }

@@ -14,6 +14,7 @@ public sealed class FightScorer : IPurchaseScorer
     private readonly double _stacks;
     private readonly Func<IChampionKit?> _newKit;
     private readonly StatSheet? _adjustment;
+    private readonly IReadOnlyDictionary<Guid, double>? _itemStacks;
 
     public FightScorer(
         Champion champion,
@@ -23,9 +24,11 @@ public sealed class FightScorer : IPurchaseScorer
         AbilityRanks ranks,
         double stacks,
         Func<IChampionKit?> newKit,
-        StatSheet? adjustment = null)
+        StatSheet? adjustment = null,
+        IReadOnlyDictionary<Guid, double>? itemStacks = null)
     {
         _adjustment = adjustment;
+        _itemStacks = itemStacks;
         _champion = champion;
         _level = level;
         _teamBuffs = teamBuffs.ToList();
@@ -35,11 +38,28 @@ public sealed class FightScorer : IPurchaseScorer
         _newKit = newKit;
     }
 
-    public ChampionState Us(IEnumerable<Item> inventory) => new(_champion, _level, inventory, _teamBuffs, _adjustment);
+    public ChampionState Us(IEnumerable<Item> inventory, IReadOnlyDictionary<Guid, double>? projectedStacks = null) =>
+        new(_champion, _level, inventory, _teamBuffs, _adjustment, Merge(_itemStacks, projectedStacks));
 
-    public FightResult Against(IEnumerable<Item> inventory, Entity target)
+    private static IReadOnlyDictionary<Guid, double>? Merge(IReadOnlyDictionary<Guid, double>? owned, IReadOnlyDictionary<Guid, double>? projected)
     {
-        var us = Us(inventory);
+        if (projected is null || projected.Count == 0)
+        {
+            return owned;
+        }
+
+        var merged = new Dictionary<Guid, double>(owned ?? new Dictionary<Guid, double>());
+        foreach (var (id, stacks) in projected)
+        {
+            merged.TryAdd(id, stacks);
+        }
+
+        return merged;
+    }
+
+    public FightResult Against(IEnumerable<Item> inventory, Entity target, IReadOnlyDictionary<Guid, double>? projectedStacks = null)
+    {
+        var us = Us(inventory, projectedStacks);
 
         return FightResult.Average(AttackPhases
             .Select(phase => FightSimulator.Run(new FightSetup(us, target, _ranks, _stacks, AttackPhase: phase), _newKit()))

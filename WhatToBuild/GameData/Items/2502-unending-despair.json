@@ -1,32 +1,32 @@
 ﻿{
-    "id":  "bc1cca51-8f19-8266-df6e-ec1f59283c17",
-    "riotId":  2502,
-    "name":  "Unending Despair",
-    "icon":  "2502.png",
-    "cost":  2800,
-    "unique":  true,
-    "buildPath":  [
-                      "5dd70522-168e-d7bb-5854-c24b78940297",
-                      "dec45a0a-3f4e-628c-abff-7537636197ac",
-                      "b025024f-832d-4982-6bb7-f6d96e42dc1f"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "health":  400,
-                  "armor":  50
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "MagicDamage",
-                        "amount":  60,
-                        "cooldown":  4
-                    },
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "Heal",
-                        "amount":  150,
-                        "cooldown":  4
-                    }
-                ]
+    "id": "bc1cca51-8f19-8266-df6e-ec1f59283c17",
+    "riotId": 2502,
+    "name": "Unending Despair",
+    "icon": "2502.png",
+    "cost": 2800,
+    "unique": true,
+    "buildPath": [
+        "5dd70522-168e-d7bb-5854-c24b78940297",
+        "dec45a0a-3f4e-628c-abff-7537636197ac",
+        "b025024f-832d-4982-6bb7-f6d96e42dc1f"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "health": 400,
+        "armor": 50
+    },
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "MagicDamage",
+            "cooldown": 4,
+            "perBonusHealth": 0.03
+        },
+        {
+            "trigger": "InCombat",
+            "kind": "Heal",
+            "cooldown": 4,
+            "perBonusHealth": 0.075
+        }
+    ]
 }

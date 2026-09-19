@@ -18,9 +18,9 @@
         {
             "trigger": "OnAttack",
             "kind": "Heal",
-            "amount": 150,
             "cooldown": 10,
-            "rangedMultiplier": 0.5
+            "rangedMultiplier": 0.5,
+            "perBaseAd": 0.9
         }
     ]
 }

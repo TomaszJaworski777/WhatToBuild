@@ -1,25 +1,31 @@
 ﻿{
-    "id":  "e7016b0a-a565-ec4c-fabe-17c345d396a1",
-    "riotId":  4633,
-    "name":  "Riftmaker",
-    "icon":  "4633.png",
-    "cost":  3100,
-    "unique":  true,
-    "buildPath":  [
-                      "147c0ef2-a4af-8467-0faa-a59f452a8c6e",
-                      "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "health":  350,
-                  "abilityPower":  70
-              },
-    "effects":  [
-                    {
-                        "trigger":  "Always",
-                        "kind":  "StatBuff",
-                        "stat":  "damageAmp",
-                        "amount":  0.08
-                    }
-                ]
+    "id": "e7016b0a-a565-ec4c-fabe-17c345d396a1",
+    "riotId": 4633,
+    "name": "Riftmaker",
+    "icon": "4633.png",
+    "cost": 3100,
+    "unique": true,
+    "buildPath": [
+        "147c0ef2-a4af-8467-0faa-a59f452a8c6e",
+        "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "health": 350,
+        "abilityPower": 70
+    },
+    "effects": [
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "damageAmp",
+            "amount": 0.08
+        },
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "abilityPower",
+            "perBonusHealth": 0.02
+        }
+    ]
 }

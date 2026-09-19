@@ -395,16 +395,10 @@ function renderPath(rec, gameTime) {
             </li>`;
     }).join("");
 
-    const skipped = rec.skipped.map((s) => `
-        <li class="step step-skipped" ${tipAttr(`skip-${s.item.riotId}`, `<div class="tip-name">${esc(s.item.name)}</div><div>${esc(s.reason)}</div>`)}>
-            <div class="slot slot-md"><img src="${esc(s.item.icon)}" alt="${esc(s.item.name)}" loading="lazy" /></div>
-            <span class="step-eta">&nbsp;</span>
-        </li>`).join("");
-
     return `
         <div class="block">
             <div class="label">Build path</div>
-            <ol class="steps">${steps}${skipped}</ol>
+            <ol class="steps">${steps}</ol>
         </div>`;
 }
 

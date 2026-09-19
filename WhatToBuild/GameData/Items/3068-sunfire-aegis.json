@@ -1,27 +1,30 @@
 ﻿{
-    "id":  "7ee26a8c-8dd7-96b3-7115-6452e4228255",
-    "riotId":  3068,
-    "name":  "Sunfire Aegis",
-    "icon":  "3068.png",
-    "cost":  2800,
-    "unique":  true,
-    "groups":  [ "ImmolateItems" ],
-    "buildPath":  [
-                      "0e99f246-8cae-0817-d786-4263e76770c8",
-                      "5dd70522-168e-d7bb-5854-c24b78940297",
-                      "b025024f-832d-4982-6bb7-f6d96e42dc1f"
-                  ],
-    "stats":  {
-                  "abilityHaste":  10,
-                  "health":  350,
-                  "armor":  50
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "MagicDamage",
-                        "amount":  25,
-                        "cooldown":  1
-                    }
-                ]
+    "id": "7ee26a8c-8dd7-96b3-7115-6452e4228255",
+    "riotId": 3068,
+    "name": "Sunfire Aegis",
+    "icon": "3068.png",
+    "cost": 2800,
+    "unique": true,
+    "groups": [
+        "ImmolateItems"
+    ],
+    "buildPath": [
+        "0e99f246-8cae-0817-d786-4263e76770c8",
+        "5dd70522-168e-d7bb-5854-c24b78940297",
+        "b025024f-832d-4982-6bb7-f6d96e42dc1f"
+    ],
+    "stats": {
+        "abilityHaste": 10,
+        "health": 350,
+        "armor": 50
+    },
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "MagicDamage",
+            "amount": 20,
+            "cooldown": 1,
+            "perBonusHealth": 0.015
+        }
+    ]
 }

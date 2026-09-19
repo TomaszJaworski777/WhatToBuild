@@ -21,8 +21,9 @@
         {
             "trigger": "OnAttack",
             "kind": "PhysicalDamage",
-            "perTotalAd": 0.3,
-            "splash": true
+            "perTotalAd": 0.4,
+            "splash": true,
+            "rangedMultiplier": 0.5
         }
     ]
 }

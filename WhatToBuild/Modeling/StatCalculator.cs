@@ -59,7 +59,7 @@ public static class StatCalculator
 
             foreach (var effect in item.Effects.Where(IsPermanentStatBuff))
             {
-                Add(sheet, effect.Stat!, effect.Amount);
+                Add(sheet, effect.Stat!, BuffAmount(effect, b.AttackDamage + p.AttackDamage * growth, itemList.Sum(i => i.Stats.Health)));
             }
         }
 
@@ -102,6 +102,9 @@ public static class StatCalculator
         sheet.MagicResist += adjustment.MagicResist;
         sheet.AbilityHaste += adjustment.AbilityHaste;
     }
+
+    public static double BuffAmount(Effect effect, double baseAttackDamage, double itemHealth) =>
+        effect.Amount + effect.PerBaseAd * baseAttackDamage + effect.PerBonusHealth * itemHealth;
 
     public static double StackMultiplicatively(IEnumerable<double> sources) =>
         1 - sources.Aggregate(1.0, (remaining, source) => remaining * (1 - source));
@@ -159,8 +162,11 @@ public static class StatCalculator
         else if (stat == Stats.AbilityPower) sheet.AbilityPower *= factor;
     }
 
+    public static void AddStat(StatSheet sheet, Stat stat, double amount) => Add(sheet, stat, amount);
+
     private static void Add(StatSheet sheet, Stat stat, double amount)
     {
+        if (stat == Stats.Mana) sheet.Mana += amount;
         if (stat == Stats.Health) sheet.Health += amount;
         else if (stat == Stats.Armor) sheet.Armor += amount;
         else if (stat == Stats.MagicResist) sheet.MagicResist += amount;

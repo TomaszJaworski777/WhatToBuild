@@ -28,8 +28,9 @@ public sealed class OurFights
             Stacks,
             () => kits.NewFight(me.Champion),
             state.ActivePlayerStats is { } observedStats
-                ? StatCalculator.Adjustment(observedStats, new ChampionState(me.Champion, me.Level, Owned, Buffs).Stats)
-                : null);
+                ? StatCalculator.Adjustment(observedStats, state.EntityFor(me, neutrals).Stats)
+                : null,
+            state.ItemStacksFor(me));
     }
 
     public static OurFights? For(GameState state, NeutralRepository neutrals, ChampionKits kits) =>

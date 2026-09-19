@@ -60,25 +60,42 @@ public abstract class Entity
 
 public sealed class ChampionState : Entity
 {
+    private static readonly Stat[] SheetStats =
+    [
+        Data.Stats.Health, Data.Stats.AttackDamage, Data.Stats.AbilityPower,
+        Data.Stats.Armor, Data.Stats.MagicResist, Data.Stats.Mana,
+    ];
+
+    private readonly double _healthBeforeStacks;
+
     public ChampionState(
         Champion champion,
         int level,
         IEnumerable<Item>? items = null,
         IEnumerable<StatModifier>? teamBuffs = null,
-        StatSheet? adjustment = null)
+        StatSheet? adjustment = null,
+        IReadOnlyDictionary<Guid, double>? itemStacks = null)
     {
         Champion = champion;
         Level = Math.Clamp(level, StatCalculator.MinLevel, StatCalculator.MaxLevel);
         Items = (items ?? []).ToList();
         TeamBuffs = (teamBuffs ?? []).ToList();
+        ItemStacks = itemStacks ?? new Dictionary<Guid, double>();
         Stats = StatCalculator.ForChampion(champion, Level, Items, TeamBuffs);
+        _healthBeforeStacks = Stats.Health;
+
+        foreach (var stat in SheetStats)
+        {
+            StatCalculator.AddStat(Stats, stat, StackValue(stat));
+        }
+
         StatCalculator.Apply(Stats, adjustment);
-        BonusHealth = Items.Sum(i => i.Stats.Health);
+        BonusHealth = Items.Sum(i => i.Stats.Health) + StackValue(Data.Stats.Health);
         Mitigations = Items
             .SelectMany(i => i.Effects)
             .Where(e => e.Kind == EffectKind.DamageReduction && e.When.Count == 0)
             .Select(e => e.Amount < 1
-                ? new Mitigation(e.Versus, Percent: e.Amount)
+                ? new Mitigation(e.Versus, Percent: e.Amount * (champion.IsRanged ? e.RangedMultiplier : 1))
                 : new Mitigation(e.Versus, Flat: e.Amount))
             .ToList();
     }
@@ -90,6 +107,21 @@ public sealed class ChampionState : Entity
     public IReadOnlyList<Item> Items { get; }
 
     public IReadOnlyList<StatModifier> TeamBuffs { get; }
+
+    public IReadOnlyDictionary<Guid, double> ItemStacks { get; }
+
+    public double StacksOf(Item item) => ItemStacks.GetValueOrDefault(item.Id);
+
+    public double StackValue(Stat stat) =>
+        Items.Distinct()
+            .Where(i => i.Stacking is not null)
+            .SelectMany(i => i.Stacking!.Gains.Where(g => g.Stat == stat).Select(g => GainValue(i, g)))
+            .Sum();
+
+    public double GainValue(Item item, StackGain gain)
+    {
+        return (gain.Amount + gain.PerMaxHealth * _healthBeforeStacks) * StacksOf(item);
+    }
 
     public override string Name => Champion.Name;
 

@@ -1,26 +1,26 @@
 ﻿{
-    "id":  "f50deaef-5015-e0a6-ebed-26bd90090660",
-    "riotId":  3095,
-    "name":  "Stormrazor",
-    "icon":  "3095.png",
-    "cost":  3200,
-    "unique":  true,
-    "buildPath":  [
-                      "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
-                      "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb",
-                      "83ec4976-66ed-d9b1-8549-63e8f319bd86"
-                  ],
-    "stats":  {
-                  "critChance":  0.25,
-                  "attackDamage":  50,
-                  "attackSpeedPercent":  0.25
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "MagicDamage",
-                        "amount":  60,
-                        "cooldown":  4
-                    }
-                ]
+    "id": "f50deaef-5015-e0a6-ebed-26bd90090660",
+    "riotId": 3095,
+    "name": "Stormrazor",
+    "icon": "3095.png",
+    "cost": 3200,
+    "unique": true,
+    "buildPath": [
+        "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
+        "abdedaec-7ab2-58fd-81ca-5ac64d19c0bb",
+        "83ec4976-66ed-d9b1-8549-63e8f319bd86"
+    ],
+    "stats": {
+        "critChance": 0.25,
+        "attackDamage": 50,
+        "attackSpeedPercent": 0.25
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "MagicDamage",
+            "amount": 100,
+            "cooldown": 4
+        }
+    ]
 }

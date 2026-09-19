@@ -8,6 +8,7 @@ public static class AttackerHits
 
     public static double CritChance(ChampionState attacker) =>
         Math.Min(1, attacker.Items.Sum(i => i.Stats.CritChance)
+                    + attacker.StackValue(Stats.CritChance)
                     + attacker.Items.SelectMany(i => i.Effects)
                         .Where(e => StatCalculator.IsPermanentStatBuff(e) && e.Stat == Stats.CritChance)
                         .Sum(e => e.Amount));
@@ -15,12 +16,15 @@ public static class AttackerHits
     public static double CritDamage(ChampionState attacker) =>
         BaseCritDamage + attacker.Items.Sum(i => i.Stats.CritDamage);
 
-    public static double BaseAttackDamage(ChampionState attacker) =>
-        attacker.Champion.Base.AttackDamage
-        + attacker.Champion.PerLevel.AttackDamage * StatCalculator.GrowthMultiplier(attacker.Level);
+    public static double BaseAttackDamage(ChampionState attacker) => Base(attacker, s => s.AttackDamage);
 
-    public static double BonusAttackDamage(ChampionState attacker) =>
-        attacker.Stats.AttackDamage - BaseAttackDamage(attacker);
+    public static double BonusAttackDamage(ChampionState attacker) => Bonus(attacker, s => s.AttackDamage);
+
+    public static double Base(ChampionState attacker, Func<StatSheet, double> stat) =>
+        stat(attacker.Champion.Base) + stat(attacker.Champion.PerLevel) * StatCalculator.GrowthMultiplier(attacker.Level);
+
+    public static double Bonus(ChampionState attacker, Func<StatSheet, double> stat) =>
+        stat(attacker.Stats) - Base(attacker, stat);
 
     public static DamageCalculator Physical(ChampionState attacker, Entity target, double amount)
     {
@@ -80,12 +84,21 @@ public static class AttackerHits
     }
 
     private static double RawAmount(Effect effect, ChampionState attacker, Entity target) =>
-        effect.Amount
-        + effect.PerLevel * (attacker.Level - 1)
-        + effect.PerBaseAd * BaseAttackDamage(attacker)
-        + effect.PerTotalAd * attacker.Stats.AttackDamage
-        + effect.PerAp * attacker.Stats.AbilityPower
-        + effect.PerMaxHealth * attacker.Stats.Health
+        OwnerAmount(effect, attacker)
         + effect.PerTargetMaxHealth * target.MaxHealth
         + effect.PerTargetCurrentHealth * target.CurrentHealth;
+
+    public static double OwnerAmount(Effect effect, ChampionState attacker) =>
+        effect.Amount
+        + effect.PerLevel * Math.Max(0, attacker.Level - effect.PerLevelFrom + 1)
+        + effect.PerLethality * attacker.Items.Sum(i => i.Stats.ArmorPenetrationFlat)
+        + effect.PerCritChance * CritChance(attacker)
+        + effect.PerBaseAd * BaseAttackDamage(attacker)
+        + effect.PerTotalAd * attacker.Stats.AttackDamage
+        + effect.PerBonusAd * BonusAttackDamage(attacker)
+        + effect.PerAp * attacker.Stats.AbilityPower
+        + effect.PerMaxHealth * attacker.Stats.Health
+        + effect.PerBonusHealth * Bonus(attacker, s => s.Health)
+        + effect.PerBonusArmor * Bonus(attacker, s => s.Armor)
+        + effect.PerBonusMagicResist * Bonus(attacker, s => s.MagicResist);
 }

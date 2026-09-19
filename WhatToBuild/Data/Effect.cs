@@ -108,10 +108,18 @@ public class Effect
 
     public double PerLevel { get; set; }
 
+    public int PerLevelFrom { get; set; } = 2;
+
     public double PerBaseAd { get; set; }
     public double PerTotalAd { get; set; }
+    public double PerBonusAd { get; set; }
     public double PerAp { get; set; }
     public double PerMaxHealth { get; set; }
+    public double PerBonusHealth { get; set; }
+    public double PerBonusArmor { get; set; }
+    public double PerBonusMagicResist { get; set; }
+    public double PerLethality { get; set; }
+    public double PerCritChance { get; set; }
     public double PerTargetMaxHealth { get; set; }
     public double PerTargetCurrentHealth { get; set; }
 }

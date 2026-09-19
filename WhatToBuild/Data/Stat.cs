@@ -146,6 +146,16 @@ public sealed class TenacityPercentStat : Stat
     public override bool IsFraction => true;
 }
 
+public sealed class ManaStat : Stat
+{
+    public override string Name => "mana";
+}
+
+public sealed class GoldStat : Stat
+{
+    public override string Name => "gold";
+}
+
 public static class Stats
 {
     public static readonly Stat AttackDamage = new AttackDamageStat();
@@ -156,6 +166,8 @@ public static class Stats
     public static readonly Stat AbilityHaste = new AbilityHasteStat();
     public static readonly Stat MoveSpeedPercent = new MoveSpeedPercentStat();
     public static readonly Stat TenacityPercent = new TenacityPercentStat();
+    public static readonly Stat Mana = new ManaStat();
+    public static readonly Stat Gold = new GoldStat();
     public static readonly Stat Health = new HealthStat();
     public static readonly Stat Armor = new ArmorStat();
     public static readonly Stat MagicResist = new MagicResistStat();
@@ -173,7 +185,7 @@ public static class Stats
     public static IReadOnlyList<Stat> All { get; } = new[]
     {
         AttackDamage, AbilityPower, AbilityDamage, AdaptiveForce, Health, Armor, MagicResist,
-        AbilityHaste, MoveSpeedPercent, TenacityPercent, AttackRange,
+        AbilityHaste, MoveSpeedPercent, TenacityPercent, AttackRange, Mana, Gold,
         AttackSpeed, AttackSpeedPercent, CritChance, OmnivampPercent,
         HealAndShieldPowerPercent, ArmorPenetrationPercent,
         DamageAmp, AbilityPowerAmp, EnemyAttackSpeedPercent, EnemyMagicDamageAmp,

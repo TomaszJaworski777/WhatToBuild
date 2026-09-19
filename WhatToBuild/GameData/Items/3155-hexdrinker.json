@@ -1,26 +1,30 @@
 ﻿{
-    "id":  "f2045b79-a288-0608-6dc7-43538c5f4776",
-    "riotId":  3155,
-    "name":  "Hexdrinker",
-    "icon":  "3155.png",
-    "cost":  1300,
-    "groups":  [ "LifelineItems" ],
-    "buildPath":  [
-                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
-                      "cc10ae20-f7e4-c3ce-337e-71a62a15f305",
-                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
-                  ],
-    "stats":  {
-                  "magicResist":  25,
-                  "attackDamage":  25
-              },
-    "effects":  [
-                    {
-                        "trigger":  "WhenLow",
-                        "kind":  "Shield",
-                        "amount":  130,
-                        "cooldown":  90,
-                        "versus":  "Magic"
-                    }
-                ]
+    "id": "f2045b79-a288-0608-6dc7-43538c5f4776",
+    "riotId": 3155,
+    "name": "Hexdrinker",
+    "icon": "3155.png",
+    "cost": 1300,
+    "groups": [
+        "LifelineItems"
+    ],
+    "buildPath": [
+        "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+        "cc10ae20-f7e4-c3ce-337e-71a62a15f305",
+        "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+    ],
+    "stats": {
+        "magicResist": 25,
+        "attackDamage": 25
+    },
+    "effects": [
+        {
+            "trigger": "WhenLow",
+            "kind": "Shield",
+            "amount": 110,
+            "cooldown": 90,
+            "versus": "Magic",
+            "perLevel": 10,
+            "rangedMultiplier": 0.75
+        }
+    ]
 }

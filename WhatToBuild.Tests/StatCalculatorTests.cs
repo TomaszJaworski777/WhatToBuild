@@ -1,5 +1,6 @@
 using WhatToBuild.Data;
 using WhatToBuild.Modeling;
+using WhatToBuild.Modeling.Simulation;
 
 namespace WhatToBuild.Tests;
 
@@ -95,10 +96,34 @@ public class StatCalculatorTests
     }
 
     [TestMethod]
+    public void SteraksShieldAndAttackDamageScale()
+    {
+        var sterak = _items.ByRiotId(3053)!;
+        var darius = new ChampionState(_champions.ByName("Darius")!, 11, [sterak]);
+        var shield = sterak.Effects.Single(e => e.Kind == EffectKind.Shield);
+        var baseAd = AttackerHits.BaseAttackDamage(darius);
+
+        Assert.AreEqual(0.6 * sterak.Stats.Health, AttackerHits.OwnerAmount(shield, darius), 0.001);
+        Assert.AreEqual(baseAd + sterak.Stats.AttackDamage + 0.5 * baseAd, darius.Stats.AttackDamage, 0.001);
+    }
+
+    [TestMethod]
+    public void GrowthCanStartAtALaterLevel()
+    {
+        var bloodthirster = _items.ByRiotId(3072)!;
+        var shield = bloodthirster.Effects.Single(e => e.Kind == EffectKind.Shield);
+        var kindred = _champions.ByName("Kindred")!;
+
+        Assert.AreEqual(165, AttackerHits.OwnerAmount(shield, new ChampionState(kindred, 8, [bloodthirster])), 0.001);
+        Assert.AreEqual(180, AttackerHits.OwnerAmount(shield, new ChampionState(kindred, 9, [bloodthirster])), 0.001);
+        Assert.AreEqual(315, AttackerHits.OwnerAmount(shield, new ChampionState(kindred, 18, [bloodthirster])), 0.001);
+    }
+
+    [TestMethod]
     public void ConditionalStatBuffsAreNot()
     {
         var bloodmail = _items.ByRiotId(2501)!;
-        var expected = 65 + bloodmail.Stats.AttackDamage;
+        var expected = 65 + bloodmail.Stats.AttackDamage + 0.025 * bloodmail.Stats.Health;
 
         Assert.AreEqual(expected, StatCalculator.ForChampion(Kindred, 1, [bloodmail]).AttackDamage, 0.001);
     }

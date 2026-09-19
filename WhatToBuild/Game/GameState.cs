@@ -42,8 +42,8 @@ public sealed class PlayerState
 
     public int ItemValue => Items.Sum(i => i.Item.Cost * i.Count);
 
-    public ChampionState ToEntity(IEnumerable<StatModifier>? teamBuffs = null) =>
-        new(Champion, Level, Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)), teamBuffs);
+    public ChampionState ToEntity(IEnumerable<StatModifier>? teamBuffs = null, IReadOnlyDictionary<Guid, double>? itemStacks = null) =>
+        new(Champion, Level, Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)), teamBuffs, itemStacks: itemStacks);
 }
 
 public sealed class ObjectiveCounts
@@ -113,6 +113,18 @@ public sealed class GameState
         return fromStacks + fromSoul;
     }
 
+    public IReadOnlyDictionary<(string Champion, int Item), double> ItemFirstSeen { get; set; } =
+        new Dictionary<(string Champion, int Item), double>();
+
+    public IReadOnlyDictionary<Guid, double> ItemStacksFor(PlayerState player) =>
+        player.Items
+            .Where(i => i.Item.Stacking is not null)
+            .GroupBy(i => i.Item.Id)
+            .ToDictionary(g => g.Key, g => g.First().Item.Stacking!.StacksAfter(MinutesOwned(player, g.First().Item), player.Champion.IsRanged));
+
+    public double? MinutesOwned(PlayerState player, Item item) =>
+        ItemFirstSeen.TryGetValue((player.Champion.Name, item.RiotId), out var since) ? (GameTime - since) / 60 : null;
+
     public ChampionState EntityFor(PlayerState player, NeutralRepository neutrals) =>
-        player.ToEntity(TeamBuffs(player.Team, neutrals));
+        player.ToEntity(TeamBuffs(player.Team, neutrals), ItemStacksFor(player));
 }

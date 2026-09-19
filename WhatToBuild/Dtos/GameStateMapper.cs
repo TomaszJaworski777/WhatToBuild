@@ -1,5 +1,6 @@
 using WhatToBuild.Data;
 using WhatToBuild.Game;
+using WhatToBuild.Modeling;
 
 namespace WhatToBuild.Dtos;
 
@@ -67,6 +68,7 @@ public static class GameStateMapper
     {
         var exact = player.IsActivePlayer && state.ActivePlayerStats is not null;
         var rebuilt = state.EntityFor(player, neutrals).Stats;
+        var owner = Owner(state, player, neutrals);
         var stats = exact ? state.ActivePlayerStats! : rebuilt;
 
         return new PlayerDto(
@@ -81,7 +83,7 @@ public static class GameStateMapper
             player.Assists,
             player.CreepScore,
             player.ItemValue,
-            player.Items.Select(i => MapItem(i.Item, i.Count, patch, i.Slot)).ToList(),
+            player.Items.Select(i => MapItem(i.Item, i.Count, patch, i.Slot, owner)).ToList(),
             new StatsDto(
                 stats.Health,
                 stats.AttackDamage,
@@ -96,7 +98,7 @@ public static class GameStateMapper
             player.EstimatedStacks.Select(s => new StackDto(s.Stat.Name, s.Stacks, s.Max)).ToList());
     }
 
-    public static ItemDto MapItem(Item item, int count, string patch, int slot = -1) =>
+    public static ItemDto MapItem(Item item, int count, string patch, int slot = -1, ChampionState? owner = null) =>
         new(
             item.RiotId,
             item.Name,
@@ -104,8 +106,17 @@ public static class GameStateMapper
             count,
             item.Cost,
             ItemDescriber.StatLines(item.Stats),
-            ItemDescriber.EffectLines(item.Effects),
+            [.. ItemDescriber.EffectLines(item.Effects, owner), .. ItemDescriber.StackLine(item, owner) is { } stacks ? [stacks] : Array.Empty<string>()],
             slot);
+
+    private static ChampionState Owner(GameState state, PlayerState player, NeutralRepository neutrals)
+    {
+        var rebuilt = state.EntityFor(player, neutrals);
+
+        return player.IsActivePlayer && state.ActivePlayerStats is { } observed
+            ? new ChampionState(player.Champion, player.Level, rebuilt.Items, rebuilt.TeamBuffs, StatCalculator.Adjustment(observed, rebuilt.Stats), rebuilt.ItemStacks)
+            : rebuilt;
+    }
 
     private static int PositionRank(string position)
     {

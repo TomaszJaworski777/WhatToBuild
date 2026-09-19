@@ -20,9 +20,14 @@
         {
             "trigger": "WhenLow",
             "kind": "Shield",
-            "amount": 400,
             "cooldown": 90,
-            "rangedMultiplier": 0.6
+            "perBonusHealth": 0.6
+        },
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "attackDamage",
+            "perBaseAd": 0.5
         }
     ]
 }

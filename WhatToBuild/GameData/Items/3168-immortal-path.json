@@ -1,24 +1,32 @@
 ﻿{
-    "id":  "03ddb74c-7ac0-69b2-326b-0354f67cc223",
-    "riotId":  3168,
-    "name":  "Immortal Path",
-    "icon":  "3168.png",
-    "cost":  1000,
-    "unique":  true,
-    "groups":  [ "BootsWithoutActives", "Boots" ],
-    "buildPath":  [
-                      "19d00925-d037-92bc-a1a7-090ea1159624"
-                  ],
-    "stats":  {
-                  "moveSpeedFlat":  45,
-                  "omnivampPercent":  0.04
-              },
-    "effects":  [
-                    {
-                        "trigger":  "Always",
-                        "kind":  "StatBuff",
-                        "stat":  "omnivampPercent",
-                        "amount":  0.06
-                    }
-                ]
+    "id": "03ddb74c-7ac0-69b2-326b-0354f67cc223",
+    "riotId": 3168,
+    "name": "Immortal Path",
+    "icon": "3168.png",
+    "cost": 1000,
+    "unique": true,
+    "groups": [
+        "BootsWithoutActives",
+        "Boots"
+    ],
+    "buildPath": [
+        "19d00925-d037-92bc-a1a7-090ea1159624"
+    ],
+    "stats": {
+        "moveSpeedFlat": 45,
+        "omnivampPercent": 0.04
+    },
+    "effects": [],
+    "stacking": {
+        "per": "champion takedown",
+        "gains": [
+            {
+                "stat": "omnivampPercent",
+                "amount": 0.006
+            }
+        ],
+        "max": 10,
+        "stacksPerMinute": 0.5,
+        "rateSource": "estimate"
+    }
 }
