@@ -14,14 +14,21 @@ public static class StatCalculator
         return steps * (0.7025 + 0.0175 * steps);
     }
 
-    public static StatSheet ForChampion(Champion champion, int level, IEnumerable<Item> items)
+    public static StatSheet ForChampion(
+        Champion champion,
+        int level,
+        IEnumerable<Item> items,
+        IEnumerable<StatModifier>? modifiers = null)
     {
         var growth = GrowthMultiplier(level);
         var b = champion.Base;
         var p = champion.PerLevel;
         var itemList = items.ToList();
+        var modifierList = (modifiers ?? []).ToList();
 
-        var bonusAttackSpeed = p.AttackSpeed * growth + itemList.Sum(i => i.Stats.AttackSpeedPercent);
+        var bonusAttackSpeed = p.AttackSpeed * growth
+                               + itemList.Sum(i => i.Stats.AttackSpeedPercent)
+                               + modifierList.Where(m => m.Stat == Stats.AttackSpeedPercent).Sum(m => m.Flat);
 
         var sheet = new StatSheet
         {
@@ -54,6 +61,16 @@ public static class StatCalculator
             }
         }
 
+        foreach (var modifier in modifierList)
+        {
+            Add(sheet, modifier.Stat, modifier.Flat);
+        }
+
+        foreach (var group in modifierList.Where(m => m.Percent != 0).GroupBy(m => m.Stat))
+        {
+            Scale(sheet, group.Key, 1 + group.Sum(m => m.Percent));
+        }
+
         return sheet;
     }
 
@@ -79,6 +96,15 @@ public static class StatCalculator
         && effect.Trigger == EffectTrigger.Always
         && effect.When.Count == 0
         && effect.Stat is not null;
+
+    private static void Scale(StatSheet sheet, Stat stat, double factor)
+    {
+        if (stat == Stats.Health) sheet.Health *= factor;
+        else if (stat == Stats.Armor) sheet.Armor *= factor;
+        else if (stat == Stats.MagicResist) sheet.MagicResist *= factor;
+        else if (stat == Stats.AttackDamage) sheet.AttackDamage *= factor;
+        else if (stat == Stats.AbilityPower) sheet.AbilityPower *= factor;
+    }
 
     private static void Add(StatSheet sheet, Stat stat, double amount)
     {

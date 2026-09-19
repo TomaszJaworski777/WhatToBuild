@@ -1,0 +1,50 @@
+{
+  "Fire": {
+    "drake": "Infernal Drake",
+    "perStack": [
+      { "stat": "attackDamage", "percent": 0.03 },
+      { "stat": "abilityPower", "percent": 0.03 }
+    ],
+    "stackTags": {},
+    "soul": { "name": "Infernal Soul", "tags": { "burst": 0.4 } }
+  },
+  "Earth": {
+    "drake": "Mountain Drake",
+    "perStack": [
+      { "stat": "armor", "percent": 0.05 },
+      { "stat": "magicResist", "percent": 0.05 }
+    ],
+    "stackTags": {},
+    "soul": { "name": "Mountain Soul", "tags": { "shielding": 0.6 } }
+  },
+  "Water": {
+    "drake": "Ocean Drake",
+    "perStack": [],
+    "stackTags": { "healing": 0.1 },
+    "soul": { "name": "Ocean Soul", "tags": { "healing": 0.6 } }
+  },
+  "Air": {
+    "drake": "Cloud Drake",
+    "perStack": [],
+    "stackTags": {},
+    "soul": { "name": "Cloud Soul", "tags": {} }
+  },
+  "Hextech": {
+    "drake": "Hextech Drake",
+    "perStack": [
+      { "stat": "abilityHaste", "flat": 5 },
+      { "stat": "attackSpeedPercent", "flat": 0.05 }
+    ],
+    "stackTags": {},
+    "soul": { "name": "Hextech Soul", "tags": { "trueDamage": 0.3, "crowdControl": 0.3 } }
+  },
+  "Chemtech": {
+    "drake": "Chemtech Drake",
+    "perStack": [
+      { "stat": "tenacityPercent", "flat": 0.06 },
+      { "stat": "healAndShieldPowerPercent", "flat": 0.06 }
+    ],
+    "stackTags": { "healing": 0.05, "shielding": 0.05 },
+    "soul": { "name": "Chemtech Soul", "tags": {} }
+  }
+}

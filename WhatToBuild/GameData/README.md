@@ -176,24 +176,33 @@ carries an explicit attack animation time, and where both exist they agree — M
 is 1.6s either way — but four units have no explicit value, so deriving it is both
 shorter and more complete.
 
-### Dragon souls
+### Dragons
 
-`_souls.json` maps each dragon type to the kind of power its soul grants, using the
-champion tag vocabulary:
+`_dragons.json` holds, per dragon type, the buff one drake grants per stack and what
+its soul does:
 
 ```json
-"Water": { "name": "Ocean Soul", "tags": { "healing": 0.6 } }
+"Earth": {
+  "drake": "Mountain Drake",
+  "perStack": [ { "stat": "armor", "percent": 0.05 }, { "stat": "magicResist", "percent": 0.05 } ],
+  "stackTags": {},
+  "soul": { "name": "Mountain Soul", "tags": { "shielding": 0.6 } }
+}
 ```
 
-A soul is a team-wide buff that no item or champion reveals, which is exactly why it
-matters here: an enemy Ocean Soul is a reason to buy Grievous Wounds even when none
-of the enemy champions heal, and Mountain Soul does the same for Serpent's Fang.
+- `perStack` modifiers feed straight into the stat sheet. `percent` scales the
+  **total** stat after items, which is how Infernal and Mountain work; `flat` adds.
+  Hextech's bonus attack speed goes through the attack speed ratio like item attack
+  speed does. Stats with no place on the sheet (tenacity, haste) are kept for later.
+- `stackTags` and `soul.tags` use the champion tag vocabulary. They carry what does
+  not become a stat: Ocean stacks regenerate missing health, and souls are team-wide
+  effects. `GameState.TeamTag(team, "healing", neutrals)` sums both, so an enemy
+  Ocean Soul reads as healing even when none of their champions heal.
 
-What each soul does is backed by the data — the map file names them through its URF
-multipliers (`OceanSoulRegenMultiplier`, `MountainSoulShieldMultiplier`,
-`InfernalSoulBaseDamageMultiplier`, `CloudSoulMSMultiplier`). The weights are
-judgement; the buff values themselves are not in the game data we read. Cloud Soul
-has no tags because movement speed is not priced anywhere.
+The per-stack numbers and the soul effects come from the wiki's Dragon Slayer page,
+not from the game data — the buffs are script-defined and not in anything
+CommunityDragon exports. That page's patch history ends at V25.S1.3, so the values
+should be checked against 16.18. The soul tag weights are judgement.
 
 The soul type is worked out from the game rather than stored: the third dragon fixes
 the element of the Rift, so a team's fourth dragon is always that element. The parser

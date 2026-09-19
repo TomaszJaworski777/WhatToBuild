@@ -104,6 +104,39 @@ public class StatCalculatorTests
     }
 
     [TestMethod]
+    public void MountainStacksMultiplyTotalResists()
+    {
+        var mountain = _neutrals.DragonFor("Earth")!.BuffsFor(2);
+        var plain = StatCalculator.ForChampion(Kindred, 18, []);
+
+        var buffed = StatCalculator.ForChampion(Kindred, 18, [], mountain);
+
+        Assert.AreEqual(plain.Armor * 1.10, buffed.Armor, 0.001);
+        Assert.AreEqual(plain.MagicResist * 1.10, buffed.MagicResist, 0.001);
+    }
+
+    [TestMethod]
+    public void InfernalStacksIncludeItemStats()
+    {
+        var infernal = _neutrals.DragonFor("Fire")!.BuffsFor(3);
+        var infinityEdge = _items.ByRiotId(3031)!;
+
+        var buffed = StatCalculator.ForChampion(Kindred, 1, [infinityEdge], infernal);
+
+        Assert.AreEqual((65 + 75) * 1.09, buffed.AttackDamage, 0.001);
+    }
+
+    [TestMethod]
+    public void HextechAttackSpeedScalesOffTheRatio()
+    {
+        var hextech = _neutrals.DragonFor("Hextech")!.BuffsFor(2);
+
+        var buffed = StatCalculator.ForChampion(Kindred, 1, [], hextech);
+
+        Assert.AreEqual(0.625 + 0.625 * 0.10, buffed.AttackSpeed, 0.0001);
+    }
+
+    [TestMethod]
     public void NeutralsScaleWithTime()
     {
         var murkwolf = _neutrals.ByInternalName("SRU_Murkwolf")!;

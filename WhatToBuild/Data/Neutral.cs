@@ -94,28 +94,57 @@ public class DragonSoul
     public double Tag(string name) => Tags.GetValueOrDefault(name);
 }
 
+public class StatModifier
+{
+    public Stat Stat { get; set; } = Stats.AttackDamage;
+
+    public double Flat { get; set; }
+
+    public double Percent { get; set; }
+
+    public StatModifier Times(int stacks) => new() { Stat = Stat, Flat = Flat * stacks, Percent = Percent * stacks };
+}
+
+public class Dragon
+{
+    public string Drake { get; set; } = "";
+
+    public List<StatModifier> PerStack { get; set; } = new();
+
+    public Dictionary<string, double> StackTags { get; set; } = new();
+
+    public DragonSoul Soul { get; set; } = new();
+
+    public IEnumerable<StatModifier> BuffsFor(int stacks) =>
+        stacks <= 0 ? [] : PerStack.Select(m => m.Times(stacks));
+
+    public double StackTag(string name, int stacks) => StackTags.GetValueOrDefault(name) * stacks;
+}
+
 public class NeutralRepository
 {
     public const string FolderName = "Neutrals";
     public const string ScalingFileName = "_scaling.json";
-    public const string SoulsFileName = "_souls.json";
+    public const string DragonsFileName = "_dragons.json";
 
     private readonly Dictionary<string, Neutral> _byInternalName;
-    private readonly Dictionary<string, DragonSoul> _souls;
+    private readonly Dictionary<string, Dragon> _dragons;
 
-    public NeutralRepository(IEnumerable<Neutral> neutrals, NeutralScaling scaling, IDictionary<string, DragonSoul>? souls = null)
+    public NeutralRepository(IEnumerable<Neutral> neutrals, NeutralScaling scaling, IDictionary<string, Dragon>? dragons = null)
     {
         Scaling = scaling;
         _byInternalName = neutrals.ToDictionary(n => n.InternalName, StringComparer.OrdinalIgnoreCase);
-        _souls = new Dictionary<string, DragonSoul>(souls ?? new Dictionary<string, DragonSoul>(), StringComparer.OrdinalIgnoreCase);
+        _dragons = new Dictionary<string, Dragon>(dragons ?? new Dictionary<string, Dragon>(), StringComparer.OrdinalIgnoreCase);
     }
 
     public NeutralScaling Scaling { get; }
 
-    public IReadOnlyDictionary<string, DragonSoul> Souls => _souls;
+    public IReadOnlyDictionary<string, Dragon> Dragons => _dragons;
 
-    public DragonSoul? SoulFor(string? dragonType) =>
-        dragonType is null ? null : _souls.GetValueOrDefault(dragonType);
+    public Dragon? DragonFor(string? dragonType) =>
+        dragonType is null ? null : _dragons.GetValueOrDefault(dragonType);
+
+    public DragonSoul? SoulFor(string? dragonType) => DragonFor(dragonType)?.Soul;
 
     public IReadOnlyCollection<Neutral> All => _byInternalName.Values;
 
@@ -136,9 +165,9 @@ public class NeutralRepository
                           File.ReadAllText(Path.Combine(folder, ScalingFileName)), GameDataJson.Options)
                       ?? throw new InvalidDataException($"{ScalingFileName} is not valid.");
 
-        var soulsPath = Path.Combine(folder, SoulsFileName);
-        var souls = File.Exists(soulsPath)
-            ? JsonSerializer.Deserialize<Dictionary<string, DragonSoul>>(File.ReadAllText(soulsPath), GameDataJson.Options)
+        var dragonsPath = Path.Combine(folder, DragonsFileName);
+        var dragons = File.Exists(dragonsPath)
+            ? JsonSerializer.Deserialize<Dictionary<string, Dragon>>(File.ReadAllText(dragonsPath), GameDataJson.Options)
             : null;
 
         var neutrals = Directory
@@ -147,7 +176,7 @@ public class NeutralRepository
             .Select(Read)
             .ToList();
 
-        return new NeutralRepository(neutrals, scaling, souls);
+        return new NeutralRepository(neutrals, scaling, dragons);
     }
 
     private static Neutral Read(string path)

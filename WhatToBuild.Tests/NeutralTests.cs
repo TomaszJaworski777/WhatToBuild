@@ -106,11 +106,39 @@ public class NeutralTests
     }
 
     [TestMethod]
-    public void EverySoulIsKnown()
+    public void EveryDragonIsKnown()
     {
         CollectionAssert.AreEquivalent(
             new[] { "Water", "Earth", "Fire", "Air", "Hextech", "Chemtech" },
-            _neutrals.Souls.Keys.ToList());
+            _neutrals.Dragons.Keys.ToList());
+    }
+
+    [TestMethod]
+    [DataRow("Fire", "attackDamage", 0.03, 0.0)]
+    [DataRow("Fire", "abilityPower", 0.03, 0.0)]
+    [DataRow("Earth", "armor", 0.05, 0.0)]
+    [DataRow("Earth", "magicResist", 0.05, 0.0)]
+    [DataRow("Hextech", "abilityHaste", 0.0, 5.0)]
+    [DataRow("Hextech", "attackSpeedPercent", 0.0, 0.05)]
+    [DataRow("Chemtech", "tenacityPercent", 0.0, 0.06)]
+    [DataRow("Chemtech", "healAndShieldPowerPercent", 0.0, 0.06)]
+    public void DrakeStacksMatchTheWiki(string type, string stat, double percent, double flat)
+    {
+        var modifier = _neutrals.DragonFor(type)!.PerStack.Single(m => m.Stat.Name == stat);
+
+        Assert.AreEqual(percent, modifier.Percent, 0.0001);
+        Assert.AreEqual(flat, modifier.Flat, 0.0001);
+    }
+
+    [TestMethod]
+    public void StacksScaleLinearly()
+    {
+        var mountain = _neutrals.DragonFor("Earth")!;
+
+        var threeStacks = mountain.BuffsFor(3).Single(m => m.Stat == Stats.Armor);
+
+        Assert.AreEqual(0.15, threeStacks.Percent, 0.0001);
+        Assert.IsEmpty(mountain.BuffsFor(0).ToList());
     }
 
     [TestMethod]
@@ -124,7 +152,17 @@ public class NeutralTests
     }
 
     [TestMethod]
-    public void SoulTagsUseTheChampionVocabulary()
+    public void ChemtechSoulIsNotHealing()
+    {
+        var chemtech = _neutrals.DragonFor("Chemtech")!;
+
+        Assert.AreEqual(0, chemtech.Soul.Tag("healing"), 0.0001);
+        Assert.AreEqual(0, chemtech.Soul.Tag("shielding"), 0.0001);
+        Assert.IsGreaterThan(0, chemtech.StackTag("healing", 1));
+    }
+
+    [TestMethod]
+    public void DragonTagsUseTheChampionVocabulary()
     {
         var vocabulary = new HashSet<string>
         {
@@ -132,11 +170,11 @@ public class NeutralTests
             "healing", "shielding", "crowdControl", "ranged", "melee",
         };
 
-        foreach (var (type, soul) in _neutrals.Souls)
+        foreach (var (type, dragon) in _neutrals.Dragons)
         {
-            foreach (var tag in soul.Tags.Keys)
+            foreach (var tag in dragon.Soul.Tags.Keys.Concat(dragon.StackTags.Keys))
             {
-                Assert.Contains(tag, vocabulary, $"{type} soul has unknown tag '{tag}'.");
+                Assert.Contains(tag, vocabulary, $"{type} has unknown tag '{tag}'.");
             }
         }
     }

@@ -41,8 +41,8 @@ public sealed class PlayerState
 
     public int ItemValue => Items.Sum(i => i.Item.Cost * i.Count);
 
-    public ChampionState ToEntity() =>
-        new(Champion, Level, Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)));
+    public ChampionState ToEntity(IEnumerable<StatModifier>? teamBuffs = null) =>
+        new(Champion, Level, Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)), teamBuffs);
 }
 
 public sealed class ObjectiveCounts
@@ -93,4 +93,21 @@ public sealed class GameState
     public double GoldEarned => CurrentGold + (ActivePlayer?.ItemValue ?? 0);
 
     public PlayerState? Find(Champion champion) => Players.FirstOrDefault(p => p.Champion.Id == champion.Id);
+
+    public IEnumerable<StatModifier> TeamBuffs(Team team, NeutralRepository neutrals) =>
+        Objectives[team].Dragons
+            .SelectMany(d => neutrals.DragonFor(d.Key)?.BuffsFor(d.Value) ?? []);
+
+    public double TeamTag(Team team, string tag, NeutralRepository neutrals)
+    {
+        var objectives = Objectives[team];
+
+        var fromStacks = objectives.Dragons.Sum(d => neutrals.DragonFor(d.Key)?.StackTag(tag, d.Value) ?? 0);
+        var fromSoul = neutrals.SoulFor(objectives.SoulType)?.Tag(tag) ?? 0;
+
+        return fromStacks + fromSoul;
+    }
+
+    public ChampionState EntityFor(PlayerState player, NeutralRepository neutrals) =>
+        player.ToEntity(TeamBuffs(player.Team, neutrals));
 }

@@ -2,6 +2,7 @@ using System.Text.Json.Nodes;
 using WhatToBuild.Clients;
 using WhatToBuild.Data;
 using WhatToBuild.Game;
+using WhatToBuild.Modeling;
 
 namespace WhatToBuild.Tests;
 
@@ -175,7 +176,7 @@ public class GameStateTests
     [TestMethod]
     public void EnemyOceanSoulShowsUpAsHealing()
     {
-        var neutrals = NeutralRepository.Load(Path.Combine(AppContext.BaseDirectory, "GameData"));
+        var neutrals = Neutrals();
         var state = WithDragons(("Fire", "Enemy One"), ("Earth", "Enemy One"), ("Water", "Enemy One"), ("Water", "Enemy One"));
 
         var enemySoul = neutrals.SoulFor(state.Objectives[Team.Chaos].SoulType)!;
@@ -183,6 +184,50 @@ public class GameStateTests
         Assert.AreEqual("Ocean Soul", enemySoul.Name);
         Assert.IsGreaterThan(0, enemySoul.Tag("healing"));
     }
+
+    [TestMethod]
+    public void TeamHealingCountsStacksAndSoul()
+    {
+        var neutrals = Neutrals();
+        var state = WithDragons(("Fire", "Enemy One"), ("Earth", "Enemy One"), ("Water", "Enemy One"), ("Water", "Enemy One"));
+
+        var ocean = neutrals.DragonFor("Water")!;
+        var expected = ocean.StackTag("healing", 2) + ocean.Soul.Tag("healing");
+
+        Assert.AreEqual(expected, state.TeamTag(Team.Chaos, "healing", neutrals), 0.0001);
+        Assert.AreEqual(0, state.TeamTag(Team.Order, "healing", neutrals), 0.0001);
+    }
+
+    [TestMethod]
+    public void DrakesChangeTheEnemysStats()
+    {
+        var neutrals = Neutrals();
+        var state = WithDragons(("Earth", "Enemy One"), ("Earth", "Enemy One"));
+        var garen = state.Find(Champ("Garen"))!;
+
+        var plain = garen.ToEntity();
+        var buffed = state.EntityFor(garen, neutrals);
+
+        Assert.AreEqual(plain.Stats.Armor * 1.10, buffed.Stats.Armor, 0.001);
+
+        var hitPlain = DamageCalculator.Create(plain).AdDamage(300).Attack().Run();
+        var hitBuffed = DamageCalculator.Create(buffed).AdDamage(300).Attack().Run();
+
+        Assert.IsLessThan(hitPlain.HealthDamage, hitBuffed.HealthDamage);
+    }
+
+    [TestMethod]
+    public void AlliedDrakesDoNotBuffEnemies()
+    {
+        var neutrals = Neutrals();
+        var state = WithDragons(("Earth", "Ally One"), ("Earth", "Ally One"));
+        var garen = state.Find(Champ("Garen"))!;
+
+        Assert.AreEqual(garen.ToEntity().Stats.Armor, state.EntityFor(garen, neutrals).Stats.Armor, 0.001);
+    }
+
+    private static NeutralRepository Neutrals() =>
+        NeutralRepository.Load(Path.Combine(AppContext.BaseDirectory, "GameData"));
 
     private static GameState WithDragons(params (string Type, string Killer)[] kills) =>
         WithDragons(kills.Select((k, i) => (k.Type, k.Killer, (i + 1) * 300.0)).ToArray());

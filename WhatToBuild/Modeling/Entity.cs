@@ -43,12 +43,17 @@ public abstract class Entity
 
 public sealed class ChampionState : Entity
 {
-    public ChampionState(Champion champion, int level, IEnumerable<Item>? items = null)
+    public ChampionState(
+        Champion champion,
+        int level,
+        IEnumerable<Item>? items = null,
+        IEnumerable<StatModifier>? teamBuffs = null)
     {
         Champion = champion;
         Level = Math.Clamp(level, StatCalculator.MinLevel, StatCalculator.MaxLevel);
         Items = (items ?? []).ToList();
-        Stats = StatCalculator.ForChampion(champion, Level, Items);
+        TeamBuffs = (teamBuffs ?? []).ToList();
+        Stats = StatCalculator.ForChampion(champion, Level, Items, TeamBuffs);
         BonusHealth = Items.Sum(i => i.Stats.Health);
         Mitigations = Items
             .SelectMany(i => i.Effects)
@@ -64,6 +69,8 @@ public sealed class ChampionState : Entity
     public int Level { get; }
 
     public IReadOnlyList<Item> Items { get; }
+
+    public IReadOnlyList<StatModifier> TeamBuffs { get; }
 
     public override string Name => Champion.Name;
 
