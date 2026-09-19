@@ -1,0 +1,44 @@
+{
+  "champion": "Kayn",
+  "q": {
+    "cooldown": [7.5, 7, 6.5, 6, 5.5, 5, 4.5],
+    "damage": [75, 75, 105, 135, 165, 195, 195],
+    "bonusAdRatio": 0.85,
+    "hits": 2,
+    "castTime": 0.15,
+    "darkinTotalAdRatio": 0.65,
+    "darkinMaxHealth": 0.06,
+    "darkinMaxHealthPer100BonusAd": 0.035,
+    "monsterBonus": 40,
+    "monsterCap": [175, 200, 250, 300, 350, 400, 0]
+  },
+  "w": {
+    "cooldown": [13, 13, 12, 11, 10, 9, 9],
+    "damage": [85, 85, 130, 175, 220, 265, 265],
+    "assassinDamage": [90, 90, 135, 180, 225, 270, 315],
+    "bonusAdRatio": 1.1,
+    "castTime": 0.55,
+    "assassinCastTime": 0.6
+  },
+  "r": {
+    "cooldown": [120, 120, 100, 80, 0, 0, 0],
+    "damage": [50, 150, 250, 350, 450, 550, 650],
+    "bonusAdRatio": 1.5,
+    "darkinMaxHealth": 0.15,
+    "darkinMaxHealthPerBonusAd": 0.001,
+    "darkinHeal": 0.75,
+    "minimumInfest": 0.5,
+    "infestDuration": 2.5,
+    "castTime": 0.1
+  },
+  "passive": {
+    "darkinHealing": 0.25,
+    "darkinHealingPerBonusHealth": 0.00005,
+    "assassinMin": 0.2,
+    "assassinMax": 0.4,
+    "assassinDuration": 3,
+    "assassinCooldown": 8
+  },
+  "attackUptime": 0.5,
+  "skillOrder": ["Q", "W", "E", "Q", "Q", "R", "Q", "W", "Q", "W", "R", "W", "W", "E", "E", "R", "E", "E"]
+}

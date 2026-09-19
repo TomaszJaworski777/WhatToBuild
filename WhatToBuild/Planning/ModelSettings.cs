@@ -20,6 +20,13 @@ public sealed class ModelSettings
     public PlannerSettings Planner { get; set; } = new();
     public IncomeSettings Income { get; set; } = new();
     public MovementSettings Movement { get; set; } = new();
+    public FormSettings Forms { get; set; } = new();
+
+    public sealed class FormSettings
+    {
+        public double TransformSeconds { get; set; } = 600;
+        public double PreferDefaultMargin { get; set; } = 0.1;
+    }
 
     public static ModelSettings Load(string dataRoot) =>
         JsonSerializer.Deserialize<ModelSettings>(
@@ -111,8 +118,10 @@ public sealed class ModelSettings
         public ObjectiveWeights Default { get; set; } = new();
         public Dictionary<string, ObjectiveWeights> Champions { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
-        public ObjectiveWeights For(Champion champion) =>
-            Champions.GetValueOrDefault(champion.Name) ?? Default;
+        public ObjectiveWeights For(Champion champion, string? form = null) =>
+            (form is null ? null : Champions.GetValueOrDefault($"{champion.Name}/{form}"))
+            ?? Champions.GetValueOrDefault(champion.Name)
+            ?? Default;
     }
 
     public sealed class ObjectiveWeights
@@ -123,6 +132,7 @@ public sealed class ModelSettings
 
         public double Movement { get; set; } = 1;
         public double Uptime { get; set; } = 1;
+        public double Burst { get; set; }
     }
 
     public sealed class MovementSettings

@@ -90,6 +90,28 @@
         "survival": 0,
         "clear": 1,
         "movement": 0
+      },
+      "Kayn": {
+        "damage": 1,
+        "uptime": 1,
+        "survival": 0.3,
+        "clear": 1,
+        "movement": 0
+      },
+      "Kayn/Darkin": {
+        "damage": 1,
+        "uptime": 1,
+        "survival": 0.3,
+        "clear": 1,
+        "movement": 0
+      },
+      "Kayn/ShadowAssassin": {
+        "damage": 0.5,
+        "burst": 1,
+        "uptime": 0,
+        "survival": 0,
+        "clear": 1,
+        "movement": 0
       }
     }
   },
@@ -207,5 +229,9 @@
     "evasionExponent": 0.5,
     "kiteSpeedExponent": 1,
     "maxKiteReduction": 0.7
+  },
+  "forms": {
+    "transformSeconds": 600,
+    "preferDefaultMargin": 0.1
   }
 }

@@ -51,7 +51,8 @@ public sealed class Fight
         var attackerEffects = setup.Attacker.Items.SelectMany(i => i.Effects).ToList();
 
         ShieldReduction = StackMultiplicatively(
-            attackerEffects.Where(e => e.Kind == EffectKind.ShieldReduction).Select(e => e.Amount)
+            attackerEffects.Where(e => e.Kind == EffectKind.ShieldReduction)
+                .Select(e => e.Amount * (setup.Attacker.Champion.IsRanged ? e.RangedMultiplier : 1))
                 .Append(sustain.ExternalShieldReduction));
 
         GrievousWounds = attackerEffects
@@ -158,6 +159,16 @@ public sealed class Fight
         Attacker.Champion.AttackSpeedRatio > 0
             ? (AttackSpeed - Attacker.Champion.Base.AttackSpeed) / Attacker.Champion.AttackSpeedRatio
             : 0;
+
+    public IChampionKit? Kit { get; init; }
+
+    public double AttacksBlockedUntil { get; set; }
+
+    public const double BurstSeconds = 3;
+
+    public double EarlyDamage { get; private set; }
+
+    private bool _notifying;
 
     public const double SpellbladeWindow = 10;
 
@@ -291,6 +302,17 @@ public sealed class Fight
         Target.CurrentHealth -= toHealth;
         _damage[source] = _damage.GetValueOrDefault(source) + damage;
         _batchDamage += damage;
+        if (Time <= BurstSeconds)
+        {
+            EarlyDamage += damage;
+        }
+
+        if (Kit is not null && !_notifying)
+        {
+            _notifying = true;
+            Kit.OnDamage(this, source, damage);
+            _notifying = false;
+        }
 
         if (Target.CurrentHealth <= ExecuteHealth)
         {
@@ -324,7 +346,8 @@ public sealed record FightResult(
     double Healed = 0,
     double Shielded = 0,
     bool Sustained = false,
-    double Kills = 0)
+    double Kills = 0,
+    double EarlyDamage = 0)
 {
     public const double MinimumKillTime = 0.1;
 
@@ -352,6 +375,7 @@ public sealed record FightResult(
             Healed: results.Average(r => r.Healed),
             Shielded: results.Average(r => r.Shielded),
             Sustained: results[0].Sustained,
-            Kills: results.Average(r => r.Kills));
+            Kills: results.Average(r => r.Kills),
+            EarlyDamage: results.Average(r => r.EarlyDamage));
     }
 }

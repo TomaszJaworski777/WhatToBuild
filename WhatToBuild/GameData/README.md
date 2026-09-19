@@ -458,7 +458,47 @@ they do not.
 ## Kits
 
 Champions whose abilities are simulated have a file in `Kits/`, read by their code in
-`SupportedChampions/<Name>/`. For now that is only Kindred (`Kits/kindred.json`).
+`SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`) and Kayn (`Kits/kayn.json`).
+
+### Kayn
+
+Numbers from `kayn.bin.json` (spells `KaynQ`, `KaynW`, `KaynAssW`, `KaynE`, `KaynR`, `KaynPassive`),
+meanings from the `game_spell_Kayn_*_main_<form>` strings, where form 0 is base, 1 Shadow Assassin
+and 2 Darkin Slayer (Rhaast).
+
+- `q` — Reaping Slash hits twice (dash, then spin): `BaseDamage` + 85% bonus AD each. Rhaast
+  instead deals 65% total AD + (6% + 3.5% per 100 bonus AD) of max health each. Against
+  monsters each hit gets `FlatBonusDmgToMonsters` 40, capped at `MaxDmgToMonsters` for the rank.
+- `w` — Blade's Reach: `BaseDamage` + 110% bonus AD. Shadow Assassin casts `KaynAssW`, whose
+  base damage (90–270) is its own; the 110% ratio is assumed to carry over, as its entry has no
+  ratio of its own.
+- `r` — Umbral Trespass needs a recently damaged champion; Kayn cannot attack while inside
+  (`minimumInfest` 0.5s in fights, recast as soon as allowed). Base and Shadow Assassin deal
+  `BaseDamage` + 150% bonus AD; Shadow Assassin also refreshes the passive on exit. Rhaast deals
+  15% + 0.1% per bonus AD of max health and heals 75% of that. For survival it counts as
+  `infestDuration` 2.5s untargetable, as often as its cooldown allows.
+- `passive` — Rhaast heals 25% (+0.005% per bonus health) of physical damage dealt to
+  champions. Shadow Assassin deals 20% → 40% (level 1 → 18) of damage dealt as bonus magic
+  damage for 3 seconds after entering combat, then not again for 8 seconds unless R resets it.
+- E (Shadow Step) moves through walls and does no damage, so fights leave it out.
+- `castTime` (Q 0.15s, W 0.55s / Shadow Assassin 0.6s, R) blocks basic attacks while casting.
+- `attackUptime` — Kayn is an ability champion: he spends much of a fight dashing, casting and
+  repositioning, so his basic attacks progress at this share (0.5) of his attack speed. On-hit
+  items (Kraken Slayer, Blade of the Ruined King) lose value accordingly. Champions without the
+  field attack at full uptime.
+
+Development mode replays `Replays/kayn`: the Kindred demo game with the active player turned
+into a level 13 Kayn (Profane Hydra, Ionian Boots, Youmuu's Ghostblade, Long Sword, Scorchclaw
+Pup, ranks Q5 W5 E1 R2, stats from the model). Set `GameSource:ReplayFolder` to `Replays/demo`
+for the Kindred game.
+
+Forms: before `forms.transformSeconds` (10:00) Kayn is planned in base form, after that in
+Rhaast unless Shadow Assassin is detected (its W is `KaynAssW` in the Live Client API). The
+page scores both forms against the current enemies on damage over a teamfight weighted by time
+alive, and recommends Rhaast unless Shadow Assassin beats it by `preferDefaultMargin` (10%).
+Objectives per form are in `objectives` as `Kayn/Darkin` (damage, time alive, some survival)
+and `Kayn/ShadowAssassin` (damage and burst: the share of each enemy's health removed in the
+first 3 seconds of a fight). Rhaast cannot be told apart from base form in the live data.
 
 Every number is copied from the champion's CommunityDragon bins (`kindred.bin.json`
 and `kindredwolf.bin.json`), and what each number means comes from the game's own

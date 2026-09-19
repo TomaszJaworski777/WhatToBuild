@@ -81,6 +81,8 @@ public sealed class GameState
 
     public AbilityRanks? ActivePlayerRanks { get; init; }
 
+    public IReadOnlyDictionary<string, string> ActivePlayerAbilityIds { get; init; } = new Dictionary<string, string>();
+
     public double? ActivePlayerCurrentHealth { get; init; }
 
     public IReadOnlyList<int> UnknownItemIds { get; init; } = [];

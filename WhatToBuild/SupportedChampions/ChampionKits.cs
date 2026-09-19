@@ -1,5 +1,7 @@
 using WhatToBuild.Data;
+using WhatToBuild.Modeling;
 using WhatToBuild.Modeling.Simulation;
+using WhatToBuild.SupportedChampions.Kayn;
 using WhatToBuild.SupportedChampions.Kindred;
 
 namespace WhatToBuild.SupportedChampions;
@@ -18,9 +20,25 @@ public interface ISupportedChampion
 
     IChampionKit NewFight();
 
+    IChampionKit NewFight(string? form) => NewFight();
+
+    IReadOnlyList<string> Forms => [];
+
+    string? DefaultForm => null;
+
+    string? BaseForm => null;
+
+    string FormLabel(string form) => form;
+
+    string? DetectForm(IReadOnlyDictionary<string, string> abilityIds) => null;
+
     IReadOnlyList<CastHint> Hints(FightSetup setup);
 
     SurvivalAbility? Survival(AbilityRanks ranks) => null;
+
+    SurvivalAbility? Survival(AbilityRanks ranks, ChampionState us, string? form, double enemyHealth) => Survival(ranks);
+
+    double DamageHealShare(ChampionState us, string? form) => 0;
 }
 
 public sealed class ChampionKits
@@ -43,6 +61,7 @@ public sealed class ChampionKits
         return new ChampionKits(
         [
             new KindredChampion(KindredKitData.Load(Path.Combine(folder, KindredKitData.FileName))),
+            new KaynChampion(KaynKitData.Load(Path.Combine(folder, KaynKitData.FileName))),
         ]);
     }
 
@@ -50,7 +69,7 @@ public sealed class ChampionKits
 
     public ISupportedChampion? For(Champion champion) => _byName.GetValueOrDefault(champion.Name);
 
-    public IChampionKit? NewFight(Champion champion) => For(champion)?.NewFight();
+    public IChampionKit? NewFight(Champion champion, string? form = null) => For(champion)?.NewFight(form);
 
     public AbilityRanks RanksAt(Champion champion, int level, AbilityRanks? observed)
     {

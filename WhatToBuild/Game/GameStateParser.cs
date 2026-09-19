@@ -71,6 +71,7 @@ public static class GameStateParser
             Objectives = ReadObjectives(root, teamByName),
             ActivePlayerStats = activeStats,
             ActivePlayerRanks = active.ValueKind == JsonValueKind.Object ? ReadRanks(active) : null,
+            ActivePlayerAbilityIds = active.ValueKind == JsonValueKind.Object ? ReadAbilityIds(active) : new Dictionary<string, string>(),
             ActivePlayerCurrentHealth = active.ValueKind == JsonValueKind.Object
                 && active.TryGetProperty("championStats", out var cs)
                 && cs.TryGetProperty("currentHealth", out var hp)
@@ -218,6 +219,25 @@ public static class GameStateParser
             (int)Number(abilities, "W", "abilityLevel"),
             (int)Number(abilities, "E", "abilityLevel"),
             (int)Number(abilities, "R", "abilityLevel"));
+    }
+
+    private static Dictionary<string, string> ReadAbilityIds(JsonElement active)
+    {
+        var ids = new Dictionary<string, string>();
+        if (!active.TryGetProperty("abilities", out var abilities) || abilities.ValueKind != JsonValueKind.Object)
+        {
+            return ids;
+        }
+
+        foreach (var key in new[] { "Passive", "Q", "W", "E", "R" })
+        {
+            if (abilities.TryGetProperty(key, out var ability) && Text(ability, "id") is { Length: > 0 } id)
+            {
+                ids[key] = id;
+            }
+        }
+
+        return ids;
     }
 
     private static StatSheet ReadStats(JsonElement active)

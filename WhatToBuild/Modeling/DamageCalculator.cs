@@ -23,6 +23,7 @@ public sealed class DamageCalculator
     private double _magicResistReductionFlat;
     private double _magicResistReductionPercent;
     private double? _attacksLanded;
+    private bool _ranged;
 
     private DamageCalculator(Entity defender)
     {
@@ -65,9 +66,10 @@ public sealed class DamageCalculator
 
     public DamageCalculator AttacksLanded(double attacks) => Set(() => _attacksLanded = attacks);
 
-    public DamageCalculator AttackerItems(IEnumerable<Item> items)
+    public DamageCalculator AttackerItems(IEnumerable<Item> items, bool ranged = false)
     {
         _attackerItems.AddRange(items);
+        _ranged = ranged;
         return this;
     }
 
@@ -101,7 +103,7 @@ public sealed class DamageCalculator
                 switch (effect.Kind)
                 {
                     case EffectKind.ShieldReduction:
-                        shieldReduction = Stack(shieldReduction, amount);
+                        shieldReduction = Stack(shieldReduction, amount * (_ranged ? effect.RangedMultiplier : 1));
                         break;
                     case EffectKind.ArmorShred:
                         armorShred = Stack(armorShred, amount);

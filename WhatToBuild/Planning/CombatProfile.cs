@@ -243,7 +243,8 @@ public sealed class CombatProfiler
             SelfShields = shields,
             AllyShield = shieldSources.Sum(x => x.Amount) * allyShare,
             GrievousWounds = effects.Where(x => x.Effect.Kind == EffectKind.GrievousWounds).Select(x => x.Effect.Amount).DefaultIfEmpty(0).Max(),
-            ShieldReduction = effects.Where(x => x.Effect.Kind == EffectKind.ShieldReduction).Select(x => x.Effect.Amount).DefaultIfEmpty(0).Max(),
+            ShieldReduction = effects.Where(x => x.Effect.Kind == EffectKind.ShieldReduction)
+                .Select(x => x.Effect.Amount * (champion.IsRanged ? x.Effect.RangedMultiplier : 1)).DefaultIfEmpty(0).Max(),
             ArmorShred = effects.Where(x => x.Effect.Kind == EffectKind.ArmorShred).Select(x => x.Effect.Amount).DefaultIfEmpty(0).Max(),
             MagicResistShred = effects.Where(x => x.Effect.Kind == EffectKind.MagicResistShred).Select(x => x.Effect.Amount).DefaultIfEmpty(0).Max(),
             HealSources = heals,

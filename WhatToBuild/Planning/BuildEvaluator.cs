@@ -31,7 +31,6 @@ public sealed class BuildContext
         Forecaster = new GameForecaster(state, stack, model);
         Projector = new BuildProjector(items, model.Meta);
         World = new WorldForecast(Forecaster, Projector, neutrals, Settings.Planner.TimeBucketSeconds);
-        Objective = Settings.Objectives.For(Me.Champion);
         Owned = Me.Items.Where(i => i.Slot != 6).SelectMany(i => Enumerable.Repeat(i.Item, i.Count)).ToList();
         Trinkets = Me.Items.Where(i => i.Slot == 6).Select(i => i.Item).ToList();
         TeamBuffs = state.TeamBuffs(Me.Team, neutrals).ToList();
@@ -65,7 +64,24 @@ public sealed class BuildContext
 
     public WorldForecast World { get; }
 
-    public ModelSettings.ObjectiveWeights Objective { get; }
+    public ModelSettings.ObjectiveWeights Objective => Settings.Objectives.For(Me.Champion, Form);
+
+    public ISupportedChampion? Supported => Kits.For(Me.Champion);
+
+    public string? DetectedForm => Supported?.DetectForm(State.ActivePlayerAbilityIds);
+
+    public string? Form { get; set; }
+
+    public string? FormAt(double time, string? form = null)
+    {
+        var chosen = form ?? Form;
+        if (Supported is not { } supported || chosen is null || supported.Forms.Count == 0)
+        {
+            return chosen;
+        }
+
+        return DetectedForm is null && time < Settings.Forms.TransformSeconds ? supported.BaseForm : chosen;
+    }
 
     public IReadOnlyList<Item> Owned { get; }
 
@@ -164,6 +180,10 @@ public sealed class Evaluation
 
     public required double TimeAliveWithoutAbility { get; init; }
 
+    public string? Form { get; init; }
+
+    public required double Burst { get; init; }
+
     public required double Uptime { get; init; }
 
     public required double MoveSpeed { get; init; }
@@ -219,14 +239,15 @@ public sealed class BuildEvaluator
         return _battlefields.GetOrAdd(key, _ => new Lazy<Battlefield>(() => BuildBattlefield(snapped))).Value;
     }
 
-    public Evaluation Evaluate(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks = null, EvaluationMode mode = EvaluationMode.Screen)
+    public Evaluation Evaluate(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks = null, EvaluationMode mode = EvaluationMode.Screen, string? form = null)
     {
         var snapped = mode == EvaluationMode.Cheap
             ? _context.World.Snap(_context.Now + Math.Round((time - _context.Now) / _context.Settings.Planner.CheapTimeBucketSeconds) * _context.Settings.Planner.CheapTimeBucketSeconds)
             : _context.World.Snap(time);
-        var key = Key(inventory, snapped, newStacks, mode);
+        var activeForm = _context.FormAt(snapped, form);
+        var key = Key(inventory, snapped, newStacks, mode) + "|" + activeForm;
 
-        return _evaluations.GetOrAdd(key, _ => new Lazy<Evaluation>(() => Run(inventory, snapped, newStacks, mode))).Value;
+        return _evaluations.GetOrAdd(key, _ => new Lazy<Evaluation>(() => Run(inventory, snapped, newStacks, mode, activeForm))).Value;
     }
 
     public ChampionState Us(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks = null)
@@ -284,7 +305,7 @@ public sealed class BuildEvaluator
         return sheet;
     }
 
-    private Evaluation Run(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks, EvaluationMode mode)
+    private Evaluation Run(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks, EvaluationMode mode, string? form)
     {
         var settings = _context.Settings;
         var field = BattlefieldAt(time);
@@ -308,7 +329,7 @@ public sealed class BuildEvaluator
             var results = phases
                 .Select(phase => FightSimulator.Run(
                     new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true),
-                    _context.Kits.NewFight(_context.Champion)))
+                    _context.Kits.NewFight(_context.Champion, form)))
                 .ToList();
 
             var probe = new Fight(new FightSetup(us, target, field.OurRanks, field.OurMarks, Sustain: sustain));
@@ -316,7 +337,8 @@ public sealed class BuildEvaluator
         }
 
         var dps = targets.Sum(t => t.Enemy.Threat * t.Fight.EffectiveDps);
-        var survival = Survival(us, field, targets, dps);
+        var opening = targets.Sum(t => t.Enemy.Threat * Math.Min(1, t.Fight.EarlyDamage / Math.Max(1, t.Fight.TargetHealth)));
+        var survival = Survival(us, field, targets, dps, form);
         var fightSeconds = settings.Fight.TeamfightSeconds;
         var caught = settings.Fight.CaughtShare;
         var uptime = fightSeconds * ((1 - caught) + caught * (1 - Math.Exp(-survival.TimeAlive / fightSeconds)));
@@ -325,15 +347,16 @@ public sealed class BuildEvaluator
         ClearResult? clear = null;
         if (clearWeight >= (mode == EvaluationMode.Cheap ? settings.Jungle.CheapMinClearWeight : settings.Jungle.MinClearWeight))
         {
-            clear = _clear.Clear(us, field.OurRanks, field.OurMarks, time, () => _context.Kits.NewFight(_context.Champion), phases);
+            clear = _clear.Clear(us, field.OurRanks, field.OurMarks, time, () => _context.Kits.NewFight(_context.Champion, form), phases);
         }
 
         var walkShare = settings.Movement.WalkShareFor(_context.Me.Position);
         var tempo = 1 / (walkShare * _context.Champion.Base.MoveSpeed / Math.Max(1, us.Stats.MoveSpeed) + 1 - walkShare);
 
-        var objective = _context.Objective;
+        var objective = _context.Settings.Objectives.For(_context.Champion, form);
         var score = objective.Damage * Math.Log(Math.Max(MinimumValue, dps))
                     + objective.Uptime * Math.Log(Math.Max(MinimumValue, uptime))
+                    + objective.Burst * Math.Log(Math.Max(MinimumValue, opening))
                     + objective.Movement * settings.Movement.TempoWeightAt(time) * Math.Log(tempo)
                     + objective.Survival * Math.Log(Math.Max(MinimumValue, survival.TimeAlive))
                     + (clear is { } c ? clearWeight * Math.Log(1 / Math.Max(1, c.TotalSeconds)) : 0);
@@ -345,6 +368,8 @@ public sealed class BuildEvaluator
             Dps = dps,
             TimeAlive = survival.TimeAlive,
             TimeAliveWithoutAbility = survival.WithoutAbility,
+            Form = form,
+            Burst = opening,
             Uptime = uptime,
             MoveSpeed = us.Stats.MoveSpeed,
             Tempo = tempo,
@@ -361,7 +386,7 @@ public sealed class BuildEvaluator
     }
 
     private (double TimeAlive, double WithoutAbility, double Incoming, double Burst, double Pool, double Healing, Dictionary<DamageType, double> ByType) Survival(
-        ChampionState us, Battlefield field, List<TargetResult> targets, double dps)
+        ChampionState us, Battlefield field, List<TargetResult> targets, double dps, string? form)
     {
         var settings = _context.Settings;
         var byType = new Dictionary<DamageType, double> { [DamageType.Physical] = 0, [DamageType.Magic] = 0, [DamageType.True] = 0 };
@@ -442,6 +467,7 @@ public sealed class BuildEvaluator
         var omnivamp = us.Items.Sum(i => i.Stats.OmnivampPercent)
                        + effects.Where(e => StatCalculator.IsPermanentStatBuff(e) && e.Stat == Stats.OmnivampPercent).Sum(e => e.Amount);
         healing += (lifeSteal * attackShare + omnivamp) * dps * healPower;
+        healing += (_context.Supported?.DamageHealShare(us, form) ?? 0) * dps * healPower;
 
         var enemyGrievous = field.Enemies.Select(e => e.GrievousWounds).DefaultIfEmpty(0).Max() * settings.Sustain.EnemyGrievousCoverage;
         healing *= 1 - enemyGrievous;
@@ -459,7 +485,8 @@ public sealed class BuildEvaluator
             alive += revive / net;
             withoutAbility = alive;
 
-            if (field.Survival is { } ability)
+            var enemyHealth = field.Enemies.Count > 0 ? field.Enemies.Average(e => e.Entity.MaxHealth) : us.MaxHealth;
+            if (_context.Supported?.Survival(field.OurRanks, us, form, enemyHealth) is { } ability)
             {
                 var cooldown = ability.Cooldown * 100 / (100 + us.Stats.AbilityHaste);
                 var availability = Math.Clamp(settings.Fight.TeamfightIntervalSeconds / Math.Max(1, cooldown), 0, 1);
@@ -497,7 +524,7 @@ public sealed class BuildEvaluator
         {
             DamageType.Physical => AttackerHits.Physical(attacker, us, probe),
             DamageType.Magic => AttackerHits.Magic(attacker, us, probe),
-            _ => DamageCalculator.Create(us).TrueDamage(probe).AttackerItems(attacker.Items),
+            _ => DamageCalculator.Create(us).TrueDamage(probe).AttackerItems(attacker.Items, attacker.Champion.IsRanged),
         };
 
         if (stream.Flags.HasFlag(HitFlags.Crit))

@@ -7,6 +7,12 @@ public interface IChampionKit
     void Update(Fight fight);
 
     void OnAttack(Fight fight);
+
+    double AttackUptime => 1;
+
+    void OnDamage(Fight fight, string source, double damage)
+    {
+    }
 }
 
 public static class FightSimulator
@@ -21,7 +27,7 @@ public static class FightSimulator
 
         try
         {
-            var fight = new Fight(setup);
+            var fight = new Fight(setup) { Kit = kit };
             var onHits = OnHitEffects(setup.Attacker);
             var attackProgress = 1 - setup.AttackPhase;
 
@@ -35,8 +41,12 @@ public static class FightSimulator
                 fight.Regenerate(Fight.Step);
                 kit?.Update(fight);
 
-                attackProgress += fight.AttackSpeed * Fight.Step;
-                if (attackProgress >= 1 && !fight.TargetDead)
+                attackProgress += fight.AttackSpeed * Fight.Step * (kit?.AttackUptime ?? 1);
+                if (fight.Time < fight.AttacksBlockedUntil)
+                {
+                    attackProgress = Math.Min(attackProgress, 1);
+                }
+                else if (attackProgress >= 1 && !fight.TargetDead)
                 {
                     attackProgress -= 1;
                     Attack(fight, onHits);
@@ -60,7 +70,8 @@ public static class FightSimulator
                     fight.Healed,
                     fight.ShieldTotal,
                     Sustained: true,
-                    Kills: fight.Kills + (fight.TargetDead ? 1 : 0));
+                    Kills: fight.Kills + (fight.TargetDead ? 1 : 0),
+                    EarlyDamage: fight.EarlyDamage);
             }
 
             return new FightResult(

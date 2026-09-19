@@ -11,7 +11,28 @@ public sealed record RecommendationDto(
     IReadOnlyList<TeamNeedDto> TeamNeeds,
     ModelDto? Model = null,
     IReadOnlyList<string>? Assumptions = null,
-    IReadOnlyList<MatchupDto>? Matchups = null);
+    IReadOnlyList<MatchupDto>? Matchups = null,
+    FormAdviceDto? Form = null);
+
+public sealed record FormAdviceDto(
+    string? Detected,
+    string Recommended,
+    string RecommendedLabel,
+    IReadOnlyList<FormOptionDto> Options,
+    string ChargeHint,
+    IReadOnlyList<string> Why);
+
+public sealed record FormOptionDto(
+    string Form,
+    string Label,
+    double FightValue,
+    double Dps,
+    double TimeAlive,
+    double HealingPerSecond,
+    string? BurstTarget,
+    double? BurstKillSeconds,
+    double Burst,
+    double? BurstOnTarget);
 
 public sealed record ModelDto(
     double At,

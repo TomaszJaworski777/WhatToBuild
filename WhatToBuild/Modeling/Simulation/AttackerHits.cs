@@ -31,7 +31,7 @@ public static class AttackerHits
         var calculator = DamageCalculator.Create(target)
             .AdDamage(amount)
             .Lethality(attacker.Items.Sum(i => i.Stats.ArmorPenetrationFlat))
-            .AttackerItems(attacker.Items);
+            .AttackerItems(attacker.Items, attacker.Champion.IsRanged);
 
         foreach (var item in attacker.Items.Where(i => i.Stats.ArmorPenetrationPercent > 0))
         {
@@ -46,7 +46,7 @@ public static class AttackerHits
         var calculator = DamageCalculator.Create(target)
             .ApDamage(amount)
             .FlatMagicPenetration(attacker.Items.Sum(i => i.Stats.MagicPenetrationFlat))
-            .AttackerItems(attacker.Items);
+            .AttackerItems(attacker.Items, attacker.Champion.IsRanged);
 
         foreach (var item in attacker.Items.Where(i => i.Stats.MagicPenetrationPercent > 0))
         {
@@ -76,7 +76,7 @@ public static class AttackerHits
         {
             EffectKind.PhysicalDamage => Physical(attacker, target, raw),
             EffectKind.MagicDamage => Magic(attacker, target, raw),
-            EffectKind.TrueDamage => DamageCalculator.Create(target).TrueDamage(raw).AttackerItems(attacker.Items),
+            EffectKind.TrueDamage => DamageCalculator.Create(target).TrueDamage(raw).AttackerItems(attacker.Items, attacker.Champion.IsRanged),
             EffectKind.AdaptiveDamage => BonusAttackDamage(attacker) >= attacker.Stats.AbilityPower
                 ? Physical(attacker, target, raw)
                 : Magic(attacker, target, raw),

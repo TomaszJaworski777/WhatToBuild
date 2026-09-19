@@ -450,6 +450,36 @@ function pct(value) {
     return `${Math.round(value * 100)}%`;
 }
 
+function renderForm(rec) {
+    const f = rec.form;
+    if (!f) {
+        return "";
+    }
+
+    const cards = f.options.map((o) => {
+        const picked = o.form === f.recommended;
+        const burst = o.burstTarget ? `<div>First 3s take <b>${pct(o.burstOnTarget ?? 0)}</b> of ${esc(o.burstTarget)}'s health, kill in <b>${killTime(o.burstKillSeconds)}</b></div>` : "";
+        const heal = o.healingPerSecond >= 1 ? `<div>Heals <b>${Math.round(o.healingPerSecond)}</b>/s in fights</div>` : "";
+        return `
+            <div class="form-card${picked ? " form-picked" : ""}">
+                <div class="form-name">${esc(o.label)}${picked ? '<span class="form-tag">Recommended</span>' : ""}</div>
+                <div><b>${Math.round(o.dps)}</b> DPS, <b>${o.timeAlive.toFixed(1)}s</b> alive</div>
+                <div>Damage over a fight: <b>${Math.round(o.fightValue)}</b></div>
+                ${burst}${heal}
+            </div>`;
+    }).join("");
+
+    return `
+        <div class="form">
+            <div class="model-head">
+                <span class="label">Form${f.detected ? ` · you are ${esc(f.detected)}` : ""}</span>
+                <span class="muted small">${esc(f.chargeHint)}</span>
+            </div>
+            <div class="form-cards">${cards}</div>
+            ${list(f.why, "why")}
+        </div>`;
+}
+
 function renderModel(rec) {
     const m = rec.model;
     if (!m) {
@@ -552,6 +582,7 @@ function renderBuild() {
         <div class="build-foot">
             ${needs ? `<div class="needs"><span class="label">Enemy team calls for</span>${needs}</div>` : "<div></div>"}
         </div>
+        ${renderForm(rec)}
         ${renderModel(rec)}`;
 }
 

@@ -168,11 +168,11 @@ public class BuildModelTests
     }
 
     [TestMethod]
-    public void SerpentsFangHalvesShieldsInFights()
+    public void SerpentsFangCutsShieldsByAThirdWhenRanged()
     {
         var result = Fight(KindredEntity(6672, 6695), new TargetSustain(0, [new Shield(600)]));
 
-        Assert.AreEqual(300, result.Shielded, 0.001);
+        Assert.AreEqual(390, result.Shielded, 0.001);
     }
 
     [TestMethod]

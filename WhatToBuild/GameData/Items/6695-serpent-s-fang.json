@@ -17,7 +17,8 @@
                     {
                         "trigger":  "OnAttack",
                         "kind":  "ShieldReduction",
-                        "amount":  0.5
+                        "amount":  0.5,
+                        "rangedMultiplier":  0.7
                     }
                 ]
 }

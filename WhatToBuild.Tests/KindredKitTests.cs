@@ -34,11 +34,11 @@ public class KindredKitTests
             _kits.NewFight(Kindred));
 
     [TestMethod]
-    public void OnlyKindredIsSupported()
+    public void KindredAndKaynAreSupported()
     {
         Assert.IsNotNull(_kits.For(Kindred));
         Assert.IsNull(_kits.For(Garen));
-        Assert.HasCount(1, _kits.Supported);
+        CollectionAssert.AreEquivalent(new[] { "Kindred", "Kayn" }, _kits.Supported.ToList());
     }
 
     [TestMethod]

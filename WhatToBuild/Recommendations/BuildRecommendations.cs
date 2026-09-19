@@ -191,6 +191,7 @@ public sealed class BuildRecommendations : IRecommendationSource
                 }
 
                 var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
+                var advice = AdviseForm(evaluator, state);
                 var opening = _model.Settings.Planner.Opening is { } whole
                               && state.GameTime < _model.Settings.Planner.OpeningSeconds
                               && (_planned is null || GameKey(state) != GameKey(_planned.Context.State) || state.GameTime < _plannedAt)
@@ -235,6 +236,7 @@ public sealed class BuildRecommendations : IRecommendationSource
         lock (_lock)
         {
             var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
+                var advice = AdviseForm(evaluator, state);
             var plan = new BuildPlanner(evaluator).Plan(_target, Stages[^1], control);
             if (plan.Cancelled)
             {
@@ -260,7 +262,61 @@ public sealed class BuildRecommendations : IRecommendationSource
 
     private sealed record Explained(PlanStep Step, Evaluation Before, Evaluation After, IReadOnlyList<string> Why);
 
-    private sealed record Planned(BuildContext Context, BuildEvaluator Evaluator, BuildPlan Plan, IReadOnlyList<Explained> Steps, Evaluation Baseline);
+    private sealed record Planned(BuildContext Context, BuildEvaluator Evaluator, BuildPlan Plan, IReadOnlyList<Explained> Steps, Evaluation Baseline)
+    {
+        public FormAdviceDto? Advice { get; init; }
+    }
+
+    private FormAdviceDto? _advice;
+
+    private FormAdviceDto? AdviseForm(BuildEvaluator evaluator, GameState state)
+    {
+        var context = evaluator.Context;
+        if (context.Supported is not { } supported || supported.Forms.Count == 0)
+        {
+            _advice = null;
+            return null;
+        }
+
+        var time = Math.Max(state.GameTime, _model.Settings.Forms.TransformSeconds);
+        var fallback = supported.DefaultForm ?? supported.Forms[0];
+        var enemies = evaluator.BattlefieldAt(time).Enemies;
+        var carry = enemies.Where(e => e.Champion.IsRanged).MaxBy(e => e.Threat) ?? enemies.MaxBy(e => e.Threat);
+
+        var options = supported.Forms.Select(form =>
+        {
+            var e = evaluator.Evaluate(context.Owned, time, null, EvaluationMode.Full, form);
+            var onCarry = carry is null ? null : e.Targets.FirstOrDefault(t => t.Enemy == carry)?.Fight;
+            return new FormOptionDto(form, supported.FormLabel(form), e.Dps * e.Uptime, e.Dps, e.TimeAlive, e.HealingPerSecond, carry?.Champion.Name,
+                onCarry?.TimeToKill, e.Burst, onCarry is null ? null : Math.Min(1, onCarry.EarlyDamage / Math.Max(1, onCarry.TargetHealth)));
+        }).ToList();
+
+        var standard = options.First(o => o.Form == fallback);
+        var best = options.MaxBy(o => o.FightValue)!;
+        var margin = _model.Settings.Forms.PreferDefaultMargin;
+        var recommended = best.FightValue > standard.FightValue * (1 + margin) ? best : standard;
+
+        var melee = enemies.Count(e => !e.Champion.IsRanged);
+        var ranged = enemies.Count - melee;
+        var why = new List<string>();
+        foreach (var o in options.Where(o => o != recommended))
+        {
+            why.Add(o.FightValue > recommended.FightValue
+                ? $"{o.Label} deals {Pct(o.FightValue / recommended.FightValue - 1)} more damage over a fight, but not {Pct(margin)} more, so {recommended.Label} stays the pick"
+                : $"{recommended.Label} deals {Pct(recommended.FightValue / Math.Max(1, o.FightValue) - 1)} more damage over a fight than {o.Label}");
+        }
+
+        _advice = new FormAdviceDto(
+            context.DetectedForm is { } detected ? supported.FormLabel(detected) : null,
+            recommended.Form,
+            recommended.Label,
+            options,
+            $"Enemy team: {melee} melee (charge {supported.FormLabel(fallback)}), {ranged} ranged (charge the other form)",
+            why);
+
+        context.Form = context.DetectedForm ?? recommended.Form;
+        return _advice;
+    }
 
     private Planned Explain(BuildEvaluator evaluator, BuildPlan plan)
     {
@@ -274,7 +330,7 @@ public sealed class BuildRecommendations : IRecommendationSource
 
         var baseline = evaluator.Evaluate(context.Owned, plan.Steps.FirstOrDefault()?.At ?? context.Now, null, plan.Mode);
 
-        return new Planned(context, evaluator, plan, explained, baseline);
+        return new Planned(context, evaluator, plan, explained, baseline) { Advice = _advice };
     }
 
     private RecommendationDto Render(Planned planned, GameState state)
@@ -322,7 +378,8 @@ public sealed class BuildRecommendations : IRecommendationSource
             TeamNeeds(planned),
             Model(planned),
             Assumptions(planned),
-            Matchups(planned, state));
+            Matchups(planned, state),
+            planned.Advice);
     }
 
     private PurchaseDto BuyNow(Planned planned, GameState state)
