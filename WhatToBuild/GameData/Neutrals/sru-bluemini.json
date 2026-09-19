@@ -1,0 +1,20 @@
+﻿{
+    "id":  "2e28c0f0-0157-3478-1705-8a767f5f3dcc",
+    "internalName":  "SRU_BlueMini",
+    "name":  "Blue Sentinel Mini",
+    "kind":  "JungleCamp",
+    "camp":  "Blue Buff",
+    "countPerCamp":  1,
+    "statsIncomplete":  true,
+    "base":  {
+                 "health":  1,
+                 "attackDamage":  12,
+                 "armor":  0,
+                 "magicResist":  10,
+                 "attackSpeed":  0.625,
+                 "moveSpeed":  330,
+                 "attackRange":  450
+             },
+    "goldOnDeath":  20,
+    "expOnDeath":  1
+}

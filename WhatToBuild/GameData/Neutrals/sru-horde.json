@@ -1,0 +1,19 @@
+﻿{
+    "id":  "85318446-2cd7-0182-a8bf-c0abbc3b9f99",
+    "internalName":  "SRU_Horde",
+    "name":  "Voidgrub",
+    "kind":  "Epic",
+    "camp":  "Voidgrubs",
+    "countPerCamp":  3,
+    "base":  {
+                 "health":  1300,
+                 "attackDamage":  12,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  1,
+                 "moveSpeed":  350,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  30,
+    "expOnDeath":  65
+}

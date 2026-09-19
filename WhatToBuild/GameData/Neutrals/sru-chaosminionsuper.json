@@ -1,0 +1,19 @@
+﻿{
+    "id":  "4be0bfb4-6e83-3ada-7c1f-ddea8b93d3b5",
+    "internalName":  "SRU_ChaosMinionSuper",
+    "name":  "Super Minion",
+    "kind":  "Minion",
+    "camp":  "Minion Wave",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  1500,
+                 "attackDamage":  180,
+                 "armor":  100,
+                 "magicResist":  -30,
+                 "attackSpeed":  0.85,
+                 "moveSpeed":  350,
+                 "attackRange":  170
+             },
+    "goldOnDeath":  49,
+    "expOnDeath":  75
+}

@@ -1,0 +1,20 @@
+﻿{
+    "startTimeSeconds":  600,
+    "incrementSeconds":  30,
+    "percentPerIncrement":  0.005,
+    "percentCap":  1.5,
+    "rateChanges":  [
+                        {
+                            "atSeconds":  900,
+                            "percentPerIncrement":  0.00425
+                        },
+                        {
+                            "atSeconds":  1800,
+                            "percentPerIncrement":  0.003
+                        },
+                        {
+                            "atSeconds":  2700,
+                            "percentPerIncrement":  0.0145
+                        }
+                    ]
+}

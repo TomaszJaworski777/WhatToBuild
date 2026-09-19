@@ -1,0 +1,19 @@
+﻿{
+    "id":  "71eb4517-21cd-6a0b-7808-73e6c456a28a",
+    "internalName":  "SRU_RiftHerald",
+    "name":  "Rift Herald",
+    "kind":  "Epic",
+    "camp":  "Herald",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  7000,
+                 "attackDamage":  60,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.4,
+                 "moveSpeed":  325,
+                 "attackRange":  250
+             },
+    "goldOnDeath":  100,
+    "expOnDeath":  240
+}

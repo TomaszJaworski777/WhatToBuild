@@ -1,0 +1,19 @@
+﻿{
+    "id":  "76929ded-9c31-caa2-bf65-7bfbffe1b039",
+    "internalName":  "SRU_Razorbeak",
+    "name":  "Razorbeak",
+    "kind":  "JungleCamp",
+    "camp":  "Raptors",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  1200,
+                 "attackDamage":  17,
+                 "armor":  42,
+                 "magicResist":  42,
+                 "attackSpeed":  0.667,
+                 "moveSpeed":  450,
+                 "attackRange":  200
+             },
+    "goldOnDeath":  35,
+    "expOnDeath":  20
+}

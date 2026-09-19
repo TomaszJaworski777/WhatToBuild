@@ -1,0 +1,19 @@
+﻿{
+    "id":  "c94b01d9-a619-8eb4-cf8e-1d64a18e0aae",
+    "internalName":  "SRU_Baron",
+    "name":  "Baron Nashor",
+    "kind":  "Epic",
+    "camp":  "Baron",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  16300,
+                 "attackDamage":  175,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.625,
+                 "moveSpeed":  300,
+                 "attackRange":  900
+             },
+    "goldOnDeath":  100,
+    "expOnDeath":  0
+}

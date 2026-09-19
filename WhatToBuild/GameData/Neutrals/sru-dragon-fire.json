@@ -1,0 +1,19 @@
+﻿{
+    "id":  "8cf5519d-e2d3-8007-7133-26ed23040de3",
+    "internalName":  "SRU_Dragon_Fire",
+    "name":  "Infernal Drake",
+    "kind":  "Epic",
+    "camp":  "Dragon",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  3625,
+                 "attackDamage":  70,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.5,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  75,
+    "expOnDeath":  160
+}

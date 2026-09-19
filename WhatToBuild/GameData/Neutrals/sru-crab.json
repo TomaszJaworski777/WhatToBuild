@@ -1,0 +1,19 @@
+﻿{
+    "id":  "503496a5-2008-3a97-a9e7-cb871a9fc70f",
+    "internalName":  "SRU_Crab",
+    "name":  "Rift Scuttler",
+    "kind":  "JungleCamp",
+    "camp":  "Scuttle",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  1550,
+                 "attackDamage":  35,
+                 "armor":  42,
+                 "magicResist":  42,
+                 "attackSpeed":  0.638,
+                 "moveSpeed":  255,
+                 "attackRange":  300
+             },
+    "goldOnDeath":  55,
+    "expOnDeath":  100
+}

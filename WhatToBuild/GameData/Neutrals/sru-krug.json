@@ -1,0 +1,19 @@
+﻿{
+    "id":  "7e362bce-a8a7-45de-b369-d8952463b434",
+    "internalName":  "SRU_Krug",
+    "name":  "Krug",
+    "kind":  "JungleCamp",
+    "camp":  "Krugs",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  1400,
+                 "attackDamage":  57,
+                 "armor":  42,
+                 "magicResist":  42,
+                 "attackSpeed":  0.613,
+                 "moveSpeed":  250,
+                 "attackRange":  150
+             },
+    "goldOnDeath":  15,
+    "expOnDeath":  15
+}

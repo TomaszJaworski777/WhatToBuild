@@ -1,0 +1,19 @@
+﻿{
+    "id":  "bb57d555-3a7f-17de-168a-96840637a9f4",
+    "internalName":  "SRU_KrugMiniMini",
+    "name":  "Lesser Krug",
+    "kind":  "JungleCamp",
+    "camp":  "Krugs",
+    "countPerCamp":  2,
+    "base":  {
+                 "health":  60,
+                 "attackDamage":  13,
+                 "armor":  20,
+                 "magicResist":  20,
+                 "attackSpeed":  0.613,
+                 "moveSpeed":  400,
+                 "attackRange":  110
+             },
+    "goldOnDeath":  14,
+    "expOnDeath":  16
+}

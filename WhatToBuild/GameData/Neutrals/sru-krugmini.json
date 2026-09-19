@@ -1,0 +1,19 @@
+﻿{
+    "id":  "910dde3a-592f-8fe1-f163-970cc4bbe223",
+    "internalName":  "SRU_KrugMini",
+    "name":  "Medium Krug",
+    "kind":  "JungleCamp",
+    "camp":  "Krugs",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  650,
+                 "attackDamage":  20,
+                 "armor":  20,
+                 "magicResist":  20,
+                 "attackSpeed":  0.613,
+                 "moveSpeed":  400,
+                 "attackRange":  110
+             },
+    "goldOnDeath":  10,
+    "expOnDeath":  10
+}

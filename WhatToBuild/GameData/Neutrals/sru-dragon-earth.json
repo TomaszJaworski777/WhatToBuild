@@ -1,0 +1,19 @@
+﻿{
+    "id":  "2149ef63-286e-f194-9e53-07202ec07e31",
+    "internalName":  "SRU_Dragon_Earth",
+    "name":  "Mountain Drake",
+    "kind":  "Epic",
+    "camp":  "Dragon",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  4200,
+                 "attackDamage":  105,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.25,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  75,
+    "expOnDeath":  160
+}

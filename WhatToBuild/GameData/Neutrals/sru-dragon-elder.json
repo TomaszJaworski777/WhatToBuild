@@ -1,0 +1,19 @@
+﻿{
+    "id":  "d0992a17-0a7a-af26-d89e-3532c7c39f75",
+    "internalName":  "SRU_Dragon_Elder",
+    "name":  "Elder Dragon",
+    "kind":  "Epic",
+    "camp":  "Elder",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  11500,
+                 "attackDamage":  150,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.5,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  100,
+    "expOnDeath":  0
+}

@@ -1,0 +1,20 @@
+﻿{
+    "id":  "202f53ce-c4dd-1ce9-ef69-d6540a7c60cc",
+    "internalName":  "SRU_RedMini",
+    "name":  "Red Brambleback Mini",
+    "kind":  "JungleCamp",
+    "camp":  "Red Buff",
+    "countPerCamp":  2,
+    "statsIncomplete":  true,
+    "base":  {
+                 "health":  1,
+                 "attackDamage":  12,
+                 "armor":  0,
+                 "magicResist":  10,
+                 "attackSpeed":  0.625,
+                 "moveSpeed":  330,
+                 "attackRange":  450
+             },
+    "goldOnDeath":  15,
+    "expOnDeath":  1
+}

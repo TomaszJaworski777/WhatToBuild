@@ -142,6 +142,66 @@ does not have yet. If one is added later, the place to put it is attack uptime �
 the fraction of a fight you can spend attacking — because that converts range and
 mobility into damage, which is already the scoring currency.
 
+## Neutrals
+
+Jungle camps, epic monsters and minions, one file per unit in `Neutrals/`.
+
+```json
+{
+  "internalName": "SRU_Murkwolf",
+  "name": "Murkwolf",
+  "kind": "JungleCamp",
+  "camp": "Wolves",
+  "countPerCamp": 1,
+  "base": { "health": 1600, "attackDamage": 30, "armor": 42, "magicResist": 42,
+            "attackSpeed": 0.625, "moveSpeed": 350, "attackRange": 175 },
+  "goldOnDeath": 55,
+  "expOnDeath": 50
+}
+```
+
+A camp is not a file: units carry `camp` and `countPerCamp`, so Wolves is one
+Murkwolf plus two Lesser Murkwolves. That keeps a clear simulation to a group-by.
+
+None of this is in Data Dragon — it comes from the per-character game data, same
+source as champion attack damage growth. Each file has several records (Root plus
+game-mode variants such as URF); Root is the one used.
+
+Attack interval is not stored, because it is `1 / attackSpeed`. The game data also
+carries an explicit attack animation time, and where both exist they agree — Murkwolf
+is 1.6s either way — but four units have no explicit value, so deriving it is both
+shorter and more complete.
+
+### Armor and magic resist
+
+They are separate values, but Riot's data makes them uniform per tier: every jungle
+camp is 42/42 and every epic monster 34/32, including Baron at 34 armor / 32 magic
+resist. That is what the character records hold; per-camp differences are not in
+there, and the map data's armor entries turned out to be debuff scripts, not base
+stats. If monsters do differ in practice, the difference is applied somewhere this
+data does not reach — the same pattern as the incomplete units below.
+
+### Time scaling
+
+`_scaling.json` holds the camp scaling from the map data: nothing until 600s, then
++0.5% every 30s, capped at +150%, with the rate changing at 900s, 1800s and 2700s.
+`NeutralScaling.MultiplierAt(seconds)` applies it.
+
+One limitation worth knowing: the map file has eight scaling tables and their keys
+are hashed, so which table belongs to which camp cannot be read out. The jungle
+table is used for everything. Epic monsters almost certainly scale differently.
+
+### Incomplete units
+
+Four units carry `"statsIncomplete": true`, because their character record holds
+placeholder values — the buff-camp minis list **1 health**, and Lesser Murkwolf has
+no damage field at all. Their real values are applied somewhere the character data
+does not reach.
+
+They are shipped with the placeholders visible rather than with numbers invented to
+look plausible, since a clear simulation that quietly treats a camp as free is worse
+than one that reports a gap. A test pins the list to exactly those four.
+
 ## Runes
 
 One file per rune in `Runes/`, named `<riotId>-<slug>.json`. Stat shards live here

@@ -1,0 +1,19 @@
+﻿{
+    "id":  "c9581a49-d1f6-7427-352c-8895d3abd111",
+    "internalName":  "SRU_Dragon_Chemtech",
+    "name":  "Chemtech Drake",
+    "kind":  "Epic",
+    "camp":  "Dragon",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  3625,
+                 "attackDamage":  47,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.5,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  75,
+    "expOnDeath":  160
+}

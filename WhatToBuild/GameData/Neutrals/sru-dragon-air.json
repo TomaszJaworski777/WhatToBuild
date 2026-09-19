@@ -1,0 +1,19 @@
+﻿{
+    "id":  "197eba6c-c32c-9bce-1d85-3093ac8f247f",
+    "internalName":  "SRU_Dragon_Air",
+    "name":  "Cloud Drake",
+    "kind":  "Epic",
+    "camp":  "Dragon",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  3625,
+                 "attackDamage":  35,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  1,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  75,
+    "expOnDeath":  160
+}

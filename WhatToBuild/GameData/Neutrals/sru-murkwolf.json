@@ -1,0 +1,19 @@
+﻿{
+    "id":  "5d0dbd18-ce90-5967-a7e8-8b68e5af490d",
+    "internalName":  "SRU_Murkwolf",
+    "name":  "Murkwolf",
+    "kind":  "JungleCamp",
+    "camp":  "Wolves",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  1600,
+                 "attackDamage":  30,
+                 "armor":  42,
+                 "magicResist":  42,
+                 "attackSpeed":  0.625,
+                 "moveSpeed":  525,
+                 "attackRange":  175
+             },
+    "goldOnDeath":  55,
+    "expOnDeath":  50
+}

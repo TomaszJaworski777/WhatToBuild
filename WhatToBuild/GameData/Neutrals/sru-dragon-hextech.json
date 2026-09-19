@@ -1,0 +1,19 @@
+﻿{
+    "id":  "e71f0828-8874-d48f-36a1-784d0a86c71b",
+    "internalName":  "SRU_Dragon_Hextech",
+    "name":  "Hextech Drake",
+    "kind":  "Epic",
+    "camp":  "Dragon",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  3625,
+                 "attackDamage":  47,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.75,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  75,
+    "expOnDeath":  160
+}

@@ -1,0 +1,19 @@
+﻿{
+    "id":  "2ef181fa-59f6-258a-1072-c9e36ebf2ccc",
+    "internalName":  "SRU_Blue",
+    "name":  "Blue Sentinel",
+    "kind":  "JungleCamp",
+    "camp":  "Blue Buff",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  2300,
+                 "attackDamage":  66,
+                 "armor":  42,
+                 "magicResist":  42,
+                 "attackSpeed":  0.493,
+                 "moveSpeed":  275,
+                 "attackRange":  0
+             },
+    "goldOnDeath":  90,
+    "expOnDeath":  95
+}

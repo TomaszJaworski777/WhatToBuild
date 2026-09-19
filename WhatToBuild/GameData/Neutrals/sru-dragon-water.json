@@ -1,0 +1,19 @@
+﻿{
+    "id":  "d7456f1d-cd68-67de-6088-3e871355a7f7",
+    "internalName":  "SRU_Dragon_Water",
+    "name":  "Ocean Drake",
+    "kind":  "Epic",
+    "camp":  "Dragon",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  3625,
+                 "attackDamage":  70,
+                 "armor":  34,
+                 "magicResist":  32,
+                 "attackSpeed":  0.5,
+                 "moveSpeed":  330,
+                 "attackRange":  500
+             },
+    "goldOnDeath":  75,
+    "expOnDeath":  160
+}

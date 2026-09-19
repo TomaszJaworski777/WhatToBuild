@@ -1,0 +1,19 @@
+﻿{
+    "id":  "afdcefc1-95cb-7476-46de-9fd89719a8ae",
+    "internalName":  "SRU_ChaosMinionRanged",
+    "name":  "Caster Minion",
+    "kind":  "Minion",
+    "camp":  "Minion Wave",
+    "countPerCamp":  3,
+    "base":  {
+                 "health":  275,
+                 "attackDamage":  19.5,
+                 "armor":  0,
+                 "magicResist":  0,
+                 "attackSpeed":  0.667,
+                 "moveSpeed":  350,
+                 "attackRange":  550
+             },
+    "goldOnDeath":  14,
+    "expOnDeath":  31
+}

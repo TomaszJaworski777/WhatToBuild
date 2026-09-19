@@ -1,0 +1,20 @@
+﻿{
+    "id":  "5b9cdf76-e8fb-d03f-86f5-2ca95b7bbfab",
+    "internalName":  "SRU_MurkwolfMini",
+    "name":  "Lesser Murkwolf",
+    "kind":  "JungleCamp",
+    "camp":  "Wolves",
+    "countPerCamp":  2,
+    "statsIncomplete":  true,
+    "base":  {
+                 "health":  630,
+                 "attackDamage":  0,
+                 "armor":  20,
+                 "magicResist":  20,
+                 "attackSpeed":  0.625,
+                 "moveSpeed":  525,
+                 "attackRange":  175
+             },
+    "goldOnDeath":  15,
+    "expOnDeath":  15
+}

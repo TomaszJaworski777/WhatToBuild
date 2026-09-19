@@ -1,0 +1,19 @@
+﻿{
+    "id":  "faf46eb0-8679-cd5b-07ad-6eee779105dc",
+    "internalName":  "SRU_ChaosMinionSiege",
+    "name":  "Siege Minion",
+    "kind":  "Minion",
+    "camp":  "Minion Wave",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  750,
+                 "attackDamage":  36,
+                 "armor":  0,
+                 "magicResist":  0,
+                 "attackSpeed":  1,
+                 "moveSpeed":  350,
+                 "attackRange":  300
+             },
+    "goldOnDeath":  49,
+    "expOnDeath":  75
+}

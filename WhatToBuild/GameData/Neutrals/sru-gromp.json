@@ -1,0 +1,19 @@
+﻿{
+    "id":  "9519727c-2051-356f-a32e-efc82c743f22",
+    "internalName":  "SRU_Gromp",
+    "name":  "Gromp",
+    "kind":  "JungleCamp",
+    "camp":  "Gromp",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  2050,
+                 "attackDamage":  70,
+                 "armor":  42,
+                 "magicResist":  42,
+                 "attackSpeed":  0.425,
+                 "moveSpeed":  330,
+                 "attackRange":  150
+             },
+    "goldOnDeath":  80,
+    "expOnDeath":  120
+}

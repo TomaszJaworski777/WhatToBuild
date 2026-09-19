@@ -1,0 +1,19 @@
+﻿{
+    "id":  "44bab97d-314c-51b9-6cb6-e94d17e2d705",
+    "internalName":  "SRU_RazorbeakMini",
+    "name":  "Lesser Razorbeak",
+    "kind":  "JungleCamp",
+    "camp":  "Raptors",
+    "countPerCamp":  5,
+    "base":  {
+                 "health":  500,
+                 "attackDamage":  7,
+                 "armor":  20,
+                 "magicResist":  20,
+                 "attackSpeed":  1,
+                 "moveSpeed":  525,
+                 "attackRange":  125
+             },
+    "goldOnDeath":  8,
+    "expOnDeath":  10
+}

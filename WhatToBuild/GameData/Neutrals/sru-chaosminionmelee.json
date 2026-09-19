@@ -1,0 +1,19 @@
+﻿{
+    "id":  "c4761ab6-77e1-db02-21e3-db978a18fc1f",
+    "internalName":  "SRU_ChaosMinionMelee",
+    "name":  "Melee Minion",
+    "kind":  "Minion",
+    "camp":  "Minion Wave",
+    "countPerCamp":  3,
+    "base":  {
+                 "health":  430,
+                 "attackDamage":  11,
+                 "armor":  0,
+                 "magicResist":  0,
+                 "attackSpeed":  1.25,
+                 "moveSpeed":  350,
+                 "attackRange":  110
+             },
+    "goldOnDeath":  20,
+    "expOnDeath":  62
+}

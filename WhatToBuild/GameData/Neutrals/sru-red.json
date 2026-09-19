@@ -1,0 +1,19 @@
+﻿{
+    "id":  "c808d294-a780-8f9f-12fd-91b89f048ae6",
+    "internalName":  "SRU_Red",
+    "name":  "Red Brambleback",
+    "kind":  "JungleCamp",
+    "camp":  "Red Buff",
+    "countPerCamp":  1,
+    "base":  {
+                 "health":  2300,
+                 "attackDamage":  66,
+                 "armor":  42,
+                 "magicResist":  42,
+                 "attackSpeed":  0.493,
+                 "moveSpeed":  275,
+                 "attackRange":  200
+             },
+    "goldOnDeath":  90,
+    "expOnDeath":  95
+}
