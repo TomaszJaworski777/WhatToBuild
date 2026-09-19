@@ -12,6 +12,10 @@ public class Item
 
     public int Cost { get; set; }
 
+    public bool Unique { get; set; }
+
+    public List<string> Groups { get; set; } = new();
+
     public List<Guid> BuildPath { get; set; } = new();
 
     public ItemStats Stats { get; set; } = new();

@@ -4,6 +4,7 @@
     "name":  "Hexdrinker",
     "icon":  "3155.png",
     "cost":  1300,
+    "groups":  [ "LifelineItems" ],
     "buildPath":  [
                       "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
                       "cc10ae20-f7e4-c3ce-337e-71a62a15f305",

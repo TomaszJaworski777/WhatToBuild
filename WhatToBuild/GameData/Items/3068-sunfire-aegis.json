@@ -4,6 +4,8 @@
     "name":  "Sunfire Aegis",
     "icon":  "3068.png",
     "cost":  2800,
+    "unique":  true,
+    "groups":  [ "ImmolateItems" ],
     "buildPath":  [
                       "0e99f246-8cae-0817-d786-4263e76770c8",
                       "5dd70522-168e-d7bb-5854-c24b78940297",

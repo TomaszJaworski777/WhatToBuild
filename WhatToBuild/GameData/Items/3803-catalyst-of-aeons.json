@@ -4,6 +4,7 @@
     "name":  "Catalyst of Aeons",
     "icon":  "3803.png",
     "cost":  1300,
+    "groups":  [ "EternityItems" ],
     "buildPath":  [
                       "b025024f-832d-4982-6bb7-f6d96e42dc1f",
                       "b025024f-832d-4982-6bb7-f6d96e42dc1f",

@@ -4,6 +4,7 @@
     "name":  "Guardian Angel",
     "icon":  "3026.png",
     "cost":  3200,
+    "unique":  true,
     "buildPath":  [
                       "7fbbf0bb-f67f-dbab-124c-f1fb86a80eca",
                       "0e4a5126-89bb-99a3-4c15-6b21f7e41e47"

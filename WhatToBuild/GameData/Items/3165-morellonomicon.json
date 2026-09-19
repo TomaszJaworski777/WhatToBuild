@@ -4,6 +4,7 @@
     "name":  "Morellonomicon",
     "icon":  "3165.png",
     "cost":  2850,
+    "unique":  true,
     "buildPath":  [
                       "4d050f40-4551-ea6f-45cc-85b6486cb572",
                       "25bc422e-c041-8b19-b8e4-9cd95a0cd928",

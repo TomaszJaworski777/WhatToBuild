@@ -4,6 +4,7 @@
     "name":  "Luden\u0027s Echo",
     "icon":  "6655.png",
     "cost":  2750,
+    "unique":  true,
     "buildPath":  [
                       "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
                       "2310e122-8f59-c9c2-3ae8-f4a33b938440"

@@ -4,6 +4,7 @@
     "name":  "Serrated Dirk",
     "icon":  "3134.png",
     "cost":  1000,
+    "unique":  true,
     "buildPath":  [
                       "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
                       "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"

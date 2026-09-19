@@ -4,6 +4,7 @@
     "name":  "Axiom Arc",
     "icon":  "6696.png",
     "cost":  2750,
+    "unique":  true,
     "buildPath":  [
                       "22071f8c-f975-7e62-d4fe-906dd72b02fe",
                       "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"

@@ -47,7 +47,13 @@ public static class ItemDescriber
 
     public static string Describe(Effect effect)
     {
-        var text = $"{Trigger(effect.Trigger)}: {What(effect)}";
+        var trigger = effect.EveryAttacks > 0 ? $"Every {Number(effect.EveryAttacks)} attacks" : Trigger(effect.Trigger);
+        var text = $"{trigger}: {What(effect)}";
+
+        if (effect.Splash)
+        {
+            text += " to enemies around the target";
+        }
 
         if (effect.Versus != DamageSource.All)
         {
@@ -62,6 +68,11 @@ public static class ItemDescriber
         if (effect.Cooldown > 0)
         {
             text += $" ({Number(effect.Cooldown)}s cooldown)";
+        }
+
+        if (effect.RangedMultiplier != 1)
+        {
+            text += $" (ranged: {Percent(effect.RangedMultiplier)})";
         }
 
         return text;

@@ -4,6 +4,8 @@
     "name":  "Winter\u0027s Approach",
     "icon":  "3119.png",
     "cost":  2400,
+    "unique":  true,
+    "groups":  [ "TearItems" ],
     "buildPath":  [
                       "76662942-aad7-36b3-2497-aec87d98b31f",
                       "78a6c7fc-1e70-b5f7-6205-47b1df785d76",

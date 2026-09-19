@@ -82,6 +82,7 @@ public sealed class DamageCalculator
 
     public DamageResult Run()
     {
+        var hit = new Hit(_type, _raw, _flags);
         var armorPen = _armorPenetrationPercent;
         var damageAmp = _damageAmp;
         var shieldReduction = _shieldReduction;
@@ -90,7 +91,7 @@ public sealed class DamageCalculator
 
         foreach (var item in _attackerItems)
         {
-            foreach (var effect in item.Effects.Where(ConditionsMet))
+            foreach (var effect in item.Effects.Where(e => ConditionsMet(e) && hit.Matches(e.Versus)))
             {
                 switch (effect.Kind)
                 {
@@ -135,24 +136,10 @@ public sealed class DamageCalculator
             Shields = _defender.Shields.ToList(),
         };
 
-        return _pipeline.Run(new Hit(_type, _raw, _flags), attacker, defender);
+        return _pipeline.Run(hit, attacker, defender);
     }
 
-    private bool ConditionsMet(Effect effect) =>
-        effect.When.All(c => c.Subject == ConditionSubject.Target
-                             && TargetValue(c.Property) is { } value
-                             && c.IsMet(value));
-
-    private double? TargetValue(ConditionProperty property) => property switch
-    {
-        ConditionProperty.HealthPercent => _defender.HealthPercent,
-        ConditionProperty.BonusHealth => _defender.BonusHealth,
-        ConditionProperty.MaxHealth => _defender.MaxHealth,
-        ConditionProperty.Armor => _defender.Stats.Armor,
-        ConditionProperty.MagicResist => _defender.Stats.MagicResist,
-        ConditionProperty.Level => (_defender as ChampionState)?.Level,
-        _ => null,
-    };
+    private bool ConditionsMet(Effect effect) => _defender.Satisfies(effect.When);
 
     private DamageCalculator Hit(DamageType type, double amount)
     {

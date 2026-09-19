@@ -1,23 +1,25 @@
 ﻿{
-    "id":  "914f4c3b-f09a-aa49-8767-b7a023bad4b1",
-    "riotId":  3085,
-    "name":  "Runaan\u0027s Hurricane",
-    "icon":  "3085.png",
-    "cost":  2650,
-    "buildPath":  [
-                      "0c82b054-3477-2b93-a13a-8ce1a5ab92c7",
-                      "83ec4976-66ed-d9b1-8549-63e8f319bd86"
-                  ],
-    "stats":  {
-                  "moveSpeedPercent":  0.05,
-                  "critChance":  0.25,
-                  "attackSpeedPercent":  0.4
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perTotalAd":  0.8
-                    }
-                ]
+    "id": "914f4c3b-f09a-aa49-8767-b7a023bad4b1",
+    "riotId": 3085,
+    "name": "Runaan's Hurricane",
+    "icon": "3085.png",
+    "cost": 2650,
+    "unique": true,
+    "buildPath": [
+        "0c82b054-3477-2b93-a13a-8ce1a5ab92c7",
+        "83ec4976-66ed-d9b1-8549-63e8f319bd86"
+    ],
+    "stats": {
+        "moveSpeedPercent": 0.05,
+        "critChance": 0.25,
+        "attackSpeedPercent": 0.4
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perTotalAd": 0.8,
+            "splash": true
+        }
+    ]
 }

@@ -4,6 +4,8 @@
     "name":  "Rod of Ages",
     "icon":  "6657.png",
     "cost":  2600,
+    "unique":  true,
+    "groups":  [ "EternityItems" ],
     "buildPath":  [
                       "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
                       "703c5b5f-a746-04bd-6e16-faf3e2f9e6a0"

@@ -4,6 +4,7 @@
     "name":  "Berserker\u0027s Greaves",
     "icon":  "3006.png",
     "cost":  1100,
+    "groups":  [ "Boots", "BootsWithoutActives" ],
     "buildPath":  [
                       "ae639a00-f269-2346-dd47-eedaa6723936",
                       "29012b80-9265-ee3d-3b54-ed05645960db",

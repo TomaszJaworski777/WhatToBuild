@@ -4,6 +4,7 @@
     "name":  "Void Staff",
     "icon":  "3135.png",
     "cost":  3000,
+    "groups":  [ "VoidPen" ],
     "buildPath":  [
                       "0cb7742f-83a6-9b4e-cf46-bc89cd39b53d",
                       "25bc422e-c041-8b19-b8e4-9cd95a0cd928"

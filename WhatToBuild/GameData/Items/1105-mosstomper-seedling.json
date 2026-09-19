@@ -4,6 +4,8 @@
     "name":  "Mosstomper Seedling",
     "icon":  "1105.png",
     "cost":  450,
+    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
+    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
     "buildPath":  [
 
                   ],

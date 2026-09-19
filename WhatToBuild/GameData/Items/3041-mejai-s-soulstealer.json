@@ -4,6 +4,7 @@
     "name":  "Mejai\u0027s Soulstealer",
     "icon":  "3041.png",
     "cost":  1500,
+    "groups":  [ "Glory" ],
     "buildPath":  [
                       "145ee186-26c7-7885-1382-14226cf0cf1c"
                   ],

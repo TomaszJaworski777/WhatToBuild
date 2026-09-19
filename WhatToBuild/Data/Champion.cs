@@ -1,4 +1,4 @@
-namespace WhatToBuild.Data;
+﻿namespace WhatToBuild.Data;
 
 public class StatSheet
 {
@@ -25,13 +25,6 @@ public class ChampionStacking
     public double Max { get; set; }
 }
 
-public class StackStep
-{
-    public double Stacks { get; set; }
-
-    public double Bonus { get; set; }
-}
-
 public sealed record StackReadout(double Low, double? High);
 
 public class StackReading
@@ -40,32 +33,46 @@ public class StackReading
 
     public Stat Stat { get; set; } = Stats.AttackRange;
 
-    public List<StackStep> Steps { get; set; } = new();
+    public double FirstStacks { get; set; }
+
+    public double FirstBonus { get; set; }
+
+    public double StepStacks { get; set; }
+
+    public double StepBonus { get; set; }
 
     public StackReadout? Read(double bonus)
     {
-        var steps = Steps.OrderBy(s => s.Stacks).ToList();
+        if (Math.Abs(bonus) <= Tolerance)
+        {
+            return new StackReadout(0, FirstStacks - 1);
+        }
 
-        if (steps.Count == 0)
+        if (StepBonus <= 0 || bonus < FirstBonus - Tolerance)
         {
             return null;
         }
 
-        if (Math.Abs(bonus) <= Tolerance)
+        var steps = Math.Round((bonus - FirstBonus) / StepBonus);
+        if (Math.Abs(FirstBonus + steps * StepBonus - bonus) > Tolerance)
         {
-            return new StackReadout(0, steps[0].Stacks - 1);
+            return null;
         }
 
-        for (var i = 0; i < steps.Count; i++)
-        {
-            if (Math.Abs(bonus - steps[i].Bonus) <= Tolerance)
-            {
-                return new StackReadout(steps[i].Stacks, i + 1 < steps.Count ? steps[i + 1].Stacks - 1 : null);
-            }
-        }
-
-        return null;
+        var low = FirstStacks + steps * StepStacks;
+        return new StackReadout(low, low + StepStacks - 1);
     }
+}
+
+public class CombatBuff
+{
+    public Stat Stat { get; set; } = Stats.AttackSpeedPercent;
+
+    public double Amount { get; set; }
+
+    public double PerStack { get; set; }
+
+    public double At(double stacks) => Amount + PerStack * stacks;
 }
 
 public class Champion
@@ -91,6 +98,8 @@ public class Champion
     public List<ChampionStacking> Stacking { get; set; } = new();
 
     public StackReading? StackReading { get; set; }
+
+    public List<CombatBuff> CombatBuffs { get; set; } = new();
 
     public double Tag(string name) => Tags.GetValueOrDefault(name);
 

@@ -1,24 +1,26 @@
 ﻿{
-    "id":  "3a001178-2a87-adc2-4e71-323f79d6bc61",
-    "riotId":  3153,
-    "name":  "Blade of The Ruined King",
-    "icon":  "3153.png",
-    "cost":  3200,
-    "buildPath":  [
-                      "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
-                      "26f6d9a2-db01-60b5-4767-e52048138836",
-                      "1d276371-f99d-7615-c4af-a5feab4d274d"
-                  ],
-    "stats":  {
-                  "attackDamage":  40,
-                  "attackSpeedPercent":  0.25,
-                  "lifeStealPercent":  0.1
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perTargetCurrentHealth":  0.06
-                    }
-                ]
+    "id": "3a001178-2a87-adc2-4e71-323f79d6bc61",
+    "riotId": 3153,
+    "name": "Blade of The Ruined King",
+    "icon": "3153.png",
+    "cost": 3200,
+    "unique": true,
+    "buildPath": [
+        "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
+        "26f6d9a2-db01-60b5-4767-e52048138836",
+        "1d276371-f99d-7615-c4af-a5feab4d274d"
+    ],
+    "stats": {
+        "attackDamage": 40,
+        "attackSpeedPercent": 0.25,
+        "lifeStealPercent": 0.1
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perTargetCurrentHealth": 0.09,
+            "rangedMultiplier": 0.6667
+        }
+    ]
 }

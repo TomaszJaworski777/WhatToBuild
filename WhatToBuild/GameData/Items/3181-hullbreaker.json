@@ -1,25 +1,27 @@
 ﻿{
-    "id":  "112cc83a-a947-c8ea-6eb1-c015a0e5e94b",
-    "riotId":  3181,
-    "name":  "Hullbreaker",
-    "icon":  "3181.png",
-    "cost":  3000,
-    "buildPath":  [
-                      "066b2773-c9e4-e84b-4d19-ff867aae662a",
-                      "00c25f3f-7fd0-30fc-f7f0-f5dd86ad9754",
-                      "1d276371-f99d-7615-c4af-a5feab4d274d"
-                  ],
-    "stats":  {
-                  "health":  500,
-                  "moveSpeedPercent":  0.04,
-                  "attackDamage":  40
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perTotalAd":  1.2,
-                        "cooldown":  6
-                    }
-                ]
+    "id": "112cc83a-a947-c8ea-6eb1-c015a0e5e94b",
+    "riotId": 3181,
+    "name": "Hullbreaker",
+    "icon": "3181.png",
+    "cost": 3000,
+    "unique": true,
+    "buildPath": [
+        "066b2773-c9e4-e84b-4d19-ff867aae662a",
+        "00c25f3f-7fd0-30fc-f7f0-f5dd86ad9754",
+        "1d276371-f99d-7615-c4af-a5feab4d274d"
+    ],
+    "stats": {
+        "health": 500,
+        "moveSpeedPercent": 0.04,
+        "attackDamage": 40
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perTotalAd": 1.2,
+            "cooldown": 6,
+            "rangedMultiplier": 0.5833
+        }
+    ]
 }

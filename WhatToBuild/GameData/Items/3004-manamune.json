@@ -4,6 +4,8 @@
     "name":  "Manamune",
     "icon":  "3004.png",
     "cost":  2900,
+    "unique":  true,
+    "groups":  [ "TearItems" ],
     "buildPath":  [
                       "76662942-aad7-36b3-2497-aec87d98b31f",
                       "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",

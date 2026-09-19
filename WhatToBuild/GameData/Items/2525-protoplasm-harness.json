@@ -4,6 +4,8 @@
     "name":  "Protoplasm Harness",
     "icon":  "2525.png",
     "cost":  2600,
+    "unique":  true,
+    "groups":  [ "LifelineItems" ],
     "buildPath":  [
                       "dec45a0a-3f4e-628c-abff-7537636197ac",
                       "78a6c7fc-1e70-b5f7-6205-47b1df785d76"

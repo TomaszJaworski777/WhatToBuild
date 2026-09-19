@@ -4,6 +4,7 @@
     "name":  "Quicksilver Sash",
     "icon":  "3140.png",
     "cost":  1300,
+    "groups":  [ "Quicksilver" ],
     "buildPath":  [
                       "cc10ae20-f7e4-c3ce-337e-71a62a15f305"
                   ],

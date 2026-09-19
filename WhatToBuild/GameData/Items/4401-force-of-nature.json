@@ -4,6 +4,7 @@
     "name":  "Force of Nature",
     "icon":  "4401.png",
     "cost":  2800,
+    "unique":  true,
     "buildPath":  [
                       "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c",
                       "b025024f-832d-4982-6bb7-f6d96e42dc1f",

@@ -4,6 +4,8 @@
     "name":  "Chainlaced Crushers",
     "icon":  "3173.png",
     "cost":  1250,
+    "unique":  true,
+    "groups":  [ "Boots" ],
     "buildPath":  [
                       "6c2597a0-4bf4-dd58-2fff-8a6c44eb5a94"
                   ],

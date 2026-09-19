@@ -4,6 +4,7 @@
     "name":  "Guardian\u0027s Orb",
     "icon":  "3112.png",
     "cost":  950,
+    "groups":  [ "GuardianItems" ],
     "buildPath":  [
 
                   ],

@@ -2,6 +2,8 @@ using WhatToBuild.Data;
 
 namespace WhatToBuild.Modeling;
 
+public sealed record CombatAssumption(double Stacks);
+
 public abstract class Entity
 {
     private double? _currentHealth;
@@ -26,6 +28,22 @@ public abstract class Entity
 
     public double HealthPercent => MaxHealth > 0 ? CurrentHealth / MaxHealth : 0;
 
+    public double? Measure(ConditionProperty property) => property switch
+    {
+        ConditionProperty.HealthPercent => HealthPercent,
+        ConditionProperty.BonusHealth => BonusHealth,
+        ConditionProperty.MaxHealth => MaxHealth,
+        ConditionProperty.Armor => Stats.Armor,
+        ConditionProperty.MagicResist => Stats.MagicResist,
+        ConditionProperty.Level => (this as ChampionState)?.Level,
+        _ => null,
+    };
+
+    public bool Satisfies(IEnumerable<EffectCondition> conditions) =>
+        conditions.All(c => c.Subject == ConditionSubject.Target
+                            && Measure(c.Property) is { } value
+                            && c.IsMet(value));
+
     public Entity WithShield(double amount, DamageSource versus = DamageSource.All)
     {
         Shields.Add(new Shield(amount, versus));
@@ -47,13 +65,15 @@ public sealed class ChampionState : Entity
         Champion champion,
         int level,
         IEnumerable<Item>? items = null,
-        IEnumerable<StatModifier>? teamBuffs = null)
+        IEnumerable<StatModifier>? teamBuffs = null,
+        CombatAssumption? combat = null)
     {
         Champion = champion;
+        Combat = combat;
         Level = Math.Clamp(level, StatCalculator.MinLevel, StatCalculator.MaxLevel);
         Items = (items ?? []).ToList();
         TeamBuffs = (teamBuffs ?? []).ToList();
-        Stats = StatCalculator.ForChampion(champion, Level, Items, TeamBuffs);
+        Stats = StatCalculator.ForChampion(champion, Level, Items, TeamBuffs, combat);
         BonusHealth = Items.Sum(i => i.Stats.Health);
         Mitigations = Items
             .SelectMany(i => i.Effects)
@@ -71,6 +91,8 @@ public sealed class ChampionState : Entity
     public IReadOnlyList<Item> Items { get; }
 
     public IReadOnlyList<StatModifier> TeamBuffs { get; }
+
+    public CombatAssumption? Combat { get; }
 
     public override string Name => Champion.Name;
 

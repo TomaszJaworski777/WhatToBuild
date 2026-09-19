@@ -4,6 +4,7 @@
     "name":  "Endless Hunger",
     "icon":  "2517.png",
     "cost":  3100,
+    "unique":  true,
     "buildPath":  [
                       "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
                       "1d276371-f99d-7615-c4af-a5feab4d274d",

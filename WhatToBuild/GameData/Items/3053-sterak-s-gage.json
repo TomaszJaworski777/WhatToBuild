@@ -1,24 +1,28 @@
 ﻿{
-    "id":  "853ba6df-da00-2698-cb64-79dff1698b7c",
-    "riotId":  3053,
-    "name":  "Sterak\u0027s Gage",
-    "icon":  "3053.png",
-    "cost":  3200,
-    "buildPath":  [
-                      "1d276371-f99d-7615-c4af-a5feab4d274d",
-                      "066b2773-c9e4-e84b-4d19-ff867aae662a",
-                      "b025024f-832d-4982-6bb7-f6d96e42dc1f"
-                  ],
-    "stats":  {
-                  "health":  400,
-                  "tenacityPercent":  0.2
-              },
-    "effects":  [
-                    {
-                        "trigger":  "WhenLow",
-                        "kind":  "Shield",
-                        "amount":  400,
-                        "cooldown":  90
-                    }
-                ]
+    "id": "853ba6df-da00-2698-cb64-79dff1698b7c",
+    "riotId": 3053,
+    "name": "Sterak's Gage",
+    "icon": "3053.png",
+    "cost": 3200,
+    "groups": [
+        "LifelineItems"
+    ],
+    "buildPath": [
+        "1d276371-f99d-7615-c4af-a5feab4d274d",
+        "066b2773-c9e4-e84b-4d19-ff867aae662a",
+        "b025024f-832d-4982-6bb7-f6d96e42dc1f"
+    ],
+    "stats": {
+        "health": 400,
+        "tenacityPercent": 0.2
+    },
+    "effects": [
+        {
+            "trigger": "WhenLow",
+            "kind": "Shield",
+            "amount": 400,
+            "cooldown": 90,
+            "rangedMultiplier": 0.6
+        }
+    ]
 }

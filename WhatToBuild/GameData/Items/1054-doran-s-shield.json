@@ -1,22 +1,24 @@
 ﻿{
-    "id":  "ce81d03c-580e-cb0e-6d60-5f4a3530ffb9",
-    "riotId":  1054,
-    "name":  "Doran\u0027s Shield",
-    "icon":  "1054.png",
-    "cost":  450,
-    "buildPath":  [
-
-                  ],
-    "stats":  {
-                  "health":  110,
-                  "healthRegen":  0.8
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "Heal",
-                        "amount":  40,
-                        "cooldown":  8
-                    }
-                ]
+    "id": "ce81d03c-580e-cb0e-6d60-5f4a3530ffb9",
+    "riotId": 1054,
+    "name": "Doran's Shield",
+    "icon": "1054.png",
+    "cost": 450,
+    "groups": [
+        "DoransItems"
+    ],
+    "buildPath": [],
+    "stats": {
+        "health": 110,
+        "healthRegen": 0.8
+    },
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "Heal",
+            "amount": 40,
+            "cooldown": 8,
+            "rangedMultiplier": 0.75
+        }
+    ]
 }

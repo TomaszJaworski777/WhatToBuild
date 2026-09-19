@@ -4,6 +4,8 @@
     "name":  "Gustwalker Hatchling",
     "icon":  "1106.png",
     "cost":  450,
+    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
+    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
     "buildPath":  [
 
                   ],

@@ -4,6 +4,8 @@
     "name":  "Crimson Lucidity",
     "icon":  "3171.png",
     "cost":  900,
+    "unique":  true,
+    "groups":  [ "Boots" ],
     "buildPath":  [
                       "41f1aa5b-6aab-8eae-86f4-b00c575e842b"
                   ],

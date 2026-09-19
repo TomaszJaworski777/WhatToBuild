@@ -4,6 +4,7 @@
     "name":  "Youmuu\u0027s Ghostblade",
     "icon":  "3142.png",
     "cost":  2800,
+    "unique":  true,
     "buildPath":  [
                       "dc60a105-9083-edab-aaba-fd9853e3561a",
                       "0c761ffd-91e5-29d3-6839-b78167b0b52b",

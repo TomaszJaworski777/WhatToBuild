@@ -4,6 +4,7 @@
     "name":  "Rylai\u0027s Crystal Scepter",
     "icon":  "3116.png",
     "cost":  2600,
+    "unique":  true,
     "buildPath":  [
                       "25bc422e-c041-8b19-b8e4-9cd95a0cd928",
                       "78a6c7fc-1e70-b5f7-6205-47b1df785d76",

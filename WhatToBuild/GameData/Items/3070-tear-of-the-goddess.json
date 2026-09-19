@@ -4,6 +4,7 @@
     "name":  "Tear of the Goddess",
     "icon":  "3070.png",
     "cost":  400,
+    "groups":  [ "TearItems" ],
     "buildPath":  [
 
                   ],

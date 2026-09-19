@@ -4,6 +4,8 @@
     "name":  "Blackfire Torch",
     "icon":  "2503.png",
     "cost":  2800,
+    "unique":  true,
+    "unique":  true,
     "buildPath":  [
                       "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
                       "c56bd70a-a5e9-852c-0eb5-f4f8efd1cd28"

@@ -4,6 +4,8 @@
     "name":  "Dark Seal",
     "icon":  "1082.png",
     "cost":  350,
+    "groups":  [ "Glory" ],
+    "groups":  [ "Glory" ],
     "buildPath":  [
 
                   ],

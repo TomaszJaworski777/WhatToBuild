@@ -4,6 +4,7 @@
     "name":  "Knight\u0027s Vow",
     "icon":  "3109.png",
     "cost":  2300,
+    "unique":  true,
     "buildPath":  [
                       "dec45a0a-3f4e-628c-abff-7537636197ac",
                       "5dd70522-168e-d7bb-5854-c24b78940297",

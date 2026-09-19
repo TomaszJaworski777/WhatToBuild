@@ -4,6 +4,7 @@
     "name":  "Spirit Visage",
     "icon":  "3065.png",
     "cost":  2700,
+    "unique":  true,
     "buildPath":  [
                       "a1621657-ca1a-c297-d0cf-9f5f37d57eba",
                       "dec45a0a-3f4e-628c-abff-7537636197ac"

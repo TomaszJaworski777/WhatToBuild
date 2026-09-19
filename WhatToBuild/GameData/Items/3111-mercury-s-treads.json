@@ -4,6 +4,7 @@
     "name":  "Mercury\u0027s Treads",
     "icon":  "3111.png",
     "cost":  1250,
+    "groups":  [ "Boots", "BootsWithoutActives" ],
     "buildPath":  [
                       "ae639a00-f269-2346-dd47-eedaa6723936",
                       "cc10ae20-f7e4-c3ce-337e-71a62a15f305"

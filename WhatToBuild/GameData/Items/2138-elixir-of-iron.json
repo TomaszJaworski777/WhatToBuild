@@ -4,6 +4,8 @@
     "name":  "Elixir of Iron",
     "icon":  "2138.png",
     "cost":  500,
+    "unique":  true,
+    "unique":  true,
     "buildPath":  [
 
                   ],

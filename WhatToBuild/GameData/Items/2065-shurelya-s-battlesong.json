@@ -4,6 +4,8 @@
     "name":  "Shurelya\u0027s Battlesong",
     "icon":  "2065.png",
     "cost":  2200,
+    "unique":  true,
+    "unique":  true,
     "buildPath":  [
                       "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",
                       "5c8ebb64-35e7-84f1-d286-6cb9ea2dacaf"

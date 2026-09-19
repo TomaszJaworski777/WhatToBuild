@@ -4,6 +4,7 @@
     "name":  "Haunting Guise",
     "icon":  "3147.png",
     "cost":  1300,
+    "unique":  true,
     "buildPath":  [
                       "83c60239-84da-8113-48e7-715da5f0d75a",
                       "b025024f-832d-4982-6bb7-f6d96e42dc1f"

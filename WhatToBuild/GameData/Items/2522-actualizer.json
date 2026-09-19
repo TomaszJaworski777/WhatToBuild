@@ -4,6 +4,7 @@
     "name":  "Actualizer",
     "icon":  "2522.png",
     "cost":  2800,
+    "unique":  true,
     "buildPath":  [
                       "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",
                       "25bc422e-c041-8b19-b8e4-9cd95a0cd928"

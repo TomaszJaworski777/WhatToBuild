@@ -4,6 +4,7 @@
     "name":  "Navori Flickerblade",
     "icon":  "6675.png",
     "cost":  2650,
+    "unique":  true,
     "buildPath":  [
                       "29012b80-9265-ee3d-3b54-ed05645960db",
                       "0c82b054-3477-2b93-a13a-8ce1a5ab92c7",

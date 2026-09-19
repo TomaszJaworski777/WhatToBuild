@@ -4,6 +4,8 @@
     "name":  "Guardian\u0027s Horn",
     "icon":  "2051.png",
     "cost":  950,
+    "groups":  [ "GuardianItems" ],
+    "groups":  [ "GuardianItems" ],
     "buildPath":  [
 
                   ],

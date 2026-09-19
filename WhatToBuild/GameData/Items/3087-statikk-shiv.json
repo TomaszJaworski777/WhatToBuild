@@ -4,6 +4,7 @@
     "name":  "Statikk Shiv",
     "icon":  "3087.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "83ec4976-66ed-d9b1-8549-63e8f319bd86",
                       "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",

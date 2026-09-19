@@ -4,6 +4,7 @@
     "name":  "Yun Tal Wildarrows",
     "icon":  "3032.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
                       "83ec4976-66ed-d9b1-8549-63e8f319bd86",

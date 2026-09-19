@@ -4,6 +4,7 @@
     "name":  "Liandry\u0027s Torment",
     "icon":  "6653.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "147c0ef2-a4af-8467-0faa-a59f452a8c6e",
                       "c56bd70a-a5e9-852c-0eb5-f4f8efd1cd28"

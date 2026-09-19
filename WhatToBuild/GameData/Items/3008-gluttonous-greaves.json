@@ -4,6 +4,8 @@
     "name":  "Gluttonous Greaves",
     "icon":  "3008.png",
     "cost":  1000,
+    "unique":  true,
+    "groups":  [ "BootsWithoutActives", "Boots" ],
     "buildPath":  [
                       "ae639a00-f269-2346-dd47-eedaa6723936"
                   ],

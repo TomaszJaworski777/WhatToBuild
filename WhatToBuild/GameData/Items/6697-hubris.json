@@ -4,6 +4,7 @@
     "name":  "Hubris",
     "icon":  "6697.png",
     "cost":  2800,
+    "unique":  true,
     "buildPath":  [
                       "dc60a105-9083-edab-aaba-fd9853e3561a",
                       "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"

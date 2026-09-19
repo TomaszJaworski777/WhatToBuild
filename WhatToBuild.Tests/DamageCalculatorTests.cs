@@ -14,6 +14,7 @@ public class DamageCalculatorTests
     private static Item Randuins => _items.ByRiotId(3143)!;
     private static Item Steelcaps => _items.ByRiotId(3047)!;
     private static Item Warmogs => _items.ByRiotId(3083)!;
+    private static Item Heartsteel => _items.ByRiotId(3084)!;
     private static Item SerpentsFang => _items.ByRiotId(6695)!;
     private static Item LordDominiks => _items.ByRiotId(3036)!;
     private static Item BlackCleaver => _items.ByRiotId(3071)!;
@@ -74,9 +75,11 @@ public class DamageCalculatorTests
     [TestMethod]
     public void LordDominiksReadsBonusHealthFromTheDefender()
     {
-        var tank = DamageCalculator.Create(GarenWith(Warmogs)).AdDamage(100).AttackerItems([LordDominiks]).Run();
         var squishy = DamageCalculator.Create(GarenWith()).AdDamage(100).AttackerItems([LordDominiks]).Run();
+        var bulky = DamageCalculator.Create(GarenWith(Warmogs)).AdDamage(100).AttackerItems([LordDominiks]).Run();
+        var tank = DamageCalculator.Create(GarenWith(Warmogs, Heartsteel)).AdDamage(100).AttackerItems([LordDominiks]).Run();
 
+        Assert.AreEqual(1.075, bulky.HealthDamage / squishy.HealthDamage, 0.0001);
         Assert.AreEqual(1.15, tank.HealthDamage / squishy.HealthDamage, 0.0001);
     }
 
@@ -120,7 +123,7 @@ public class DamageCalculatorTests
     [TestMethod]
     public void AttackerItemsCanBePassedTogether()
     {
-        var garen = GarenWith(Warmogs).WithShield(400);
+        var garen = GarenWith(Warmogs, Heartsteel).WithShield(400);
 
         var result = DamageCalculator.Create(garen).TrueDamage(600)
             .AttackerItems([SerpentsFang, LordDominiks, BlackCleaver])

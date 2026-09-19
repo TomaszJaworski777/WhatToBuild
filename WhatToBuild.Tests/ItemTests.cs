@@ -97,7 +97,8 @@ public class ItemTests
         Assert.AreEqual(EffectTrigger.OnAttack, kraken.Trigger);
         Assert.AreEqual(EffectKind.PhysicalDamage, kraken.Kind);
         Assert.AreEqual(175, kraken.Amount, 0.001);
-        Assert.AreEqual(2, kraken.Cooldown, 0.001);
+        Assert.AreEqual(3, kraken.EveryAttacks, 0.001);
+        Assert.AreEqual(0.8, kraken.RangedMultiplier, 0.001);
     }
 
     [TestMethod]
@@ -172,7 +173,7 @@ public class ItemTests
     [TestMethod]
     public void ConditionalEffectsCarryTheirCondition()
     {
-        var ldr = _items.ByRiotId(LordDominiks)!.Effects.Single();
+        var ldr = _items.ByRiotId(LordDominiks)!.Effects.MaxBy(e => e.Amount)!;
 
         var condition = ldr.When.Single();
         Assert.AreEqual(ConditionSubject.Target, condition.Subject);

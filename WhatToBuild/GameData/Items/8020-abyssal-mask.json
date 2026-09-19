@@ -4,6 +4,7 @@
     "name":  "Abyssal Mask",
     "icon":  "8020.png",
     "cost":  2650,
+    "unique":  true,
     "buildPath":  [
                       "dec45a0a-3f4e-628c-abff-7537636197ac",
                       "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c"

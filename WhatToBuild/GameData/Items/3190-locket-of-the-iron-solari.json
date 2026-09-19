@@ -4,6 +4,7 @@
     "name":  "Locket of the Iron Solari",
     "icon":  "3190.png",
     "cost":  2200,
+    "unique":  true,
     "buildPath":  [
                       "dec45a0a-3f4e-628c-abff-7537636197ac",
                       "0f410f4b-612a-a8f2-7088-728115202ea7",

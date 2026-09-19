@@ -1,23 +1,27 @@
 ﻿{
-    "id":  "291dd7d2-2e8e-e4e9-586f-fac97caba877",
-    "riotId":  3748,
-    "name":  "Titanic Hydra",
-    "icon":  "3748.png",
-    "cost":  3300,
-    "buildPath":  [
-                      "2d428f47-fd1f-6cb5-086e-53e3327577ca",
-                      "066b2773-c9e4-e84b-4d19-ff867aae662a",
-                      "78a6c7fc-1e70-b5f7-6205-47b1df785d76"
-                  ],
-    "stats":  {
-                  "health":  600,
-                  "attackDamage":  40
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perMaxHealth":  0.01
-                    }
-                ]
+    "id": "291dd7d2-2e8e-e4e9-586f-fac97caba877",
+    "riotId": 3748,
+    "name": "Titanic Hydra",
+    "icon": "3748.png",
+    "cost": 3300,
+    "groups": [
+        "Hydra"
+    ],
+    "buildPath": [
+        "2d428f47-fd1f-6cb5-086e-53e3327577ca",
+        "066b2773-c9e4-e84b-4d19-ff867aae662a",
+        "78a6c7fc-1e70-b5f7-6205-47b1df785d76"
+    ],
+    "stats": {
+        "health": 600,
+        "attackDamage": 40
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perMaxHealth": 0.01,
+            "rangedMultiplier": 0.5
+        }
+    ]
 }

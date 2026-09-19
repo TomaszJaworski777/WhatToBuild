@@ -4,6 +4,7 @@
     "name":  "Zaz\u0027Zak\u0027s Realmspike",
     "icon":  "3871.png",
     "cost":  400,
+    "groups":  [ "GoldItems", "DoransItems" ],
     "buildPath":  [
                       "04de6d3f-7fd0-7252-686b-c168d1123cf9"
                   ],

@@ -4,6 +4,7 @@
     "name":  "Wit\u0027s End",
     "icon":  "3091.png",
     "cost":  2800,
+    "unique":  true,
     "buildPath":  [
                       "26f6d9a2-db01-60b5-4767-e52048138836",
                       "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c",

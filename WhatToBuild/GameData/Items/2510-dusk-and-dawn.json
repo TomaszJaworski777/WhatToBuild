@@ -4,6 +4,8 @@
     "name":  "Dusk and Dawn",
     "icon":  "2510.png",
     "cost":  3100,
+    "unique":  true,
+    "groups":  [ "Spellblade" ],
     "buildPath":  [
                       "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
                       "25bc422e-c041-8b19-b8e4-9cd95a0cd928",

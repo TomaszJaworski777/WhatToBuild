@@ -4,6 +4,7 @@
     "name":  "Sorcerer\u0027s Shoes",
     "icon":  "3020.png",
     "cost":  1100,
+    "groups":  [ "Boots", "BootsWithoutActives" ],
     "buildPath":  [
                       "ae639a00-f269-2346-dd47-eedaa6723936"
                   ],

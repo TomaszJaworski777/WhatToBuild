@@ -1,25 +1,29 @@
 ﻿{
-    "id":  "010824fe-089a-3086-55a6-e03a6d722122",
-    "riotId":  3156,
-    "name":  "Maw of Malmortius",
-    "icon":  "3156.png",
-    "cost":  3100,
-    "buildPath":  [
-                      "f2045b79-a288-0608-6dc7-43538c5f4776",
-                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "magicResist":  40,
-                  "attackDamage":  60
-              },
-    "effects":  [
-                    {
-                        "trigger":  "WhenLow",
-                        "kind":  "Shield",
-                        "amount":  350,
-                        "cooldown":  90,
-                        "versus":  "Magic"
-                    }
-                ]
+    "id": "010824fe-089a-3086-55a6-e03a6d722122",
+    "riotId": 3156,
+    "name": "Maw of Malmortius",
+    "icon": "3156.png",
+    "cost": 3100,
+    "groups": [
+        "LifelineItems"
+    ],
+    "buildPath": [
+        "f2045b79-a288-0608-6dc7-43538c5f4776",
+        "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "magicResist": 40,
+        "attackDamage": 60
+    },
+    "effects": [
+        {
+            "trigger": "WhenLow",
+            "kind": "Shield",
+            "amount": 350,
+            "cooldown": 90,
+            "versus": "Magic",
+            "rangedMultiplier": 0.75
+        }
+    ]
 }

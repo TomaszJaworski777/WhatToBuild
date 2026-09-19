@@ -4,6 +4,8 @@
     "name":  "Trinity Force",
     "icon":  "3078.png",
     "cost":  3333,
+    "unique":  true,
+    "groups":  [ "Spellblade" ],
     "buildPath":  [
                       "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
                       "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f",

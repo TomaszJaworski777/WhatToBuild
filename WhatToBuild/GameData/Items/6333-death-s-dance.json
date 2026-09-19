@@ -4,6 +4,7 @@
     "name":  "Death\u0027s Dance",
     "icon":  "6333.png",
     "cost":  3300,
+    "unique":  true,
     "buildPath":  [
                       "7fbbf0bb-f67f-dbab-124c-f1fb86a80eca",
                       "1d276371-f99d-7615-c4af-a5feab4d274d",

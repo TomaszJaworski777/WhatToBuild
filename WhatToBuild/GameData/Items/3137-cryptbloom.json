@@ -4,6 +4,7 @@
     "name":  "Cryptbloom",
     "icon":  "3137.png",
     "cost":  3000,
+    "groups":  [ "VoidPen" ],
     "buildPath":  [
                       "0cb7742f-83a6-9b4e-cf46-bc89cd39b53d",
                       "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",

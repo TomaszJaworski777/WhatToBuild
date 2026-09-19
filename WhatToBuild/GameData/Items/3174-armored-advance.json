@@ -4,6 +4,8 @@
     "name":  "Armored Advance",
     "icon":  "3174.png",
     "cost":  1200,
+    "unique":  true,
+    "groups":  [ "Boots" ],
     "buildPath":  [
                       "28eaf0dc-17ed-48a1-b29a-a78842a02b75"
                   ],

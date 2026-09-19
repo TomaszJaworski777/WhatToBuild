@@ -4,6 +4,7 @@
     "name":  "Dream Maker",
     "icon":  "3870.png",
     "cost":  400,
+    "groups":  [ "GoldItems", "DoransItems" ],
     "buildPath":  [
                       "04de6d3f-7fd0-7252-686b-c168d1123cf9"
                   ],

@@ -4,6 +4,8 @@
     "name":  "Black Cleaver",
     "icon":  "3071.png",
     "cost":  3000,
+    "unique":  true,
+    "groups":  [ "LastWhisper" ],
     "buildPath":  [
                       "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f",
                       "dec45a0a-3f4e-628c-abff-7537636197ac",

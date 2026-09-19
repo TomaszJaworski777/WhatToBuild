@@ -4,6 +4,7 @@
     "name":  "Cosmic Drive",
     "icon":  "4629.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "dec45a0a-3f4e-628c-abff-7537636197ac",
                       "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",

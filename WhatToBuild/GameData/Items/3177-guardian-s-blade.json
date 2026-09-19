@@ -4,6 +4,7 @@
     "name":  "Guardian\u0027s Blade",
     "icon":  "3177.png",
     "cost":  950,
+    "groups":  [ "GuardianItems" ],
     "buildPath":  [
 
                   ],

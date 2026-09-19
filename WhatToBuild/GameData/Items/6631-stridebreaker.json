@@ -1,24 +1,29 @@
 ﻿{
-    "id":  "d881639d-3cf1-f103-8e62-60312faa6e25",
-    "riotId":  6631,
-    "name":  "Stridebreaker",
-    "icon":  "6631.png",
-    "cost":  3300,
-    "buildPath":  [
-                      "2d428f47-fd1f-6cb5-086e-53e3327577ca",
-                      "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f",
-                      "29012b80-9265-ee3d-3b54-ed05645960db"
-                  ],
-    "stats":  {
-                  "health":  450,
-                  "attackDamage":  40,
-                  "attackSpeedPercent":  0.25
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perTotalAd":  0.3
-                    }
-                ]
+    "id": "d881639d-3cf1-f103-8e62-60312faa6e25",
+    "riotId": 6631,
+    "name": "Stridebreaker",
+    "icon": "6631.png",
+    "cost": 3300,
+    "unique": true,
+    "groups": [
+        "Hydra"
+    ],
+    "buildPath": [
+        "2d428f47-fd1f-6cb5-086e-53e3327577ca",
+        "bbafcab6-f1dd-de6d-be90-3f013c0aaa8f",
+        "29012b80-9265-ee3d-3b54-ed05645960db"
+    ],
+    "stats": {
+        "health": 450,
+        "attackDamage": 40,
+        "attackSpeedPercent": 0.25
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perTotalAd": 0.3,
+            "splash": true
+        }
+    ]
 }

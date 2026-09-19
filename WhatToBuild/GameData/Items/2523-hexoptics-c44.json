@@ -4,6 +4,7 @@
     "name":  "Hexoptics C44",
     "icon":  "2523.png",
     "cost":  2800,
+    "unique":  true,
     "buildPath":  [
                       "1d276371-f99d-7615-c4af-a5feab4d274d",
                       "c569fe85-3b86-987f-584f-b07a6fd20985",

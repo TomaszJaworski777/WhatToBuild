@@ -4,6 +4,7 @@
     "name":  "Rabadon\u0027s Deathcap",
     "icon":  "3089.png",
     "cost":  3500,
+    "unique":  true,
     "buildPath":  [
                       "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec",
                       "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec"

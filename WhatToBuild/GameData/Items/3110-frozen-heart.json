@@ -4,6 +4,7 @@
     "name":  "Frozen Heart",
     "icon":  "3110.png",
     "cost":  2500,
+    "unique":  true,
     "buildPath":  [
                       "de5ed01d-69b0-c2f1-424f-70dd96275b3b",
                       "2fd7f20b-f75c-ca40-24f3-3f491a0a9f13"

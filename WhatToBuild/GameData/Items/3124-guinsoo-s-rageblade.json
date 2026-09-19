@@ -4,6 +4,7 @@
     "name":  "Guinsoo\u0027s Rageblade",
     "icon":  "3124.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "83c60239-84da-8113-48e7-715da5f0d75a",
                       "26f6d9a2-db01-60b5-4767-e52048138836",

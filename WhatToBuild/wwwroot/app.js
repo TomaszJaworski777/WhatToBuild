@@ -47,12 +47,12 @@ function renderObjectives(team) {
 
     for (const dragon of o.dragons) {
         for (let i = 0; i < dragon.count; i++) {
-            pips.push(`<span class="drake drake-${esc(dragon.type)}" title="${esc(dragon.name)}"></span>`);
+            pips.push(`<img class="drake" src="img/dragons/${esc(dragon.type)}.png" alt="${esc(dragon.name)}" title="${esc(dragon.name)}" />`);
         }
     }
 
     for (let i = 0; i < o.elders; i++) {
-        pips.push('<span class="drake drake-Elder" title="Elder Dragon"></span>');
+        pips.push('<img class="drake" src="img/dragons/Elder.png" alt="Elder Dragon" title="Elder Dragon" />');
     }
 
     const drakeCount = o.dragons.reduce((sum, d) => sum + d.count, 0);
@@ -61,7 +61,7 @@ function renderObjectives(team) {
     }
 
     const soul = o.soulType
-        ? `<span class="soul drake-${esc(o.soulType)}">${esc(o.soulName ?? o.soulType)}</span>`
+        ? `<span class="soul drake-${esc(o.soulType)}"><img src="img/dragons/${esc(o.soulType)}.png" alt="" />${esc(o.soulName ?? o.soulType)}</span>`
         : "";
 
     return `
@@ -293,10 +293,15 @@ function renderRecall(buyNow) {
         ? `<p class="recall-cost">${buyNow.cost} gold · ${Math.floor(buyNow.goldLeft)} left</p>`
         : "";
 
+    const why = buyNow.why.length
+        ? `<ul class="recall-why">${buyNow.why.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>`
+        : "";
+
     return `
         ${slots ? `<div class="recall-items">${slots}</div>` : ""}
         <p class="recall-summary">${esc(buyNow.summary)}</p>
-        ${cost}`;
+        ${cost}
+        ${why}`;
 }
 
 function renderPath(steps, gameTime) {
@@ -311,6 +316,77 @@ function renderPath(steps, gameTime) {
                 <div class="step-eta">${eta(step, gameTime)}</div>
             </li>`;
     }).join("");
+}
+
+function renderSkipped(skipped) {
+    if (!skipped.length) {
+        return "";
+    }
+
+    return `
+        <ul class="skipped">
+            ${skipped.map((s) => `
+                <li>
+                    <div class="slot slot-sm" ${itemAttrs(s.item)}><img src="${esc(s.item.icon)}" alt="${esc(s.item.name)}" loading="lazy" /></div>
+                    <span><b>${esc(s.item.name)}</b> ${esc(s.reason)}</span>
+                </li>`).join("")}
+        </ul>`;
+}
+
+function percentGain(before, after) {
+    return before > 0 ? Math.round((after / before - 1) * 100) : 0;
+}
+
+function renderImpact(impact) {
+    if (!impact || !impact.perEnemy.length) {
+        return "";
+    }
+
+    const best = Math.max(...impact.perEnemy.map((e) => percentGain(e.dpsBefore, e.dpsAfter)), 1);
+
+    const rows = impact.perEnemy.map((e) => {
+        const gain = percentGain(e.dpsBefore, e.dpsAfter);
+        return `
+            <tr>
+                <td class="impact-champ"><img src="${esc(e.icon)}" alt="" />${esc(e.champion)}</td>
+                <td class="impact-dps">${Math.round(e.dpsBefore)} → <b>${Math.round(e.dpsAfter)}</b></td>
+                <td class="impact-bar"><span style="width:${Math.max(4, (gain / best) * 100)}%"></span><em>+${gain}%</em></td>
+                <td class="impact-note">${esc(e.note)}</td>
+            </tr>`;
+    }).join("");
+
+    return `
+        <table class="impact">
+            <thead><tr><th>Enemy</th><th>Your DPS</th><th>Gain</th><th>Their stats</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>`;
+}
+
+function renderNeeds(needs, gameTime) {
+    if (!needs.length) {
+        return "";
+    }
+
+    const items = needs.map((n) => {
+        const covered = n.coveredBy
+            ? `<span class="need-covered">Covered by ${esc(n.coveredBy)}${n.coveredAtSeconds != null && n.coveredAtSeconds > gameTime + 1 ? ` at ~${clock(n.coveredAtSeconds)}` : ""}</span>`
+            : `<span class="need-open">Not in the build</span>${n.options.length ? `<span class="need-options">Options:
+                   ${n.options.map((o) => `<span class="slot slot-sm" ${itemAttrs(o)}><img src="${esc(o.icon)}" alt="${esc(o.name)}" loading="lazy" /></span>`).join("")}
+               </span>` : ""}`;
+
+        return `
+            <li class="need ${n.coveredBy ? "need-ok" : "need-missing"}">
+                <div class="need-name">${esc(n.need)}</div>
+                <div class="need-detail">${esc(n.detail)}</div>
+                <div class="need-status">${covered}</div>
+            </li>`;
+    }).join("");
+
+    return `
+        <div class="team-needs">
+            <div class="build-label">What the enemy team calls for</div>
+            <ul class="needs">${items}</ul>
+        </div>`;
 }
 
 function renderBuild() {
@@ -348,11 +424,8 @@ function renderBuild() {
         ? `<div class="next-why">
                <div class="build-label">Why ${esc(next.item.name)} next</div>
                <ul>${next.why.map((w) => `<li>${esc(w)}</li>`).join("")}</ul>
+               ${renderImpact(next.impact)}
            </div>`
-        : "";
-
-    const needs = rec.teamNeeds.length
-        ? `<div class="needs">${rec.teamNeeds.map((n) => `<span class="need">${esc(n)}</span>`).join("")}</div>`
         : "";
 
     el.innerHTML = `
@@ -365,10 +438,11 @@ function renderBuild() {
             <div class="path">
                 <div class="build-label">Build path</div>
                 <ol class="steps">${renderPath(rec.buildPath, state.gameTime)}</ol>
+                ${renderSkipped(rec.skipped)}
             </div>
         </div>
         ${why}
-        ${needs}
+        ${renderNeeds(rec.teamNeeds, state.gameTime)}
         <ul class="assumptions">${rec.assumptions.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>`;
 }
 

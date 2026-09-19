@@ -265,9 +265,10 @@ public class GameStateTests
 
     [TestMethod]
     [DataRow(500.0, 0.0, 3.0)]
-    [DataRow(575.0, 4.0, 7.0)]
-    [DataRow(600.0, 8.0, 11.0)]
-    [DataRow(700.0, 24.0, 27.0)]
+    [DataRow(575.0, 4.0, 6.0)]
+    [DataRow(600.0, 7.0, 9.0)]
+    [DataRow(700.0, 19.0, 21.0)]
+    [DataRow(800.0, 31.0, 33.0)]
     public void KindredMarksAreReadFromAttackRange(double range, double low, double high)
     {
         var marks = WithOurRange(range).ActivePlayer!.EstimatedStacks.Single();
@@ -276,15 +277,6 @@ public class GameStateTests
         Assert.AreSame(Stats.AbilityDamage, marks.Stat);
         Assert.AreEqual(low, marks.Stacks, 0.001);
         Assert.AreEqual(high, marks.High!.Value, 0.001);
-    }
-
-    [TestMethod]
-    public void MaxedMarksHaveNoUpperBound()
-    {
-        var marks = WithOurRange(750).ActivePlayer!.EstimatedStacks.Single();
-
-        Assert.AreEqual(32, marks.Stacks, 0.001);
-        Assert.IsNull(marks.High);
     }
 
     [TestMethod]

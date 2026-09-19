@@ -4,6 +4,8 @@
     "name":  "Doran\u0027s Bow",
     "icon":  "1086.png",
     "cost":  400,
+    "groups":  [ "DoransItems" ],
+    "groups":  [ "DoransItems" ],
     "buildPath":  [
 
                   ],

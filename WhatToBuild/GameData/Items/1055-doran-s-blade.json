@@ -4,6 +4,8 @@
     "name":  "Doran\u0027s Blade",
     "icon":  "1055.png",
     "cost":  450,
+    "groups":  [ "DoransItems" ],
+    "groups":  [ "DoransItems" ],
     "buildPath":  [
 
                   ],

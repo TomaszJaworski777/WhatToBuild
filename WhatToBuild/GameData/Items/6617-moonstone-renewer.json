@@ -4,6 +4,7 @@
     "name":  "Moonstone Renewer",
     "icon":  "6617.png",
     "cost":  2200,
+    "unique":  true,
     "buildPath":  [
                       "dec45a0a-3f4e-628c-abff-7537636197ac",
                       "5c8ebb64-35e7-84f1-d286-6cb9ea2dacaf"

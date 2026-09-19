@@ -18,16 +18,20 @@ public static class StatCalculator
         Champion champion,
         int level,
         IEnumerable<Item> items,
-        IEnumerable<StatModifier>? modifiers = null)
+        IEnumerable<StatModifier>? modifiers = null,
+        CombatAssumption? combat = null)
     {
         var growth = GrowthMultiplier(level);
         var b = champion.Base;
         var p = champion.PerLevel;
         var itemList = items.ToList();
         var modifierList = (modifiers ?? []).ToList();
+        var combatBuffs = combat is null ? [] : champion.CombatBuffs.Select(buff => (buff.Stat, Amount: buff.At(combat.Stacks))).ToList();
 
         var bonusAttackSpeed = p.AttackSpeed * growth
                                + itemList.Sum(i => i.Stats.AttackSpeedPercent)
+                               + itemList.SelectMany(i => i.Effects).Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.AttackSpeedPercent).Sum(e => e.Amount)
+                               + combatBuffs.Where(buff => buff.Stat == Stats.AttackSpeedPercent).Sum(buff => buff.Amount)
                                + modifierList.Where(m => m.Stat == Stats.AttackSpeedPercent).Sum(m => m.Flat);
 
         var sheet = new StatSheet
@@ -64,6 +68,11 @@ public static class StatCalculator
         foreach (var modifier in modifierList)
         {
             Add(sheet, modifier.Stat, modifier.Flat);
+        }
+
+        foreach (var buff in combatBuffs)
+        {
+            Add(sheet, buff.Stat, buff.Amount);
         }
 
         foreach (var group in modifierList.Where(m => m.Percent != 0).GroupBy(m => m.Stat))
@@ -117,7 +126,7 @@ public static class StatCalculator
         };
     }
 
-    private static bool IsPermanentStatBuff(Effect effect) =>
+    public static bool IsPermanentStatBuff(Effect effect) =>
         effect.Kind == EffectKind.StatBuff
         && effect.Trigger == EffectTrigger.Always
         && effect.When.Count == 0

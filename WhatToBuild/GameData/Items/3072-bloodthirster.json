@@ -4,6 +4,7 @@
     "name":  "Bloodthirster",
     "icon":  "3072.png",
     "cost":  3400,
+    "unique":  true,
     "buildPath":  [
                       "0e4a5126-89bb-99a3-4c15-6b21f7e41e47",
                       "1d276371-f99d-7615-c4af-a5feab4d274d",

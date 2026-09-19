@@ -4,6 +4,8 @@
     "name":  "Spellslinger\u0027s Shoes",
     "icon":  "3175.png",
     "cost":  1100,
+    "unique":  true,
+    "groups":  [ "Boots" ],
     "buildPath":  [
                       "65c920ce-88e1-1d04-222d-d58f483a3e22"
                   ],

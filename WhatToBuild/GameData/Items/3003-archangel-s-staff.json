@@ -4,6 +4,8 @@
     "name":  "Archangel\u0027s Staff",
     "icon":  "3003.png",
     "cost":  2900,
+    "unique":  true,
+    "groups":  [ "TearItems", "LifelineItems" ],
     "buildPath":  [
                       "76662942-aad7-36b3-2497-aec87d98b31f",
                       "2d68f5c0-9a12-3dd3-7c5f-fc894e6bd4d8",

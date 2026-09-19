@@ -16,10 +16,11 @@ One file per item, in `Items/`, named `<riotId>-<slug>.json`.
   "name": "Kraken Slayer",
   "icon": "6672.png",
   "cost": 3000,
+  "unique": true,
   "buildPath": ["<component guid>", "..."],
   "stats": { "attackDamage": 45, "attackSpeedPercent": 0.4 },
   "effects": [
-    { "trigger": "OnAttack", "kind": "PhysicalDamage", "amount": 175, "cooldown": 2 }
+    { "trigger": "OnAttack", "kind": "PhysicalDamage", "amount": 175, "everyAttacks": 3, "rangedMultiplier": 0.8 }
   ]
 }
 ```
@@ -32,19 +33,29 @@ One file per item, in `Items/`, named `<riotId>-<slug>.json`.
   buy is 1300 gold of pure AD with no attack speed.
 - `stats` omits anything that is zero. Flat values are game units; percent values
   are fractions, so `0.25` means 25%.
+- `unique` and `groups` are the game's purchase limits, copied from the item groups in
+  CommunityDragon's `items.cdtb.bin.json` (`mItemGroups` + `mMaxGroupOwnable`).
+  `unique: true` means you can own only one copy. Each name in `groups` allows one
+  item from that group: `LastWhisper`, `LifelineItems`, `Boots`, `VoidPen`, `TearItems`,
+  `Quicksilver`, `EternityItems` and so on. Four groups have only a hash in the game
+  data, so they are named here: `Hydra`, `Spellblade`, `Annul` (spell shields) and
+  `Thorns`. Components are consumed when the item is built, so building Lord
+  Dominik's from a Last Whisper is fine.
 
 ## Effects
 
 An effect is a **ballpark of what an item contributes**: how much, and how often.
 That is all a buy decision needs.
 
-Proc mechanics are deliberately not modelled. Kraken Slayer firing on every third
-attack becomes "about 175 damage, no more than every 2 seconds". Whether it really
-takes two attacks or three does not change whether you buy it, and pretending to
-know would be false precision.
+Proc mechanics are kept only as far as they change the answer. Kraken Slayer fires on
+every third attack, so it is written as `everyAttacks: 3` and gains value with
+attack speed, which is why it pairs with attack speed items. How much of its bonus
+comes from the target's missing health is left out: it does not change whether you
+buy it. When a number is simplified, it is checked against the item's data values in
+CommunityDragon's `items.cdtb.bin.json` rather than written from memory.
 
 ```json
-{ "trigger": "OnAttack", "kind": "PhysicalDamage", "amount": 175, "cooldown": 2 }
+{ "trigger": "OnAttack", "kind": "PhysicalDamage", "amount": 175, "everyAttacks": 3, "rangedMultiplier": 0.8 }
 ```
 
 ### `trigger` — roughly when
@@ -76,13 +87,23 @@ know would be false precision.
 
 - `amount` — flat magnitude per occurrence.
 - `cooldown` — seconds between occurrences. `0` means every time.
+- `everyAttacks` — the effect triggers on every Nth attack, so it scales with attack
+  speed. Kraken Slayer is `3` (`AttackCount` in its bin data). Use this instead of a
+  `cooldown` whenever the game counts attacks.
+- `splash` — `true` when the damage hits enemies *around* the target but not the
+  target itself (Tiamat, the Hydras, Stridebreaker, Runaan's bolts). Single-target
+  damage leaves it out.
+- `rangedMultiplier` — the game gives many item effects a smaller value on ranged
+  champions. `amount` and the scalings are the melee values, and ranged champions get
+  them times this (Kraken 0.8, Ruined King 0.6667, Titanic 0.5). The numbers come from
+  each item's bin data values (`RangedDamageMultiplier`, `RangedValue` / `MeleeValue`, ...).
 - `stat` — for `StatBuff` and shreds, which stat. It is written as a name but parses
   into a `Stat` type, so an unknown name fails the load instead of reaching the
   simulation. Each type knows whether it is a fraction and whether it applies to the
   enemy rather than to you, which is how `enemyAttackSpeedPercent` and
   `enemyMagicDamageAmp` stay distinguishable from your own stats. `Stats.All` is the
   full list.
-- `versus` — for `DamageReduction` and `Shield`, what it applies to: `All` (the
+- `versus` — for `DamageReduction`, `Shield` and damage amps, what it applies to: `All` (the
   default), `Attacks`, `Abilities`, `Crit`, `Physical` or `Magic`. This is the one
   place the ballpark is not allowed to round off, because it decides *who* an item
   is good against. Randuin's 30% is `Crit`, Plated Steelcaps' 10% is `Attacks`, and
@@ -103,7 +124,7 @@ comps it barely touches. `when` holds requirements that **all** have to hold:
 
 ```json
 { "trigger": "Always", "kind": "StatBuff", "stat": "damageAmp", "amount": 0.15,
-  "when": [ { "subject": "Target", "property": "BonusHealth", "op": "AtLeast", "value": 1000 } ] }
+  "when": [ { "subject": "Target", "property": "BonusHealth", "op": "AtLeast", "value": 1500 } ] }
 ```
 
 - `subject` — `Self` or `Target`
@@ -114,10 +135,10 @@ comps it barely touches. `when` holds requirements that **all** have to hold:
 
 An empty or absent `when` means the effect always counts.
 
-The conditions are thresholds, not curves, on purpose. Lord Dominik's really ramps
-up to its maximum at 1500 bonus health; the entry says "counts from 1000". That is
-the same ballpark trade as the rest of the file — the evaluator needs to know *who
-this is good against*, not to reproduce the ramp.
+The conditions are thresholds, not curves. A ramp is written as steps: Lord Dominik's
+reaches its full 15% at 1500 bonus health (`MaxBonusHealth` in its data), so it has
+two effects, 7.5% from 750 to 1499 and 15% from 1500. The evaluator needs to know
+*who this is good against*, not the exact curve.
 
 `when` and `versus` are the two halves of the same idea: `versus` conditions on the
 kind of damage, `when` conditions on the state of the fight. Neither is optional
@@ -349,19 +370,31 @@ stacks already included, but enemies are reconstructed from base + growth + item
 so without this a 30-minute Veigar reads as having only his item AP.
 
 The Live Client API never reports stack counts. A champion whose stacks move a stat we
-can see can carry a `stackReading` table instead, and then our own count is read from
+can see can carry a `stackReading` rule instead, and then our own count is read from
 that stat rather than estimated:
 
 ```json
-"stackReading": { "stat": "attackRange", "steps": [ { "stacks": 4, "bonus": 75 }, { "stacks": 8, "bonus": 100 } ] }
+"stackReading": { "stat": "attackRange", "firstStacks": 4, "firstBonus": 75, "stepStacks": 3, "stepBonus": 25 }
 ```
 
 `bonus` is the observed stat minus the base value and what items give. A bonus of 0
-means fewer than the first step; a bonus matching a step (±1) means at least that many
-stacks and fewer than the next step. Anything else (a temporary range buff, say) falls
-back to the estimate. Only Kindred has one: every 4 marks add attack range. The step
-sizes (75, then +25 per 4 marks up to 250 at 32) come from the 75–250 range and the
-"every 4 hunts" rule; check them against a real game after a patch.
+means fewer than `firstStacks`. `firstBonus` means `firstStacks` to one step below the
+next threshold, and every further `stepBonus` adds `stepStacks`. A bonus that does not
+land on a step (±1), such as a temporary range buff, falls back to the estimate. Only
+Kindred has one, with numbers from `KindredPassiveManager` in her CommunityDragon bin:
+`InitialMarkThreshold` 4, `RangeIncrease` 25 × `FirstTierMultiplier` 3, then
+`AdditionalMarkThreshold` 3.
+
+`combatBuffs` are ability buffs assumed to be up during a fight, optionally scaling
+with the champion's stacks. They only apply when the simulation asks for fight stats,
+never to the stats shown on the scoreboard:
+
+```json
+"combatBuffs": [ { "stat": "attackSpeedPercent", "amount": 0.35, "perStack": 0.05 } ]
+```
+
+Kindred's is her Q: `BaseBonusAS` 0.35 from `KindredQ` plus `ASPerMark` 0.05 from the
+passive.
 
 Two of these champions show it in their growth as well: Senna has no attack damage
 per level and Thresh has no armor per level, because both gain it from stacks.

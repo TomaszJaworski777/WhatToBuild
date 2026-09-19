@@ -4,6 +4,8 @@
     "name":  "Swiftmarch",
     "icon":  "3170.png",
     "cost":  1000,
+    "unique":  true,
+    "groups":  [ "Boots" ],
     "buildPath":  [
                       "1f25ebdf-c1b9-9b99-ad7d-b7a04cd96297"
                   ],

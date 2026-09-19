@@ -4,6 +4,7 @@
     "name":  "Imperial Mandate",
     "icon":  "4005.png",
     "cost":  2400,
+    "unique":  true,
     "buildPath":  [
                       "83c60239-84da-8113-48e7-715da5f0d75a",
                       "5c8ebb64-35e7-84f1-d286-6cb9ea2dacaf",

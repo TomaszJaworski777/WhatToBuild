@@ -4,6 +4,7 @@
     "name":  "Last Whisper",
     "icon":  "3035.png",
     "cost":  1450,
+    "groups":  [ "LastWhisper" ],
     "buildPath":  [
                       "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
                       "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"

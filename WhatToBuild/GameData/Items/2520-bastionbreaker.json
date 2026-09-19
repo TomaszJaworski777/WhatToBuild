@@ -4,6 +4,7 @@
     "name":  "Bastionbreaker",
     "icon":  "2520.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "22071f8c-f975-7e62-d4fe-906dd72b02fe",
                       "dc60a105-9083-edab-aaba-fd9853e3561a"

@@ -95,6 +95,12 @@ public class Effect
 
     public List<EffectCondition> When { get; set; } = new();
 
+    public double EveryAttacks { get; set; }
+
+    public bool Splash { get; set; }
+
+    public double RangedMultiplier { get; set; } = 1;
+
     public double PerLevel { get; set; }
 
     public double PerBaseAd { get; set; }

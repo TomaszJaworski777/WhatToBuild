@@ -4,6 +4,7 @@
     "name":  "Guardian\u0027s Hammer",
     "icon":  "3184.png",
     "cost":  950,
+    "groups":  [ "GuardianItems" ],
     "buildPath":  [
 
                   ],

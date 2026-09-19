@@ -4,6 +4,7 @@
     "name":  "Hextech Rocketbelt",
     "icon":  "3152.png",
     "cost":  2650,
+    "unique":  true,
     "buildPath":  [
                       "2310e122-8f59-c9c2-3ae8-f4a33b938440",
                       "dec45a0a-3f4e-628c-abff-7537636197ac",

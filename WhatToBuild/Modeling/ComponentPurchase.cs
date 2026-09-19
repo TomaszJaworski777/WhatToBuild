@@ -2,25 +2,38 @@ using WhatToBuild.Data;
 
 namespace WhatToBuild.Modeling;
 
-public sealed record PurchasePlan(Item Target, IReadOnlyList<Item> Buy, int Cost, bool CompletesTarget);
+public sealed record PurchasePlan(
+    Item Target,
+    IReadOnlyList<Item> Buy,
+    int Cost,
+    bool CompletesTarget,
+    IReadOnlyList<Item> InventoryAfter);
+
+public interface IPurchaseScorer
+{
+    double Score(IReadOnlyList<Item> inventory);
+}
 
 public static class ComponentPurchase
 {
+    public const double ScoreTieTolerance = 0.005;
+
     private const int MaxCandidates = 14;
 
-    public static PurchasePlan Plan(Item target, IEnumerable<Item> owned, double gold, ItemRepository items)
+    public static PurchasePlan Plan(Item target, IEnumerable<Item> owned, double gold, ItemRepository items, IPurchaseScorer? scorer = null)
     {
-        var pool = owned.GroupBy(i => i.Id).ToDictionary(g => g.Key, g => g.Count());
+        var ownedList = owned.ToList();
+        var pool = ownedList.GroupBy(i => i.Id).ToDictionary(g => g.Key, g => g.Count());
         var root = Build(target, pool, items);
 
         if (root.Satisfied)
         {
-            return new PurchasePlan(target, [], 0, true);
+            return new PurchasePlan(target, [], 0, true, ownedList);
         }
 
         if (root.PriceToBuy <= gold)
         {
-            return new PurchasePlan(target, [target], root.PriceToBuy, true);
+            return new PurchasePlan(target, [target], root.PriceToBuy, true, InventoryAfter(ownedList, [root]));
         }
 
         var candidates = new List<Node>();
@@ -29,6 +42,8 @@ public static class ComponentPurchase
 
         var best = new List<Node>();
         var bestCost = 0;
+        var bestInventory = ownedList;
+        var bestScore = scorer?.Score(ownedList) ?? 0;
 
         for (var mask = 1; mask < 1 << candidates.Count; mask++)
         {
@@ -49,10 +64,24 @@ public static class ComponentPurchase
                 cost += node.PriceToBuy;
             }
 
-            if (valid && cost <= gold && cost > bestCost)
+            if (!valid || cost > gold)
+            {
+                continue;
+            }
+
+            var inventory = InventoryAfter(ownedList, chosen);
+            if (!ItemRules.IsLegal(inventory))
+            {
+                continue;
+            }
+
+            var score = scorer?.Score(inventory) ?? 0;
+            if (IsBetter(score, cost, bestScore, bestCost))
             {
                 best = chosen;
                 bestCost = cost;
+                bestScore = score;
+                bestInventory = inventory;
             }
         }
 
@@ -60,7 +89,37 @@ public static class ComponentPurchase
             target,
             best.OrderByDescending(n => n.PriceToBuy).Select(n => n.Item).ToList(),
             bestCost,
-            false);
+            false,
+            bestInventory);
+    }
+
+    private static bool IsBetter(double score, int cost, double bestScore, int bestCost)
+    {
+        var tolerance = Math.Abs(bestScore) * ScoreTieTolerance;
+
+        if (score > bestScore + tolerance)
+        {
+            return true;
+        }
+
+        return score >= bestScore - tolerance && cost > bestCost;
+    }
+
+    private static List<Item> InventoryAfter(List<Item> owned, IEnumerable<Node> bought)
+    {
+        var inventory = owned.ToList();
+
+        foreach (var node in bought)
+        {
+            foreach (var used in node.Consumed())
+            {
+                inventory.Remove(used);
+            }
+
+            inventory.Add(node.Item);
+        }
+
+        return inventory;
     }
 
     private static Node Build(Item item, Dictionary<Guid, int> pool, ItemRepository items)
@@ -107,5 +166,8 @@ public static class ComponentPurchase
 
         public bool Contains(Node other) =>
             Children.Any(c => ReferenceEquals(c, other) || c.Contains(other));
+
+        public IEnumerable<Item> Consumed() =>
+            Children.SelectMany(c => c.Satisfied ? [c.Item] : c.Consumed());
     }
 }

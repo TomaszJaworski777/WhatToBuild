@@ -4,6 +4,8 @@
     "name":  "Mortal Reminder",
     "icon":  "3033.png",
     "cost":  3000,
+    "unique":  true,
+    "groups":  [ "LastWhisper" ],
     "buildPath":  [
                       "45f5d794-9cc0-ef21-4ae9-897b5ed81228",
                       "ca4b565e-b07f-f044-46a5-553953a55775",

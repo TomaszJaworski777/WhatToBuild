@@ -1,25 +1,27 @@
 ﻿{
-    "id":  "206b362f-fe5e-0538-c3fb-5b9b7145d61f",
-    "riotId":  6672,
-    "name":  "Kraken Slayer",
-    "icon":  "6672.png",
-    "cost":  3000,
-    "buildPath":  [
-                      "0c761ffd-91e5-29d3-6839-b78167b0b52b",
-                      "205acc24-75bb-97ce-5ae5-75f2d9a91d28",
-                      "26f6d9a2-db01-60b5-4767-e52048138836"
-                  ],
-    "stats":  {
-                  "moveSpeedPercent":  0.04,
-                  "attackDamage":  45,
-                  "attackSpeedPercent":  0.4
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "amount":  175,
-                        "cooldown":  2
-                    }
-                ]
+    "id": "206b362f-fe5e-0538-c3fb-5b9b7145d61f",
+    "riotId": 6672,
+    "name": "Kraken Slayer",
+    "icon": "6672.png",
+    "cost": 3000,
+    "unique": true,
+    "buildPath": [
+        "0c761ffd-91e5-29d3-6839-b78167b0b52b",
+        "205acc24-75bb-97ce-5ae5-75f2d9a91d28",
+        "26f6d9a2-db01-60b5-4767-e52048138836"
+    ],
+    "stats": {
+        "moveSpeedPercent": 0.04,
+        "attackDamage": 45,
+        "attackSpeedPercent": 0.4
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "amount": 175,
+            "everyAttacks": 3,
+            "rangedMultiplier": 0.8
+        }
+    ]
 }

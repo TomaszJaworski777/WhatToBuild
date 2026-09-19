@@ -1,25 +1,27 @@
 ﻿{
-    "id":  "4afaa423-f563-9e44-fbeb-0e4c7cb88036",
-    "riotId":  6699,
-    "name":  "Voltaic Cyclosword",
-    "icon":  "6699.png",
-    "cost":  3000,
-    "buildPath":  [
-                      "22071f8c-f975-7e62-d4fe-906dd72b02fe",
-                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
-                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
-                  ],
-    "stats":  {
-                  "abilityHaste":  10,
-                  "attackDamage":  55,
-                  "armorPenetrationFlat":  10
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perTargetCurrentHealth":  0.07,
-                        "cooldown":  4
-                    }
-                ]
+    "id": "4afaa423-f563-9e44-fbeb-0e4c7cb88036",
+    "riotId": 6699,
+    "name": "Voltaic Cyclosword",
+    "icon": "6699.png",
+    "cost": 3000,
+    "unique": true,
+    "buildPath": [
+        "22071f8c-f975-7e62-d4fe-906dd72b02fe",
+        "b9bc0c69-fc4f-b621-4d64-d82f43b0d463",
+        "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+    ],
+    "stats": {
+        "abilityHaste": 10,
+        "attackDamage": 55,
+        "armorPenetrationFlat": 10
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perTargetCurrentHealth": 0.09,
+            "cooldown": 4,
+            "rangedMultiplier": 0.7778
+        }
+    ]
 }

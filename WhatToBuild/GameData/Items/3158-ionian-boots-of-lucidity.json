@@ -4,6 +4,7 @@
     "name":  "Ionian Boots of Lucidity",
     "icon":  "3158.png",
     "cost":  900,
+    "groups":  [ "Boots", "BootsWithoutActives" ],
     "buildPath":  [
                       "ae639a00-f269-2346-dd47-eedaa6723936",
                       "55f3dec0-0419-0af1-11f9-b7d5756b8caa"

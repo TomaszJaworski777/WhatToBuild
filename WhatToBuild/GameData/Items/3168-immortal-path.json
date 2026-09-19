@@ -4,6 +4,8 @@
     "name":  "Immortal Path",
     "icon":  "3168.png",
     "cost":  1000,
+    "unique":  true,
+    "groups":  [ "BootsWithoutActives", "Boots" ],
     "buildPath":  [
                       "19d00925-d037-92bc-a1a7-090ea1159624"
                   ],

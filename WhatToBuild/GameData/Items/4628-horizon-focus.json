@@ -4,6 +4,7 @@
     "name":  "Horizon Focus",
     "icon":  "4628.png",
     "cost":  2700,
+    "unique":  true,
     "buildPath":  [
                       "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",
                       "fbdc4a4c-b725-5d8d-bcee-4c7421f64cc6",

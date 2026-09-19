@@ -4,6 +4,7 @@
     "name":  "Chempunk Chainsword",
     "icon":  "6609.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "45f5d794-9cc0-ef21-4ae9-897b5ed81228",
                       "78a6c7fc-1e70-b5f7-6205-47b1df785d76",

@@ -1,23 +1,27 @@
 ﻿{
-    "id":  "ff518336-230b-f7b2-eefe-c0320ffac3b6",
-    "riotId":  6698,
-    "name":  "Profane Hydra",
-    "icon":  "6698.png",
-    "cost":  2850,
-    "buildPath":  [
-                      "2d428f47-fd1f-6cb5-086e-53e3327577ca",
-                      "22071f8c-f975-7e62-d4fe-906dd72b02fe"
-                  ],
-    "stats":  {
-                  "abilityHaste":  10,
-                  "attackDamage":  55,
-                  "armorPenetrationFlat":  18
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perTotalAd":  0.2
-                    }
-                ]
+    "id": "ff518336-230b-f7b2-eefe-c0320ffac3b6",
+    "riotId": 6698,
+    "name": "Profane Hydra",
+    "icon": "6698.png",
+    "cost": 2850,
+    "groups": [
+        "Hydra"
+    ],
+    "buildPath": [
+        "2d428f47-fd1f-6cb5-086e-53e3327577ca",
+        "22071f8c-f975-7e62-d4fe-906dd72b02fe"
+    ],
+    "stats": {
+        "abilityHaste": 10,
+        "attackDamage": 55,
+        "armorPenetrationFlat": 18
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perTotalAd": 0.2,
+            "splash": true
+        }
+    ]
 }

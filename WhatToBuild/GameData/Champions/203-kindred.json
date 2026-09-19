@@ -40,39 +40,16 @@
                  ],
     "stackReading":  {
                          "stat":  "attackRange",
-                         "steps":  [
-                                       {
-                                           "stacks":  4,
-                                           "bonus":  75
-                                       },
-                                       {
-                                           "stacks":  8,
-                                           "bonus":  100
-                                       },
-                                       {
-                                           "stacks":  12,
-                                           "bonus":  125
-                                       },
-                                       {
-                                           "stacks":  16,
-                                           "bonus":  150
-                                       },
-                                       {
-                                           "stacks":  20,
-                                           "bonus":  175
-                                       },
-                                       {
-                                           "stacks":  24,
-                                           "bonus":  200
-                                       },
-                                       {
-                                           "stacks":  28,
-                                           "bonus":  225
-                                       },
-                                       {
-                                           "stacks":  32,
-                                           "bonus":  250
-                                       }
-                                   ]
-                     }
+                         "firstStacks":  4,
+                         "firstBonus":  75,
+                         "stepStacks":  3,
+                         "stepBonus":  25
+                     },
+    "combatBuffs":  [
+                        {
+                            "stat":  "attackSpeedPercent",
+                            "amount":  0.35,
+                            "perStack":  0.05
+                        }
+                    ]
 }

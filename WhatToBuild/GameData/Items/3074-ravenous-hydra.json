@@ -1,24 +1,28 @@
 ﻿{
-    "id":  "b05fe9b3-c46b-275c-e97d-8b964e1b46ee",
-    "riotId":  3074,
-    "name":  "Ravenous Hydra",
-    "icon":  "3074.png",
-    "cost":  3300,
-    "buildPath":  [
-                      "2d428f47-fd1f-6cb5-086e-53e3327577ca",
-                      "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
-                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "attackDamage":  65,
-                  "lifeStealPercent":  0.12
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "PhysicalDamage",
-                        "perTotalAd":  0.3
-                    }
-                ]
+    "id": "b05fe9b3-c46b-275c-e97d-8b964e1b46ee",
+    "riotId": 3074,
+    "name": "Ravenous Hydra",
+    "icon": "3074.png",
+    "cost": 3300,
+    "groups": [
+        "Hydra"
+    ],
+    "buildPath": [
+        "2d428f47-fd1f-6cb5-086e-53e3327577ca",
+        "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
+        "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "attackDamage": 65,
+        "lifeStealPercent": 0.12
+    },
+    "effects": [
+        {
+            "trigger": "OnAttack",
+            "kind": "PhysicalDamage",
+            "perTotalAd": 0.3,
+            "splash": true
+        }
+    ]
 }

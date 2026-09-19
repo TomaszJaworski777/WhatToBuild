@@ -4,6 +4,8 @@
     "name":  "Doran\u0027s Ring",
     "icon":  "1056.png",
     "cost":  400,
+    "groups":  [ "DoransItems" ],
+    "groups":  [ "DoransItems" ],
     "buildPath":  [
 
                   ],

@@ -4,6 +4,7 @@
     "name":  "Dead Man\u0027s Plate",
     "icon":  "3742.png",
     "cost":  2900,
+    "unique":  true,
     "buildPath":  [
                       "00c25f3f-7fd0-30fc-f7f0-f5dd86ad9754",
                       "b025024f-832d-4982-6bb7-f6d96e42dc1f",

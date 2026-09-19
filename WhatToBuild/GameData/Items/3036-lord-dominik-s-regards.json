@@ -1,32 +1,55 @@
 ﻿{
-    "id":  "879ddf1c-0e7e-35d2-427e-9cf60c653dfb",
-    "riotId":  3036,
-    "name":  "Lord Dominik\u0027s Regards",
-    "icon":  "3036.png",
-    "cost":  3300,
-    "buildPath":  [
-                      "ca4b565e-b07f-f044-46a5-553953a55775",
-                      "c569fe85-3b86-987f-584f-b07a6fd20985"
-                  ],
-    "stats":  {
-                  "armorPenetrationPercent":  0.35,
-                  "critChance":  0.25,
-                  "attackDamage":  35
-              },
-    "effects":  [
-                    {
-                        "trigger":  "Always",
-                        "kind":  "StatBuff",
-                        "stat":  "damageAmp",
-                        "amount":  0.15,
-                        "when":  [
-                                     {
-                                         "subject":  "Target",
-                                         "property":  "BonusHealth",
-                                         "op":  "AtLeast",
-                                         "value":  1000
-                                     }
-                                 ]
-                    }
-                ]
+    "id": "879ddf1c-0e7e-35d2-427e-9cf60c653dfb",
+    "riotId": 3036,
+    "name": "Lord Dominik's Regards",
+    "icon": "3036.png",
+    "cost": 3300,
+    "groups": [
+        "LastWhisper"
+    ],
+    "buildPath": [
+        "ca4b565e-b07f-f044-46a5-553953a55775",
+        "c569fe85-3b86-987f-584f-b07a6fd20985"
+    ],
+    "stats": {
+        "armorPenetrationPercent": 0.35,
+        "critChance": 0.25,
+        "attackDamage": 35
+    },
+    "effects": [
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "damageAmp",
+            "amount": 0.075,
+            "when": [
+                {
+                    "subject": "Target",
+                    "property": "BonusHealth",
+                    "op": "AtLeast",
+                    "value": 750
+                },
+                {
+                    "subject": "Target",
+                    "property": "BonusHealth",
+                    "op": "AtMost",
+                    "value": 1499
+                }
+            ]
+        },
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "damageAmp",
+            "amount": 0.15,
+            "when": [
+                {
+                    "subject": "Target",
+                    "property": "BonusHealth",
+                    "op": "AtLeast",
+                    "value": 1500
+                }
+            ]
+        }
+    ]
 }

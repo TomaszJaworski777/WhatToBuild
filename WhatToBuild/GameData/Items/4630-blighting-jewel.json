@@ -4,6 +4,7 @@
     "name":  "Blighting Jewel",
     "icon":  "4630.png",
     "cost":  1100,
+    "groups":  [ "VoidPen" ],
     "buildPath":  [
                       "83c60239-84da-8113-48e7-715da5f0d75a"
                   ],

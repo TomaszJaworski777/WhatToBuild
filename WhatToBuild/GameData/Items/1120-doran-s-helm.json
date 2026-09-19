@@ -4,6 +4,8 @@
     "name":  "Doran\u0027s Helm",
     "icon":  "1120.png",
     "cost":  450,
+    "groups":  [ "DoransItems" ],
+    "groups":  [ "DoransItems" ],
     "buildPath":  [
 
                   ],

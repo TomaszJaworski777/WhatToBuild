@@ -4,6 +4,7 @@
     "name":  "Stormsurge",
     "icon":  "4646.png",
     "cost":  2800,
+    "unique":  true,
     "buildPath":  [
                       "2310e122-8f59-c9c2-3ae8-f4a33b938440",
                       "e5a58099-3b77-0410-1e2d-a7cfb43d45b5"

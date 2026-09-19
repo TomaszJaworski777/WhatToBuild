@@ -4,6 +4,7 @@
     "name":  "Warmog\u0027s Armor",
     "icon":  "3083.png",
     "cost":  3100,
+    "unique":  true,
     "buildPath":  [
                       "78a6c7fc-1e70-b5f7-6205-47b1df785d76",
                       "78a6c7fc-1e70-b5f7-6205-47b1df785d76",

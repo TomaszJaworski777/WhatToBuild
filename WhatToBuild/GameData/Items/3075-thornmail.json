@@ -4,6 +4,8 @@
     "name":  "Thornmail",
     "icon":  "3075.png",
     "cost":  2450,
+    "unique":  true,
+    "groups":  [ "Thorns" ],
     "buildPath":  [
                       "df07c8cd-9270-9112-8069-d873029c189e",
                       "5dd70522-168e-d7bb-5854-c24b78940297",

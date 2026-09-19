@@ -4,6 +4,7 @@
     "name":  "Kalista\u0027s Black Spear",
     "icon":  "3600.png",
     "cost":  0,
+    "groups":  [ "TheBlackSpear" ],
     "buildPath":  [
 
                   ],

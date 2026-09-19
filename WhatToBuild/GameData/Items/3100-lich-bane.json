@@ -4,6 +4,8 @@
     "name":  "Lich Bane",
     "icon":  "3100.png",
     "cost":  2900,
+    "unique":  true,
+    "groups":  [ "Spellblade" ],
     "buildPath":  [
                       "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
                       "e5a58099-3b77-0410-1e2d-a7cfb43d45b5",

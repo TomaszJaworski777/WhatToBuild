@@ -4,6 +4,7 @@
     "name":  "Nashor\u0027s Tooth",
     "icon":  "3115.png",
     "cost":  2900,
+    "unique":  true,
     "buildPath":  [
                       "26f6d9a2-db01-60b5-4767-e52048138836",
                       "25bc422e-c041-8b19-b8e4-9cd95a0cd928",

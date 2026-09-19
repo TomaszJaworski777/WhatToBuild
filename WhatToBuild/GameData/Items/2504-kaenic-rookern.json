@@ -4,6 +4,8 @@
     "name":  "Kaenic Rookern",
     "icon":  "2504.png",
     "cost":  2900,
+    "unique":  true,
+    "unique":  true,
     "buildPath":  [
                       "a1621657-ca1a-c297-d0cf-9f5f37d57eba",
                       "5a8fdf13-2215-4e4c-516d-f7bfdb36d08c"

@@ -4,6 +4,7 @@
     "name":  "Zhonya\u0027s Hourglass",
     "icon":  "3157.png",
     "cost":  3250,
+    "unique":  true,
     "buildPath":  [
                       "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec",
                       "54f20253-dcbc-bd6d-7dbc-ae178263ba25"

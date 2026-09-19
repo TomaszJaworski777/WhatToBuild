@@ -4,6 +4,7 @@
     "name":  "Mikael\u0027s Blessing",
     "icon":  "3222.png",
     "cost":  2300,
+    "unique":  true,
     "buildPath":  [
                       "dec45a0a-3f4e-628c-abff-7537636197ac",
                       "f613eb9a-98a0-b948-8531-cbf47e581483"

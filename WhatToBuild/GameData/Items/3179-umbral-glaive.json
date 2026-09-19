@@ -1,24 +1,18 @@
 ﻿{
-    "id":  "68927576-b558-8d50-ec04-fdb45357874a",
-    "riotId":  3179,
-    "name":  "Umbral Glaive",
-    "icon":  "3179.png",
-    "cost":  2800,
-    "buildPath":  [
-                      "dc60a105-9083-edab-aaba-fd9853e3561a",
-                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "attackDamage":  60,
-                  "armorPenetrationFlat":  18
-              },
-    "effects":  [
-                    {
-                        "trigger":  "OnAttack",
-                        "kind":  "TrueDamage",
-                        "amount":  40,
-                        "cooldown":  90
-                    }
-                ]
+    "id": "68927576-b558-8d50-ec04-fdb45357874a",
+    "riotId": 3179,
+    "name": "Umbral Glaive",
+    "icon": "3179.png",
+    "cost": 2800,
+    "unique": true,
+    "buildPath": [
+        "dc60a105-9083-edab-aaba-fd9853e3561a",
+        "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "attackDamage": 60,
+        "armorPenetrationFlat": 18
+    },
+    "effects": []
 }

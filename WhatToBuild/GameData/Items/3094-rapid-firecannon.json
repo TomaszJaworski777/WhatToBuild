@@ -4,6 +4,7 @@
     "name":  "Rapid Firecannon",
     "icon":  "3094.png",
     "cost":  2650,
+    "unique":  true,
     "buildPath":  [
                       "0c82b054-3477-2b93-a13a-8ce1a5ab92c7",
                       "83ec4976-66ed-d9b1-8549-63e8f319bd86"

@@ -4,6 +4,7 @@
     "name":  "Hextech Gunblade",
     "icon":  "3146.png",
     "cost":  3000,
+    "unique":  true,
     "buildPath":  [
                       "0ae73175-7d0c-38b8-1b68-2bdb0a1b9ccb",
                       "2310e122-8f59-c9c2-3ae8-f4a33b938440",

@@ -4,6 +4,8 @@
     "name":  "Banshee\u0027s Veil",
     "icon":  "3102.png",
     "cost":  3000,
+    "unique":  true,
+    "groups":  [ "Annul" ],
     "buildPath":  [
                       "54fda3ed-5e21-c7e0-2117-7f1fab11b6ec",
                       "c1d72567-208f-fc66-4588-0cba2793a615"

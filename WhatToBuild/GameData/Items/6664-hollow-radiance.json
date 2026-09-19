@@ -4,6 +4,8 @@
     "name":  "Hollow Radiance",
     "icon":  "6664.png",
     "cost":  2800,
+    "unique":  true,
+    "groups":  [ "ImmolateItems" ],
     "buildPath":  [
                       "0e99f246-8cae-0817-d786-4263e76770c8",
                       "a1621657-ca1a-c297-d0cf-9f5f37d57eba"

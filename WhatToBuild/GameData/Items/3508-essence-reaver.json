@@ -4,6 +4,8 @@
     "name":  "Essence Reaver",
     "icon":  "3508.png",
     "cost":  3050,
+    "unique":  true,
+    "groups":  [ "Spellblade" ],
     "buildPath":  [
                       "340e3a8f-166a-1b3a-3a34-81a104af6f2d",
                       "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",

@@ -4,6 +4,7 @@
     "name":  "Jak\u0027Sho, The Protean",
     "icon":  "6665.png",
     "cost":  3200,
+    "unique":  true,
     "buildPath":  [
                       "78a6c7fc-1e70-b5f7-6205-47b1df785d76",
                       "5dd70522-168e-d7bb-5854-c24b78940297",

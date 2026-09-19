@@ -1,24 +1,26 @@
 ﻿{
-    "id":  "a3105a8c-4e7d-a64c-6bd5-7c79c332acbe",
-    "riotId":  6692,
-    "name":  "Eclipse",
-    "icon":  "6692.png",
-    "cost":  2900,
-    "buildPath":  [
-                      "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
-                      "1d276371-f99d-7615-c4af-a5feab4d274d",
-                      "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
-                  ],
-    "stats":  {
-                  "abilityHaste":  15,
-                  "attackDamage":  60
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "Shield",
-                        "amount":  180,
-                        "cooldown":  6
-                    }
-                ]
+    "id": "a3105a8c-4e7d-a64c-6bd5-7c79c332acbe",
+    "riotId": 6692,
+    "name": "Eclipse",
+    "icon": "6692.png",
+    "cost": 2900,
+    "unique": true,
+    "buildPath": [
+        "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
+        "1d276371-f99d-7615-c4af-a5feab4d274d",
+        "b9bc0c69-fc4f-b621-4d64-d82f43b0d463"
+    ],
+    "stats": {
+        "abilityHaste": 15,
+        "attackDamage": 60
+    },
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "Shield",
+            "amount": 180,
+            "cooldown": 6,
+            "rangedMultiplier": 0.5
+        }
+    ]
 }

@@ -4,6 +4,7 @@
     "name":  "World Atlas",
     "icon":  "3865.png",
     "cost":  400,
+    "groups":  [ "GoldItems", "DoransItems" ],
     "buildPath":  [
 
                   ],

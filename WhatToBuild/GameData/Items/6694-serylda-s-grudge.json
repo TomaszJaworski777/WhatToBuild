@@ -4,6 +4,7 @@
     "name":  "Serylda\u0027s Grudge",
     "icon":  "6694.png",
     "cost":  3000,
+    "groups":  [ "LastWhisper" ],
     "buildPath":  [
                       "10895c0b-41f1-6d2c-93b7-fa1f3bd8824f",
                       "ca4b565e-b07f-f044-46a5-553953a55775"

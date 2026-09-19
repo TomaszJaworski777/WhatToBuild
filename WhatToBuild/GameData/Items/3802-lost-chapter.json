@@ -4,6 +4,7 @@
     "name":  "Lost Chapter",
     "icon":  "3802.png",
     "cost":  1200,
+    "unique":  true,
     "buildPath":  [
                       "83c60239-84da-8113-48e7-715da5f0d75a",
                       "c72f5413-5483-8f07-5e77-865de4e332a9",
