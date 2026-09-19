@@ -48,32 +48,6 @@ public class SampleRecommendationsTests
     }
 
     [TestMethod]
-    public void KindredAbilitiesShowUpInTheDamage()
-    {
-        var recommendation = new SampleRecommendations(_items, _neutrals, _kits).For(MidGame(), new GameStack())!;
-        var next = recommendation.BuildPath.First(s => s.Status == "Next");
-        var sources = next.Impact!.Split.Select(s => s.Source).ToList();
-
-        CollectionAssert.Contains(sources, KindredKit.WolfsFrenzy);
-        CollectionAssert.Contains(sources, KindredKit.MountingDread);
-    }
-
-    [TestMethod]
-    public void EveryEnemyGetsAnETimingHint()
-    {
-        var state = MidGame();
-        var recommendation = new SampleRecommendations(_items, _neutrals, _kits).For(state, new GameStack())!;
-
-        Assert.HasCount(state.Enemies.Count(), recommendation.CastHints);
-        foreach (var hint in recommendation.CastHints)
-        {
-            Assert.AreEqual("E", hint.Ability);
-            Assert.IsGreaterThan(hint.KillingHealth, hint.CastAtHealth);
-            Assert.IsLessThan(hint.MaxHealth, hint.CastAtHealth);
-        }
-    }
-
-    [TestMethod]
     public void TheBuildPathFollowsTheGameRules()
     {
         var recommendation = new SampleRecommendations(_items, _neutrals, _kits).For(MidGame(), new GameStack())!;

@@ -160,4 +160,16 @@ public class GameStateDtoTests
         node["gameData"]!["gameTime"] = gameTime;
         return node.ToJsonString();
     }
+
+    [TestMethod]
+    public void OurTenacityIgnoresTheApiField()
+    {
+        var node = JsonNode.Parse(Fixture())!;
+        node["activePlayer"]!["championStats"]!["tenacity"] = 5;
+
+        var dto = GameStateMapper.ToDto(GameStateParser.Parse(node.ToJsonString(), _champions, _items), _neutrals, Patch);
+        var us = dto.Teams.SelectMany(t => t.Players).Single(p => p.IsActivePlayer);
+
+        Assert.AreEqual(0, us.Stats.Tenacity, 0.0001);
+    }
 }

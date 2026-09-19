@@ -71,6 +71,12 @@ public static class GameStateParser
             Objectives = ReadObjectives(root, teamByName),
             ActivePlayerStats = activeStats,
             ActivePlayerRanks = active.ValueKind == JsonValueKind.Object ? ReadRanks(active) : null,
+            ActivePlayerCurrentHealth = active.ValueKind == JsonValueKind.Object
+                && active.TryGetProperty("championStats", out var cs)
+                && cs.TryGetProperty("currentHealth", out var hp)
+                && hp.ValueKind == JsonValueKind.Number
+                    ? hp.GetDouble()
+                    : null,
             UnknownItemIds = unknownItems,
             UnknownChampions = unknownChampions,
         };
@@ -118,14 +124,17 @@ public static class GameStateParser
     {
         var owned = new List<OwnedItem>();
 
+        var position = 0;
         foreach (var entry in Array(raw, "items"))
         {
             var id = (int)Number(entry, "itemID");
             var count = Math.Max(1, (int)Number(entry, "count"));
+            var slot = entry.TryGetProperty("slot", out var s) && s.ValueKind == JsonValueKind.Number ? s.GetInt32() : position;
+            position++;
 
             if (items.ByRiotId(id) is { } item)
             {
-                owned.Add(new OwnedItem(item, count));
+                owned.Add(new OwnedItem(item, count, slot));
             }
             else
             {
@@ -231,7 +240,6 @@ public static class GameStateParser
             ManaRegen = Number(s, "resourceRegenRate"),
             MoveSpeed = Number(s, "moveSpeed"),
             AttackRange = Number(s, "attackRange"),
-            Tenacity = Number(s, "tenacity") / 100,
             AbilityHaste = Number(s, "abilityHaste"),
         };
     }

@@ -11,6 +11,8 @@ public sealed record GameStateDto(
     IReadOnlyList<string> UnknownChampions,
     IReadOnlyList<int> UnknownItemIds)
 {
+    public IReadOnlyList<MatchupDto> Matchups { get; init; } = [];
+
     public const string InGame = "InGame";
     public const string NoGame = "NoGame";
 
@@ -53,6 +55,7 @@ public sealed record PlayerDto(
     int ItemValue,
     IReadOnlyList<ItemDto> Items,
     StatsDto Stats,
+    double? CurrentHealth,
     bool StatsAreExact,
     IReadOnlyList<StackDto> EstimatedStacks);
 
@@ -63,7 +66,8 @@ public sealed record ItemDto(
     int Count,
     int Cost,
     IReadOnlyList<string> Stats,
-    IReadOnlyList<string> Effects);
+    IReadOnlyList<string> Effects,
+    int Slot = -1);
 
 public sealed record StatsDto(
     double Health,

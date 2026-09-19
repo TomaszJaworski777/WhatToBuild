@@ -6,7 +6,7 @@
     <title>WhatToBuild</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="app.css" />
 </head>
 <body>
@@ -31,16 +31,13 @@
         <main id="game" hidden>
             <section class="scoreboard">
                 <div class="side side-order">
-                    <span class="side-label">Blue side</span>
                     <span id="order-kills" class="kills">0</span>
+                    <div id="order-objectives" class="objectives"></div>
                 </div>
-                <div class="clock">
-                    <span id="clock">00:00</span>
-                    <span class="clock-label">Game time</span>
-                </div>
+                <div id="clock" class="clock">00:00</div>
                 <div class="side side-chaos">
+                    <div id="chaos-objectives" class="objectives"></div>
                     <span id="chaos-kills" class="kills">0</span>
-                    <span class="side-label">Red side</span>
                 </div>
             </section>
 

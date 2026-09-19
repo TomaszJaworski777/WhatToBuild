@@ -32,6 +32,7 @@ else
 }
 
 builder.Services.AddSingleton<GameTracker>();
+builder.Services.AddSingleton<MatchupCalculator>();
 builder.Services.AddSingleton<GameStateService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<GameStateService>());
 
@@ -42,7 +43,10 @@ var app = builder.Build();
 app.Urls.Add("http://127.0.0.1:5123");
 
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context => context.Context.Response.Headers.CacheControl = "no-cache",
+});
 
 app.MapGet("/api/state", (GameStateService service) => service.Latest);
 app.MapGet("/api/recommendation", (GameStateService service) => service.LatestRecommendation);

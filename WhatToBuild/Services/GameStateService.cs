@@ -18,6 +18,7 @@ public sealed class GameStateService : BackgroundService
     private readonly GameTracker _tracker;
     private readonly NeutralRepository _neutrals;
     private readonly IRecommendationSource _recommendations;
+    private readonly MatchupCalculator _matchups;
     private readonly string _patch;
     private readonly IHubContext<GameHub> _hub;
     private readonly ILogger<GameStateService> _logger;
@@ -29,12 +30,14 @@ public sealed class GameStateService : BackgroundService
         NeutralRepository neutrals,
         ItemRepository items,
         IRecommendationSource recommendations,
+        MatchupCalculator matchups,
         IHubContext<GameHub> hub,
         ILogger<GameStateService> logger)
     {
         _tracker = tracker;
         _neutrals = neutrals;
         _recommendations = recommendations;
+        _matchups = matchups;
         _patch = items.Patch;
         _hub = hub;
         _logger = logger;
@@ -70,7 +73,7 @@ public sealed class GameStateService : BackgroundService
 
             Latest = state is null
                 ? GameStateDto.Waiting(_patch)
-                : GameStateMapper.ToDto(state, _neutrals, _patch);
+                : GameStateMapper.ToDto(state, _neutrals, _patch) with { Matchups = _matchups.For(state) };
 
             await _hub.Clients.All.SendAsync(GameStateMessage, Latest, ct);
 

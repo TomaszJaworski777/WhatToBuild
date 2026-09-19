@@ -16,7 +16,7 @@ public interface IPurchaseScorer
 
 public static class ComponentPurchase
 {
-    public const double ScoreTieTolerance = 0.005;
+    public const double BasicComponentWeight = 0.03;
 
     private const int MaxCandidates = 14;
 
@@ -43,7 +43,7 @@ public static class ComponentPurchase
         var best = new List<Node>();
         var bestCost = 0;
         var bestInventory = ownedList;
-        var bestScore = scorer?.Score(ownedList) ?? 0;
+        var bestValue = Value(scorer, ownedList, []);
 
         for (var mask = 1; mask < 1 << candidates.Count; mask++)
         {
@@ -75,12 +75,12 @@ public static class ComponentPurchase
                 continue;
             }
 
-            var score = scorer?.Score(inventory) ?? 0;
-            if (IsBetter(score, cost, bestScore, bestCost))
+            var value = Value(scorer, inventory, chosen);
+            if (value > bestValue)
             {
                 best = chosen;
                 bestCost = cost;
-                bestScore = score;
+                bestValue = value;
                 bestInventory = inventory;
             }
         }
@@ -93,16 +93,12 @@ public static class ComponentPurchase
             bestInventory);
     }
 
-    private static bool IsBetter(double score, int cost, double bestScore, int bestCost)
+    private static double Value(IPurchaseScorer? scorer, IReadOnlyList<Item> inventory, IEnumerable<Node> bought)
     {
-        var tolerance = Math.Abs(bestScore) * ScoreTieTolerance;
+        var basicGold = bought.Where(n => n.Item.BuildPath.Count == 0).Sum(n => n.Item.Cost);
+        var score = scorer?.Score(inventory) ?? 1;
 
-        if (score > bestScore + tolerance)
-        {
-            return true;
-        }
-
-        return score >= bestScore - tolerance && cost > bestCost;
+        return score * (1 + BasicComponentWeight * basicGold / 1000);
     }
 
     private static List<Item> InventoryAfter(List<Item> owned, IEnumerable<Node> bought)

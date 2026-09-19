@@ -38,13 +38,13 @@ public class ComponentPurchaseTests
     }
 
     [TestMethod]
-    public void FillsTheBudgetWithComponents()
+    public void WithoutAScorerBasicComponentsWin()
     {
         var plan = ComponentPurchase.Plan(Ldr, [], 2750, _items);
 
         Assert.IsFalse(plan.CompletesTarget);
-        CollectionAssert.AreEquivalent(new[] { LastWhisper, Noonquiver }, plan.Buy.ToList());
-        Assert.AreEqual(2750, plan.Cost);
+        Assert.IsNotEmpty(plan.Buy);
+        Assert.IsTrue(plan.Buy.All(i => i.BuildPath.Count == 0), string.Join(", ", plan.Buy.Select(i => i.Name)));
     }
 
     [TestMethod]

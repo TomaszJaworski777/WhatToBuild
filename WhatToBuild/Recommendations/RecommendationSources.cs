@@ -54,7 +54,7 @@ public sealed class SampleRecommendations : IRecommendationSource
             return null;
         }
 
-        var context = new PlanContext(state, me, _neutrals, _kits, stack);
+        var context = new PlanContext(state, OurFights.For(state, _neutrals, _kits)!, stack);
         var owned = me.Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)).ToList();
         var inventory = owned.ToList();
 
@@ -124,18 +124,7 @@ public sealed class SampleRecommendations : IRecommendationSource
             MapPurchase(buyNow, owned, context),
             steps,
             skipped,
-            TeamNeeds(context, planned, inventory),
-            CastHints(context, owned),
-            [
-                "Sample plan: the item order is fixed until the planner is built. The numbers are real.",
-                context.MeasuredIncome is null
-                    ? $"Times assume {FallbackGoldPerMinute:0} gold per minute until there is enough history."
-                    : "Times use your gold income over the last 5 minutes.",
-                context.HasKit
-                    ? $"Each enemy is a simulated 1v1 until they die (30s at most): your attacks, on-hit items and {me.Champion.Name}'s abilities at Q{context.Ranks.Q} W{context.Ranks.W} E{context.Ranks.E}{(context.RanksObserved ? "" : ", ranks guessed from level")}. The enemy stands still and does not fight back, heal or shield."
-                    : $"Each enemy is a simulated 1v1 until they die (30s at most) with attacks and on-hit items only. {me.Champion.Name}'s abilities are not simulated yet.",
-                "Enemy stats are rebuilt from level, items and dragons.",
-            ]);
+            TeamNeeds(context, planned, inventory));
     }
 
     private sealed record PlannedItem(Item Item, string Status, double? Eta);
@@ -144,54 +133,25 @@ public sealed class SampleRecommendations : IRecommendationSource
 
     private sealed class PlanContext
     {
-        public PlanContext(GameState state, PlayerState me, NeutralRepository neutrals, ChampionKits kits, GameStack stack)
+        public PlanContext(GameState state, OurFights fights, GameStack stack)
         {
             State = state;
-            Me = me;
-            EnemyTeam = me.Team == Team.Order ? Team.Chaos : Team.Order;
-            Buffs = state.TeamBuffs(me.Team, neutrals).ToList();
-            Enemies = state.Enemies.Select(p => (p, state.EntityFor(p, neutrals))).ToList();
-            Ranks = kits.RanksFor(me.Champion, me.Level, state.ActivePlayerRanks);
-            RanksObserved = state.ActivePlayerRanks is { } observed && observed != AbilityRanks.None;
-            HasKit = kits.For(me.Champion) is not null;
-            Supported = kits.For(me.Champion);
-            Stacks = me.EstimatedStacks.FirstOrDefault()?.Stacks ?? 0;
-            Scorer = new FightScorer(
-                me.Champion,
-                me.Level,
-                Buffs,
-                Enemies.Select(e => (Entity)e.Entity),
-                Ranks,
-                Stacks,
-                () => kits.NewFight(me.Champion),
-                state.ActivePlayerStats is { } observedStats
-                    ? StatCalculator.Adjustment(observedStats, new ChampionState(me.Champion, me.Level, me.Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)), Buffs).Stats)
-                    : null);
+            Fights = fights;
             MeasuredIncome = stack.GoldEarnedPerMinute(IncomeWindowSeconds);
             Income = Math.Max(100, MeasuredIncome ?? FallbackGoldPerMinute);
         }
 
         public GameState State { get; }
 
-        public PlayerState Me { get; }
+        public OurFights Fights { get; }
 
-        public Team EnemyTeam { get; }
+        public PlayerState Me => Fights.Me;
 
-        public IReadOnlyList<StatModifier> Buffs { get; }
+        public Team EnemyTeam => Fights.EnemyTeam;
 
-        public IReadOnlyList<(PlayerState Player, ChampionState Entity)> Enemies { get; }
+        public IReadOnlyList<(PlayerState Player, ChampionState Entity)> Enemies => Fights.Enemies;
 
-        public AbilityRanks Ranks { get; }
-
-        public bool RanksObserved { get; }
-
-        public bool HasKit { get; }
-
-        public ISupportedChampion? Supported { get; }
-
-        public double Stacks { get; }
-
-        public FightScorer Scorer { get; }
+        public FightScorer Scorer => Fights.Scorer;
 
         public double? MeasuredIncome { get; }
 
@@ -218,19 +178,10 @@ public sealed class SampleRecommendations : IRecommendationSource
             .OrderByDescending(e => Gain(e.DpsBefore, e.DpsAfter))
             .ToList();
 
-        var total = fights.Sum(f => f.After.Damage);
-        var split = fights
-            .SelectMany(f => f.After.DamageBySource)
-            .GroupBy(d => d.Key)
-            .Select(g => new DamageShareDto(g.Key, total > 0 ? g.Sum(d => d.Value) / total : 0))
-            .OrderByDescending(s => s.Share)
-            .ToList();
-
         return new ImpactDto(
             perEnemy.Count > 0 ? perEnemy.Average(e => e.DpsBefore) : 0,
             perEnemy.Count > 0 ? perEnemy.Average(e => e.DpsAfter) : 0,
-            perEnemy,
-            split);
+            perEnemy);
     }
 
     private IReadOnlyList<string> Why(Item item, PlanContext context, ImpactDto impact, IReadOnlyList<Item> after, double? goldNeeded)
@@ -251,11 +202,6 @@ public sealed class SampleRecommendations : IRecommendationSource
         if (slowest is { TtkBefore: { } ttkBefore, TtkAfter: { } ttkAfter })
         {
             reasons.Add($"Time to kill {slowest.Champion}, the hardest target: {ttkBefore:0.0}s → {ttkAfter:0.0}s");
-        }
-
-        if (impact.Split.Count > 1)
-        {
-            reasons.Add("Your damage after buying: " + string.Join(", ", impact.Split.Take(4).Select(s => $"{s.Source} {Pct(s.Share)}")));
         }
 
         var enemies = context.Enemies;
@@ -394,29 +340,6 @@ public sealed class SampleRecommendations : IRecommendationSource
         return result;
     }
 
-    private IReadOnlyList<CastHintDto> CastHints(PlanContext context, List<Item> owned)
-    {
-        if (context.Supported is not { } supported)
-        {
-            return [];
-        }
-
-        var us = context.Scorer.Us(owned);
-
-        return context.Enemies
-            .SelectMany(e => supported
-                .Hints(new FightSetup(us, e.Entity, context.Ranks, context.Stacks))
-                .Select(h => new CastHintDto(
-                    e.Player.Champion.Name,
-                    GameStateMapper.ChampionIconUrl(_patch, e.Player.Champion.Icon),
-                    h.Ability,
-                    h.CastAtHealth,
-                    e.Entity.MaxHealth,
-                    h.KillingHealth,
-                    h.Additions.Select(a => $"+{a.Damage:0} {a.When}").ToList())))
-            .ToList();
-    }
-
     private (double Score, List<string> Sources) EnemyHealing(PlanContext context)
     {
         var enemies = context.Enemies;
@@ -462,7 +385,7 @@ public sealed class SampleRecommendations : IRecommendationSource
 
         if (!plan.CompletesTarget && plan.Buy.Count > 0)
         {
-            why.Add("Components are picked for the most damage now; when options are about equal, the more expensive ones go first");
+            why.Add($"Components are picked for the most damage now, with a {ComponentPurchase.BasicComponentWeight * 100:0}% bonus per 1000 gold of basic components (like B. F. Sword or Pickaxe), which are harder to fit into a later recall");
         }
 
         return new PurchaseDto(

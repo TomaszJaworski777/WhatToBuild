@@ -66,7 +66,8 @@ public static class GameStateMapper
     private static PlayerDto MapPlayer(GameState state, PlayerState player, NeutralRepository neutrals, string patch)
     {
         var exact = player.IsActivePlayer && state.ActivePlayerStats is not null;
-        var stats = exact ? state.ActivePlayerStats! : state.EntityFor(player, neutrals).Stats;
+        var rebuilt = state.EntityFor(player, neutrals).Stats;
+        var stats = exact ? state.ActivePlayerStats! : rebuilt;
 
         return new PlayerDto(
             player.Champion.Name,
@@ -80,7 +81,7 @@ public static class GameStateMapper
             player.Assists,
             player.CreepScore,
             player.ItemValue,
-            player.Items.Select(i => MapItem(i.Item, i.Count, patch)).ToList(),
+            player.Items.Select(i => MapItem(i.Item, i.Count, patch, i.Slot)).ToList(),
             new StatsDto(
                 stats.Health,
                 stats.AttackDamage,
@@ -89,12 +90,13 @@ public static class GameStateMapper
                 stats.MagicResist,
                 stats.AttackSpeed,
                 stats.MoveSpeed,
-                stats.Tenacity),
+                rebuilt.Tenacity),
+            player.IsActivePlayer ? state.ActivePlayerCurrentHealth : null,
             exact,
             player.EstimatedStacks.Select(s => new StackDto(s.Stat.Name, s.Stacks, s.Max)).ToList());
     }
 
-    public static ItemDto MapItem(Item item, int count, string patch) =>
+    public static ItemDto MapItem(Item item, int count, string patch, int slot = -1) =>
         new(
             item.RiotId,
             item.Name,
@@ -102,7 +104,8 @@ public static class GameStateMapper
             count,
             item.Cost,
             ItemDescriber.StatLines(item.Stats),
-            ItemDescriber.EffectLines(item.Effects));
+            ItemDescriber.EffectLines(item.Effects),
+            slot);
 
     private static int PositionRank(string position)
     {

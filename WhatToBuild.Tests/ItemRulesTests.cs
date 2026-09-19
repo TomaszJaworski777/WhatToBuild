@@ -106,12 +106,21 @@ public class ItemRulesTests
     }
 
     [TestMethod]
-    public void EqualScoresPreferTheBiggerComponents()
+    public void EqualDamagePrefersBigBasicComponents()
     {
         var plan = ComponentPurchase.Plan(Ldr, [], 1300, _items, new FlatScorer());
-        var unscored = ComponentPurchase.Plan(Ldr, [], 1300, _items);
+        var basicGold = plan.Buy.Where(i => i.BuildPath.Count == 0).Sum(i => i.Cost);
 
-        Assert.AreEqual(unscored.Cost, plan.Cost);
+        Assert.IsTrue(plan.Buy.All(i => i.BuildPath.Count == 0));
+        Assert.IsGreaterThan(0, basicGold);
+    }
+
+    [TestMethod]
+    public void DamageOutweighsTheBasicBonus()
+    {
+        var plan = ComponentPurchase.Plan(Ldr, [], 1000, _items, new CritScorer());
+
+        Assert.IsGreaterThan(0, plan.InventoryAfter.Sum(i => i.Stats.CritChance));
     }
 
     private sealed class CritScorer : IPurchaseScorer

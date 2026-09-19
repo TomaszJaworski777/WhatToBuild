@@ -10,7 +10,7 @@ public enum Team
     Chaos,
 }
 
-public sealed record OwnedItem(Item Item, int Count);
+public sealed record OwnedItem(Item Item, int Count, int Slot = -1);
 
 public sealed record StackEstimate(Stat Stat, double Stacks, double Max = 0, bool Observed = false, double? High = null);
 
@@ -80,6 +80,8 @@ public sealed class GameState
     public StatSheet? ActivePlayerStats { get; init; }
 
     public AbilityRanks? ActivePlayerRanks { get; init; }
+
+    public double? ActivePlayerCurrentHealth { get; init; }
 
     public IReadOnlyList<int> UnknownItemIds { get; init; } = [];
 
