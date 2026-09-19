@@ -1,0 +1,117 @@
+{
+  "activePlayer": {
+    "championStats": {
+      "abilityPower": 0.0,
+      "armor": 71.5,
+      "attackDamage": 148.0,
+      "attackRange": 500.0,
+      "attackSpeed": 1.21,
+      "magicResist": 42.1,
+      "maxHealth": 1640.0,
+      "moveSpeed": 385.0,
+      "resourceMax": 690.0,
+      "healthRegenRate": 1.9,
+      "resourceRegenRate": 1.8
+    },
+    "currentGold": 850.0,
+    "level": 11,
+    "riotId": "Ally One#TAG",
+    "riotIdGameName": "Ally One",
+    "summonerName": "Ally One#TAG"
+  },
+  "allPlayers": [
+    {
+      "championName": "Kindred",
+      "rawChampionName": "game_character_displayname_Kindred",
+      "isDead": false,
+      "items": [
+        { "itemID": 6672, "count": 1, "slot": 0 },
+        { "itemID": 3006, "count": 1, "slot": 1 }
+      ],
+      "level": 11,
+      "position": "JUNGLE",
+      "scores": { "assists": 4, "creepScore": 120, "deaths": 2, "kills": 5, "wardScore": 8.0 },
+      "riotId": "Ally One#TAG",
+      "riotIdGameName": "Ally One",
+      "summonerName": "Ally One#TAG",
+      "team": "ORDER"
+    },
+    {
+      "championName": "Soraka",
+      "rawChampionName": "game_character_displayname_Soraka",
+      "isDead": true,
+      "items": [],
+      "level": 9,
+      "position": "UTILITY",
+      "scores": { "assists": 9, "creepScore": 15, "deaths": 3, "kills": 0, "wardScore": 20.0 },
+      "riotId": "Ally Two#TAG",
+      "riotIdGameName": "Ally Two",
+      "summonerName": "Ally Two#TAG",
+      "team": "ORDER"
+    },
+    {
+      "championName": "Garen",
+      "rawChampionName": "game_character_displayname_Garen",
+      "isDead": false,
+      "items": [
+        { "itemID": 3143, "count": 1, "slot": 0 },
+        { "itemID": 3047, "count": 1, "slot": 1 },
+        { "itemID": 2003, "count": 2, "slot": 2 },
+        { "itemID": 999999, "count": 1, "slot": 3 }
+      ],
+      "level": 12,
+      "position": "TOP",
+      "scores": { "assists": 1, "creepScore": 160, "deaths": 1, "kills": 3, "wardScore": 4.0 },
+      "riotId": "Enemy One#TAG",
+      "riotIdGameName": "Enemy One",
+      "summonerName": "Enemy One#TAG",
+      "team": "CHAOS"
+    },
+    {
+      "championName": "Veigar",
+      "rawChampionName": "game_character_displayname_Veigar",
+      "isDead": false,
+      "items": [],
+      "level": 11,
+      "position": "MIDDLE",
+      "scores": { "assists": 2, "creepScore": 140, "deaths": 1, "kills": 2, "wardScore": 5.0 },
+      "riotId": "Enemy Two#TAG",
+      "riotIdGameName": "Enemy Two",
+      "summonerName": "Enemy Two#TAG",
+      "team": "CHAOS"
+    },
+    {
+      "championName": "Wukong",
+      "rawChampionName": "game_character_displayname_MonkeyKing",
+      "isDead": false,
+      "items": [],
+      "level": 10,
+      "position": "JUNGLE",
+      "scores": { "assists": 3, "creepScore": 100, "deaths": 2, "kills": 1, "wardScore": 6.0 },
+      "riotId": "Enemy Three#TAG",
+      "riotIdGameName": "Enemy Three",
+      "summonerName": "Enemy Three#TAG",
+      "team": "CHAOS"
+    }
+  ],
+  "events": {
+    "Events": [
+      { "EventID": 0, "EventName": "GameStart", "EventTime": 0.0 },
+      { "EventID": 1, "EventName": "DragonKill", "EventTime": 330.0, "DragonType": "Fire", "Stolen": "False", "KillerName": "Ally One", "Assisters": [] },
+      { "EventID": 2, "EventName": "HeraldKill", "EventTime": 480.0, "Stolen": "False", "KillerName": "Ally Two#TAG", "Assisters": [] },
+      { "EventID": 3, "EventName": "DragonKill", "EventTime": 640.0, "DragonType": "Earth", "Stolen": "False", "KillerName": "Enemy One", "Assisters": [] },
+      { "EventID": 4, "EventName": "TurretKilled", "EventTime": 700.0, "TurretKilled": "Turret_T2_L_03_A", "KillerName": "Minion_T100L1S12N0010", "Assisters": [] },
+      { "EventID": 5, "EventName": "InhibKilled", "EventTime": 900.0, "InhibKilled": "Barracks_T1_R1", "KillerName": "Enemy Three", "Assisters": [] },
+      { "EventID": 6, "EventName": "BaronKill", "EventTime": 1150.0, "Stolen": "True", "KillerName": "Enemy Three#TAG", "Assisters": [] },
+      { "EventID": 7, "EventName": "DragonKill", "EventTime": 1180.0, "DragonType": "Elder", "Stolen": "False", "KillerName": "Ally One", "Assisters": [] },
+      { "EventID": 8, "EventName": "ChampionKill", "EventTime": 1190.0, "VictimName": "Ally Two", "KillerName": "Enemy Two", "Assisters": [] }
+    ]
+  },
+  "gameData": {
+    "gameMode": "CLASSIC",
+    "gameTime": 1200.0,
+    "mapName": "Map11",
+    "mapNumber": 11,
+    "mapTerrain": "Default"
+  }
+}

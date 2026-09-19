@@ -21,7 +21,7 @@ public class NeutralTests
     [TestMethod]
     public void LoadsEveryUnit()
     {
-        Assert.AreEqual(29, _neutrals.Count);
+        Assert.AreEqual(28, _neutrals.Count);
         Assert.IsNotEmpty(_neutrals.InCamp("Wolves").ToList());
         Assert.IsNotEmpty(_neutrals.InCamp("Dragon").ToList());
     }
@@ -102,6 +102,42 @@ public class NeutralTests
         {
             Assert.IsGreaterThan(1, n.Base.Health, $"{n.Name} has no health.");
             Assert.IsGreaterThan(0, n.Base.AttackDamage, $"{n.Name} has no attack damage.");
+        }
+    }
+
+    [TestMethod]
+    public void EverySoulIsKnown()
+    {
+        CollectionAssert.AreEquivalent(
+            new[] { "Water", "Earth", "Fire", "Air", "Hextech", "Chemtech" },
+            _neutrals.Souls.Keys.ToList());
+    }
+
+    [TestMethod]
+    public void SoulsSayWhatKindOfPowerTheyGive()
+    {
+        Assert.IsGreaterThan(0, _neutrals.SoulFor("Water")!.Tag("healing"));
+        Assert.IsGreaterThan(0, _neutrals.SoulFor("Earth")!.Tag("shielding"));
+        Assert.IsGreaterThan(0, _neutrals.SoulFor("Fire")!.Tag("burst"));
+        Assert.IsEmpty(_neutrals.SoulFor("Air")!.Tags);
+        Assert.IsNull(_neutrals.SoulFor(null));
+    }
+
+    [TestMethod]
+    public void SoulTagsUseTheChampionVocabulary()
+    {
+        var vocabulary = new HashSet<string>
+        {
+            "tank", "adDamageDealer", "apDamageDealer", "burst", "trueDamage",
+            "healing", "shielding", "crowdControl", "ranged", "melee",
+        };
+
+        foreach (var (type, soul) in _neutrals.Souls)
+        {
+            foreach (var tag in soul.Tags.Keys)
+            {
+                Assert.Contains(tag, vocabulary, $"{type} soul has unknown tag '{tag}'.");
+            }
         }
     }
 

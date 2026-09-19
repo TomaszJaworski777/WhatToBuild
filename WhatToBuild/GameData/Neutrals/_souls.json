@@ -1,0 +1,8 @@
+{
+  "Water":    { "name": "Ocean Soul",    "tags": { "healing": 0.6 } },
+  "Earth":    { "name": "Mountain Soul", "tags": { "shielding": 0.6 } },
+  "Fire":     { "name": "Infernal Soul", "tags": { "burst": 0.4 } },
+  "Air":      { "name": "Cloud Soul",    "tags": {} },
+  "Hextech":  { "name": "Hextech Soul",  "tags": { "burst": 0.3, "crowdControl": 0.3 } },
+  "Chemtech": { "name": "Chemtech Soul", "tags": { "healing": 0.3, "shielding": 0.3 } }
+}

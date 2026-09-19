@@ -28,6 +28,9 @@ public class ChampionRepository
 
     public Champion? ByInternalName(string internalName) => _byInternalName.GetValueOrDefault(internalName);
 
+    public Champion? ByName(string name) =>
+        All.FirstOrDefault(c => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
+
     public static ChampionRepository Load(string dataRoot)
     {
         var champions = Directory

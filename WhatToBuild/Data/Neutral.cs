@@ -85,20 +85,37 @@ public class Neutral
     public override string ToString() => Name;
 }
 
+public class DragonSoul
+{
+    public string Name { get; set; } = "";
+
+    public Dictionary<string, double> Tags { get; set; } = new();
+
+    public double Tag(string name) => Tags.GetValueOrDefault(name);
+}
+
 public class NeutralRepository
 {
     public const string FolderName = "Neutrals";
     public const string ScalingFileName = "_scaling.json";
+    public const string SoulsFileName = "_souls.json";
 
     private readonly Dictionary<string, Neutral> _byInternalName;
+    private readonly Dictionary<string, DragonSoul> _souls;
 
-    public NeutralRepository(IEnumerable<Neutral> neutrals, NeutralScaling scaling)
+    public NeutralRepository(IEnumerable<Neutral> neutrals, NeutralScaling scaling, IDictionary<string, DragonSoul>? souls = null)
     {
         Scaling = scaling;
         _byInternalName = neutrals.ToDictionary(n => n.InternalName, StringComparer.OrdinalIgnoreCase);
+        _souls = new Dictionary<string, DragonSoul>(souls ?? new Dictionary<string, DragonSoul>(), StringComparer.OrdinalIgnoreCase);
     }
 
     public NeutralScaling Scaling { get; }
+
+    public IReadOnlyDictionary<string, DragonSoul> Souls => _souls;
+
+    public DragonSoul? SoulFor(string? dragonType) =>
+        dragonType is null ? null : _souls.GetValueOrDefault(dragonType);
 
     public IReadOnlyCollection<Neutral> All => _byInternalName.Values;
 
@@ -119,13 +136,18 @@ public class NeutralRepository
                           File.ReadAllText(Path.Combine(folder, ScalingFileName)), GameDataJson.Options)
                       ?? throw new InvalidDataException($"{ScalingFileName} is not valid.");
 
+        var soulsPath = Path.Combine(folder, SoulsFileName);
+        var souls = File.Exists(soulsPath)
+            ? JsonSerializer.Deserialize<Dictionary<string, DragonSoul>>(File.ReadAllText(soulsPath), GameDataJson.Options)
+            : null;
+
         var neutrals = Directory
             .EnumerateFiles(folder, "*.json")
-            .Where(f => Path.GetFileName(f) != ScalingFileName)
+            .Where(f => !Path.GetFileName(f).StartsWith('_'))
             .Select(Read)
             .ToList();
 
-        return new NeutralRepository(neutrals, scaling);
+        return new NeutralRepository(neutrals, scaling, souls);
     }
 
     private static Neutral Read(string path)

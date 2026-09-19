@@ -19,4 +19,8 @@
     <ProjectReference Include="..\WhatToBuild\WhatToBuild.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Fixtures\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

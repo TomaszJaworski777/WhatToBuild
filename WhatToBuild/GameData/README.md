@@ -146,6 +146,10 @@ mobility into damage, which is already the scoring currency.
 
 Jungle camps, epic monsters and minions, one file per unit in `Neutrals/`.
 
+The game files still contain units that are no longer in the game — Atakhan is in the
+16.18 map data but was removed from the Rift, so it is not shipped here. Being present
+in the data is not proof a unit is live.
+
 ```json
 {
   "internalName": "SRU_Murkwolf",
@@ -171,6 +175,30 @@ Attack interval is not stored, because it is `1 / attackSpeed`. The game data al
 carries an explicit attack animation time, and where both exist they agree — Murkwolf
 is 1.6s either way — but four units have no explicit value, so deriving it is both
 shorter and more complete.
+
+### Dragon souls
+
+`_souls.json` maps each dragon type to the kind of power its soul grants, using the
+champion tag vocabulary:
+
+```json
+"Water": { "name": "Ocean Soul", "tags": { "healing": 0.6 } }
+```
+
+A soul is a team-wide buff that no item or champion reveals, which is exactly why it
+matters here: an enemy Ocean Soul is a reason to buy Grievous Wounds even when none
+of the enemy champions heal, and Mountain Soul does the same for Serpent's Fang.
+
+What each soul does is backed by the data — the map file names them through its URF
+multipliers (`OceanSoulRegenMultiplier`, `MountainSoulShieldMultiplier`,
+`InfernalSoulBaseDamageMultiplier`, `CloudSoulMSMultiplier`). The weights are
+judgement; the buff values themselves are not in the game data we read. Cloud Soul
+has no tags because movement speed is not priced anywhere.
+
+The soul type is worked out from the game rather than stored: the third dragon fixes
+the element of the Rift, so a team's fourth dragon is always that element. The parser
+takes the type of the dragon that brings a team to four, ignoring Elder, after
+sorting events by time.
 
 ### Armor and magic resist
 
