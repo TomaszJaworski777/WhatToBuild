@@ -137,6 +137,25 @@ public class StatCalculatorTests
     }
 
     [TestMethod]
+    public void TenacityStacksMultiplicatively()
+    {
+        var mercurys = _items.ByRiotId(3111)!;
+        var chemtech = _neutrals.DragonFor("Chemtech")!.BuffsFor(2);
+
+        var stats = StatCalculator.ForChampion(Kindred, 1, [mercurys], chemtech);
+
+        Assert.AreEqual(1 - 0.70 * 0.88, stats.Tenacity, 0.0001);
+        Assert.IsLessThan(0.30 + 0.12, stats.Tenacity);
+    }
+
+    [TestMethod]
+    public void TenacityNeverReachesOneHundredPercent()
+    {
+        Assert.IsLessThan(1, StatCalculator.StackMultiplicatively([0.3, 0.3, 0.3, 0.3, 0.3, 0.3]));
+        Assert.AreEqual(0, StatCalculator.StackMultiplicatively([]), 0.0001);
+    }
+
+    [TestMethod]
     public void NeutralsScaleWithTime()
     {
         var murkwolf = _neutrals.ByInternalName("SRU_Murkwolf")!;

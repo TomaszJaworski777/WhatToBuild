@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Content Update="GameData\**\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Update="Replays\**\*.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

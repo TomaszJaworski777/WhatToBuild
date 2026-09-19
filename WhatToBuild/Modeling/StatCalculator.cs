@@ -71,7 +71,33 @@ public static class StatCalculator
             Scale(sheet, group.Key, 1 + group.Sum(m => m.Percent));
         }
 
+        sheet.Tenacity = StackMultiplicatively(TenacitySources(itemList, modifierList));
+
         return sheet;
+    }
+
+    public static double StackMultiplicatively(IEnumerable<double> sources) =>
+        1 - sources.Aggregate(1.0, (remaining, source) => remaining * (1 - source));
+
+    private static IEnumerable<double> TenacitySources(List<Item> items, List<StatModifier> modifiers)
+    {
+        foreach (var item in items)
+        {
+            if (item.Stats.TenacityPercent > 0)
+            {
+                yield return item.Stats.TenacityPercent;
+            }
+
+            foreach (var effect in item.Effects.Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.TenacityPercent))
+            {
+                yield return effect.Amount;
+            }
+        }
+
+        foreach (var modifier in modifiers.Where(m => m.Stat == Stats.TenacityPercent && m.Flat > 0))
+        {
+            yield return modifier.Flat;
+        }
     }
 
     public static StatSheet ForNeutral(Neutral neutral, NeutralScaling scaling, double gameTimeSeconds)

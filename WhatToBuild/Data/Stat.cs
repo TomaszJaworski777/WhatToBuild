@@ -117,6 +117,11 @@ public sealed class EnemyMagicDamageAmpStat : Stat
     public override bool TargetsEnemy => true;
 }
 
+public sealed class AttackRangeStat : Stat
+{
+    public override string Name => "attackRange";
+}
+
 public sealed class AdaptiveForceStat : Stat
 {
     public override string Name => "adaptiveForce";
@@ -147,6 +152,7 @@ public static class Stats
     public static readonly Stat AbilityPower = new AbilityPowerStat();
     public static readonly Stat AbilityDamage = new AbilityDamageStat();
     public static readonly Stat AdaptiveForce = new AdaptiveForceStat();
+    public static readonly Stat AttackRange = new AttackRangeStat();
     public static readonly Stat AbilityHaste = new AbilityHasteStat();
     public static readonly Stat MoveSpeedPercent = new MoveSpeedPercentStat();
     public static readonly Stat TenacityPercent = new TenacityPercentStat();
@@ -167,7 +173,7 @@ public static class Stats
     public static IReadOnlyList<Stat> All { get; } = new[]
     {
         AttackDamage, AbilityPower, AbilityDamage, AdaptiveForce, Health, Armor, MagicResist,
-        AbilityHaste, MoveSpeedPercent, TenacityPercent,
+        AbilityHaste, MoveSpeedPercent, TenacityPercent, AttackRange,
         AttackSpeed, AttackSpeedPercent, CritChance, OmnivampPercent,
         HealAndShieldPowerPercent, ArmorPenetrationPercent,
         DamageAmp, AbilityPowerAmp, EnemyAttackSpeedPercent, EnemyMagicDamageAmp,

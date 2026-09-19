@@ -264,12 +264,68 @@ public class GameStateTests
     }
 
     [TestMethod]
-    public void OurOwnStacksAreNotEstimated()
+    [DataRow(500.0, 0.0, 3.0)]
+    [DataRow(575.0, 4.0, 7.0)]
+    [DataRow(600.0, 8.0, 11.0)]
+    [DataRow(700.0, 24.0, 27.0)]
+    public void KindredMarksAreReadFromAttackRange(double range, double low, double high)
     {
-        var kindred = MidGame().ActivePlayer!;
+        var marks = WithOurRange(range).ActivePlayer!.EstimatedStacks.Single();
 
-        Assert.IsNotEmpty(kindred.Champion.Stacking);
-        Assert.IsEmpty(kindred.EstimatedStacks);
+        Assert.IsTrue(marks.Observed);
+        Assert.AreSame(Stats.AbilityDamage, marks.Stat);
+        Assert.AreEqual(low, marks.Stacks, 0.001);
+        Assert.AreEqual(high, marks.High!.Value, 0.001);
+    }
+
+    [TestMethod]
+    public void MaxedMarksHaveNoUpperBound()
+    {
+        var marks = WithOurRange(750).ActivePlayer!.EstimatedStacks.Single();
+
+        Assert.AreEqual(32, marks.Stacks, 0.001);
+        Assert.IsNull(marks.High);
+    }
+
+    [TestMethod]
+    public void OffStepRangeFallsBackToTheEstimate()
+    {
+        var state = WithOurRange(610);
+        var marks = state.ActivePlayer!.EstimatedStacks.Single();
+
+        Assert.IsFalse(marks.Observed);
+        Assert.AreEqual(state.ActivePlayer.Champion.Stacking.Single().InitialStacksPerMinute * 20, marks.Stacks, 0.001);
+    }
+
+    [TestMethod]
+    public void OnlyOurMarksAreRead()
+    {
+        var node = JsonNode.Parse(Fixture("midgame.json"))!;
+        node["activePlayer"]!["championStats"]!["attackRange"] = 600.0;
+        var players = node["allPlayers"]!.AsArray();
+        players[0]!["team"] = "CHAOS";
+        node["activePlayer"]!["riotId"] = "Ally Two#TAG";
+        node["activePlayer"]!["riotIdGameName"] = "Ally Two";
+        node["activePlayer"]!["summonerName"] = "Ally Two#TAG";
+
+        var state = GameStateParser.Parse(node.ToJsonString(), _champions, _items);
+        var kindred = state.Find(Champ("Kindred"))!;
+
+        Assert.IsFalse(kindred.IsActivePlayer);
+        Assert.IsFalse(kindred.EstimatedStacks.Single().Observed);
+    }
+
+    [TestMethod]
+    public void OurStatsStayExact()
+    {
+        Assert.AreEqual(148, MidGame().ActivePlayerStats!.AttackDamage, 0.001);
+    }
+
+    private static GameState WithOurRange(double range)
+    {
+        var node = JsonNode.Parse(Fixture("midgame.json"))!;
+        node["activePlayer"]!["championStats"]!["attackRange"] = range;
+        return GameStateParser.Parse(node.ToJsonString(), _champions, _items);
     }
 
     [TestMethod]

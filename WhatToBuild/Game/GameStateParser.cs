@@ -17,6 +17,7 @@ public static class GameStateParser
         var gameTime = Number(root, "gameData", "gameTime");
         var active = root.TryGetProperty("activePlayer", out var a) ? a : default;
         var activeNames = active.ValueKind == JsonValueKind.Object ? Names(active) : [];
+        var activeStats = active.ValueKind == JsonValueKind.Object ? ReadStats(active) : null;
 
         var players = new List<PlayerState>();
         var teamByName = new Dictionary<string, Team>(StringComparer.OrdinalIgnoreCase);
@@ -42,17 +43,15 @@ public static class GameStateParser
                 teamByName[name] = team;
             }
 
+            var owned = ReadItems(raw, items, unknownItems);
+
             players.Add(new PlayerState
             {
                 Champion = champion,
                 Team = team,
                 Level = (int)Number(raw, "level"),
-                Items = ReadItems(raw, items, unknownItems),
-                EstimatedStacks = isActive
-                    ? []
-                    : champion.Stacking
-                        .Select(s => new StackEstimate(s.Stat, s.InitialStacksPerMinute * gameTime / 60))
-                        .ToList(),
+                Items = owned,
+                EstimatedStacks = Stacks(champion, gameTime, isActive ? activeStats : null, owned),
                 Kills = (int)Number(raw, "scores", "kills"),
                 Deaths = (int)Number(raw, "scores", "deaths"),
                 Assists = (int)Number(raw, "scores", "assists"),
@@ -69,10 +68,35 @@ public static class GameStateParser
             CurrentGold = active.ValueKind == JsonValueKind.Object ? Number(active, "currentGold") : 0,
             Players = players,
             Objectives = ReadObjectives(root, teamByName),
-            ActivePlayerStats = active.ValueKind == JsonValueKind.Object ? ReadStats(active) : null,
+            ActivePlayerStats = activeStats,
             UnknownItemIds = unknownItems,
             UnknownChampions = unknownChampions,
         };
+    }
+
+    private static List<StackEstimate> Stacks(Champion champion, double gameTime, StatSheet? observedStats, List<OwnedItem> owned)
+    {
+        var estimates = champion.Stacking
+            .Select(s => new StackEstimate(s.Stat, s.InitialStacksPerMinute * gameTime / 60, s.Max))
+            .ToList();
+
+        if (observedStats is null || champion.StackReading is not { } reading || estimates.Count == 0)
+        {
+            return estimates;
+        }
+
+        var fromItems = owned.Sum(i => i.Item.Stats.AttackRange * i.Count);
+        var bonus = observedStats.AttackRange - champion.Base.AttackRange - fromItems;
+
+        if (reading.Read(bonus) is not { } readout)
+        {
+            return estimates;
+        }
+
+        var first = estimates[0];
+        estimates[0] = first with { Stacks = readout.Low, Observed = true, High = readout.High };
+
+        return estimates;
     }
 
     private static Champion? ResolveChampion(JsonElement raw, ChampionRepository champions)
@@ -191,6 +215,7 @@ public static class GameStateParser
             ManaRegen = Number(s, "resourceRegenRate"),
             MoveSpeed = Number(s, "moveSpeed"),
             AttackRange = Number(s, "attackRange"),
+            Tenacity = Number(s, "tenacity") / 100,
         };
     }
 

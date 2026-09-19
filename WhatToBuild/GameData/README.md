@@ -348,6 +348,21 @@ This matters only for enemies. Your own stats arrive from the Live Client API wi
 stacks already included, but enemies are reconstructed from base + growth + items,
 so without this a 30-minute Veigar reads as having only his item AP.
 
+The Live Client API never reports stack counts. A champion whose stacks move a stat we
+can see can carry a `stackReading` table instead, and then our own count is read from
+that stat rather than estimated:
+
+```json
+"stackReading": { "stat": "attackRange", "steps": [ { "stacks": 4, "bonus": 75 }, { "stacks": 8, "bonus": 100 } ] }
+```
+
+`bonus` is the observed stat minus the base value and what items give. A bonus of 0
+means fewer than the first step; a bonus matching a step (±1) means at least that many
+stacks and fewer than the next step. Anything else (a temporary range buff, say) falls
+back to the estimate. Only Kindred has one: every 4 marks add attack range. The step
+sizes (75, then +25 per 4 marks up to 250 at 32) come from the 75–250 range and the
+"every 4 hunts" rule; check them against a real game after a patch.
+
 Two of these champions show it in their growth as well: Senna has no attack damage
 per level and Thresh has no armor per level, because both gain it from stacks.
 

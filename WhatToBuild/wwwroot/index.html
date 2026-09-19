@@ -4,9 +4,60 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>WhatToBuild</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="app.css" />
 </head>
 <body>
-    <h1>WhatToBuild</h1>
-    <p>Placeholder page. Nothing is connected yet.</p>
+    <div class="shell">
+        <header class="topbar">
+            <div class="brand">
+                <span class="brand-mark"></span>
+                <span class="brand-name">WhatToBuild</span>
+            </div>
+            <div class="meta">
+                <span id="patch" class="patch"></span>
+                <span id="status" class="status status-connecting">Connecting</span>
+            </div>
+        </header>
+
+        <section id="waiting" class="waiting" hidden>
+            <div class="waiting-ring"></div>
+            <h1>Waiting for a game</h1>
+            <p>The scoreboard appears as soon as a Summoner's Rift game is running.</p>
+        </section>
+
+        <main id="game" hidden>
+            <section class="scoreboard">
+                <div class="side side-order">
+                    <span class="side-label">Blue side</span>
+                    <span id="order-kills" class="kills">0</span>
+                </div>
+                <div class="clock">
+                    <span id="clock">00:00</span>
+                    <span class="clock-label">Game time</span>
+                </div>
+                <div class="side side-chaos">
+                    <span id="chaos-kills" class="kills">0</span>
+                    <span class="side-label">Red side</span>
+                </div>
+            </section>
+
+            <section class="teams">
+                <article id="team-order" class="team team-order"></article>
+                <article id="team-chaos" class="team team-chaos"></article>
+            </section>
+
+            <section id="build" class="build" hidden></section>
+
+            <p id="unknown" class="unknown" hidden></p>
+        </main>
+    </div>
+
+    <div id="tip" class="tip" hidden></div>
+
+    <script src="lib/signalr.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

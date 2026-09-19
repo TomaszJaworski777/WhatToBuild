@@ -11,7 +11,7 @@ public enum Team
 
 public sealed record OwnedItem(Item Item, int Count);
 
-public sealed record StackEstimate(Stat Stat, double Stacks);
+public sealed record StackEstimate(Stat Stat, double Stacks, double Max = 0, bool Observed = false, double? High = null);
 
 public sealed class PlayerState
 {
