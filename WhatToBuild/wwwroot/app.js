@@ -337,6 +337,31 @@ function percentGain(before, after) {
     return before > 0 ? Math.round((after / before - 1) * 100) : 0;
 }
 
+function ttk(seconds) {
+    return seconds == null ? "30s+" : `${seconds.toFixed(1)}s`;
+}
+
+const SPLIT_COLORS = ["#c8aa6e", "#0ac8b9", "#3a9fe0", "#e84057", "#b58cff", "#93d14b", "#a09b8c"];
+
+function renderSplit(split) {
+    if (!split || split.length < 2) {
+        return "";
+    }
+
+    const bars = split.map((s, i) =>
+        `<span style="width:${(s.share * 100).toFixed(1)}%;background:${SPLIT_COLORS[i % SPLIT_COLORS.length]}" title="${esc(s.source)} ${Math.round(s.share * 100)}%"></span>`).join("");
+
+    const legend = split.map((s, i) =>
+        `<span class="split-key"><i style="background:${SPLIT_COLORS[i % SPLIT_COLORS.length]}"></i>${esc(s.source)} <b>${Math.round(s.share * 100)}%</b></span>`).join("");
+
+    return `
+        <div class="split">
+            <div class="build-label">Where your damage comes from after buying</div>
+            <div class="split-bar">${bars}</div>
+            <div class="split-legend">${legend}</div>
+        </div>`;
+}
+
 function renderImpact(impact) {
     if (!impact || !impact.perEnemy.length) {
         return "";
@@ -349,6 +374,7 @@ function renderImpact(impact) {
         return `
             <tr>
                 <td class="impact-champ"><img src="${esc(e.icon)}" alt="" />${esc(e.champion)}</td>
+                <td class="impact-dps">${ttk(e.ttkBefore)} → <b>${ttk(e.ttkAfter)}</b></td>
                 <td class="impact-dps">${Math.round(e.dpsBefore)} → <b>${Math.round(e.dpsAfter)}</b></td>
                 <td class="impact-bar"><span style="width:${Math.max(4, (gain / best) * 100)}%"></span><em>+${gain}%</em></td>
                 <td class="impact-note">${esc(e.note)}</td>
@@ -357,9 +383,39 @@ function renderImpact(impact) {
 
     return `
         <table class="impact">
-            <thead><tr><th>Enemy</th><th>Your DPS</th><th>Gain</th><th>Their stats</th></tr></thead>
+            <thead><tr><th>Enemy</th><th>Time to kill</th><th>DPS</th><th>Gain</th><th>Their stats</th></tr></thead>
             <tbody>${rows}</tbody>
-        </table>`;
+        </table>
+        ${renderSplit(impact.split)}`;
+}
+
+function renderCastHints(hints) {
+    if (!hints || !hints.length) {
+        return "";
+    }
+
+    const rows = hints.map((h) => {
+        const share = Math.min(100, (h.castAtHealth / h.maxHealth) * 100);
+        const kill = Math.min(100, (h.killingHealth / h.maxHealth) * 100);
+        return `
+            <li class="hint">
+                <img src="${esc(h.icon)}" alt="" />
+                <div class="hint-main">
+                    <div class="hint-line"><b>${esc(h.ability)}</b> on ${esc(h.champion)} at <b>${Math.round(h.castAtHealth)}</b> HP <span class="hint-of">of ${Math.round(h.maxHealth)}</span></div>
+                    <div class="hint-bar" title="Cast at ${Math.round(h.castAtHealth)}, the pounce kills from ${Math.round(h.killingHealth)}">
+                        <span class="hint-cast" style="width:${share}%"></span>
+                        <span class="hint-kill" style="width:${kill}%"></span>
+                    </div>
+                    ${h.additions.length ? `<div class="hint-extra">${h.additions.map(esc).join(" · ")}</div>` : ""}
+                </div>
+            </li>`;
+    }).join("");
+
+    return `
+        <div class="cast-hints">
+            <div class="build-label">When to cast, with your current items</div>
+            <ul class="hints">${rows}</ul>
+        </div>`;
 }
 
 function renderNeeds(needs, gameTime) {
@@ -442,6 +498,7 @@ function renderBuild() {
             </div>
         </div>
         ${why}
+        ${renderCastHints(rec.castHints)}
         ${renderNeeds(rec.teamNeeds, state.gameTime)}
         <ul class="assumptions">${rec.assumptions.map((a) => `<li>${esc(a)}</li>`).join("")}</ul>`;
 }

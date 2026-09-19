@@ -5,7 +5,6 @@
     "icon":  "1056.png",
     "cost":  400,
     "groups":  [ "DoransItems" ],
-    "groups":  [ "DoransItems" ],
     "buildPath":  [
 
                   ],

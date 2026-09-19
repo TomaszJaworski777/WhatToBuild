@@ -1,5 +1,6 @@
 using System.Text.Json;
 using WhatToBuild.Data;
+using WhatToBuild.Modeling.Simulation;
 
 namespace WhatToBuild.Game;
 
@@ -69,6 +70,7 @@ public static class GameStateParser
             Players = players,
             Objectives = ReadObjectives(root, teamByName),
             ActivePlayerStats = activeStats,
+            ActivePlayerRanks = active.ValueKind == JsonValueKind.Object ? ReadRanks(active) : null,
             UnknownItemIds = unknownItems,
             UnknownChampions = unknownChampions,
         };
@@ -195,6 +197,20 @@ public static class GameStateParser
         : structure.Contains("_T2_", StringComparison.Ordinal) ? Team.Order
         : null;
 
+    private static AbilityRanks? ReadRanks(JsonElement active)
+    {
+        if (!active.TryGetProperty("abilities", out var abilities) || abilities.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        return new AbilityRanks(
+            (int)Number(abilities, "Q", "abilityLevel"),
+            (int)Number(abilities, "W", "abilityLevel"),
+            (int)Number(abilities, "E", "abilityLevel"),
+            (int)Number(abilities, "R", "abilityLevel"));
+    }
+
     private static StatSheet ReadStats(JsonElement active)
     {
         if (!active.TryGetProperty("championStats", out var s))
@@ -216,6 +232,7 @@ public static class GameStateParser
             MoveSpeed = Number(s, "moveSpeed"),
             AttackRange = Number(s, "attackRange"),
             Tenacity = Number(s, "tenacity") / 100,
+            AbilityHaste = Number(s, "abilityHaste"),
         };
     }
 

@@ -14,6 +14,7 @@ public class StatSheet
     public double MoveSpeed { get; set; }
     public double AttackRange { get; set; }
     public double Tenacity { get; set; }
+    public double AbilityHaste { get; set; }
 }
 
 public class ChampionStacking
@@ -64,17 +65,6 @@ public class StackReading
     }
 }
 
-public class CombatBuff
-{
-    public Stat Stat { get; set; } = Stats.AttackSpeedPercent;
-
-    public double Amount { get; set; }
-
-    public double PerStack { get; set; }
-
-    public double At(double stacks) => Amount + PerStack * stacks;
-}
-
 public class Champion
 {
     public Guid Id { get; set; }
@@ -98,8 +88,6 @@ public class Champion
     public List<ChampionStacking> Stacking { get; set; } = new();
 
     public StackReading? StackReading { get; set; }
-
-    public List<CombatBuff> CombatBuffs { get; set; } = new();
 
     public double Tag(string name) => Tags.GetValueOrDefault(name);
 

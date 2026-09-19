@@ -1,5 +1,6 @@
 using WhatToBuild.Data;
 using WhatToBuild.Modeling;
+using WhatToBuild.Modeling.Simulation;
 
 namespace WhatToBuild.Game;
 
@@ -77,6 +78,8 @@ public sealed class GameState
     public required IReadOnlyDictionary<Team, ObjectiveCounts> Objectives { get; init; }
 
     public StatSheet? ActivePlayerStats { get; init; }
+
+    public AbilityRanks? ActivePlayerRanks { get; init; }
 
     public IReadOnlyList<int> UnknownItemIds { get; init; } = [];
 

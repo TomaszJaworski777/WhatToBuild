@@ -1,23 +1,51 @@
 ﻿{
-    "id":  "71ea0076-eb76-6c06-6432-d7da7584740f",
-    "riotId":  1105,
-    "name":  "Mosstomper Seedling",
-    "icon":  "1105.png",
-    "cost":  450,
-    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
-    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
-    "buildPath":  [
-
-                  ],
-    "stats":  {
-
-              },
-    "effects":  [
-                    {
-                        "trigger":  "InCombat",
-                        "kind":  "Shield",
-                        "amount":  80,
-                        "cooldown":  10
-                    }
-                ]
+    "id": "71ea0076-eb76-6c06-6432-d7da7584740f",
+    "riotId": 1105,
+    "name": "Mosstomper Seedling",
+    "icon": "1105.png",
+    "cost": 450,
+    "groups": [
+        "GoldItems",
+        "HuntersTalismanGroup",
+        "DoransItems"
+    ],
+    "buildPath": [],
+    "stats": {},
+    "effects": [
+        {
+            "trigger": "InCombat",
+            "kind": "Shield",
+            "amount": 80,
+            "cooldown": 10
+        },
+        {
+            "trigger": "OnAttack",
+            "kind": "TrueDamage",
+            "amount": 37,
+            "area": true,
+            "byCompanion": true,
+            "when": [
+                {
+                    "subject": "Target",
+                    "property": "IsMonster",
+                    "op": "AtLeast",
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "damageAmp",
+            "amount": 0.1,
+            "when": [
+                {
+                    "subject": "Target",
+                    "property": "IsMonster",
+                    "op": "AtLeast",
+                    "value": 1
+                }
+            ]
+        }
+    ]
 }

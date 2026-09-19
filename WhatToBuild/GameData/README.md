@@ -93,6 +93,11 @@ CommunityDragon's `items.cdtb.bin.json` rather than written from memory.
 - `splash` — `true` when the damage hits enemies *around* the target but not the
   target itself (Tiamat, the Hydras, Stridebreaker, Runaan's bolts). Single-target
   damage leaves it out.
+- `area` — `true` when the damage hits the target *and* every enemy around it (the
+  jungle pets, which hit the whole camp). Fights are one target for now, so it only
+  matters once camps are simulated as a group.
+- `byCompanion` — `true` when another unit deals the damage (the jungle pet). Our
+  damage amps and penetration do not apply to it.
 - `rangedMultiplier` — the game gives many item effects a smaller value on ranged
   champions. `amount` and the scalings are the melee values, and ranged champions get
   them times this (Kraken 0.8, Ruined King 0.6667, Titanic 0.5). The numbers come from
@@ -129,7 +134,8 @@ comps it barely touches. `when` holds requirements that **all** have to hold:
 
 - `subject` — `Self` or `Target`
 - `property` — `HealthPercent` (0–1), `BonusHealth`, `MaxHealth`, `Armor`,
-  `MagicResist`, `Level`
+  `MagicResist`, `Level`, `IsMonster` (1 for jungle monsters, 0 otherwise; use
+  `AtLeast 1` for "only against monsters")
 - `op` — `AtLeast` or `AtMost`
 - `value` — the threshold
 
@@ -385,16 +391,6 @@ Kindred has one, with numbers from `KindredPassiveManager` in her CommunityDrago
 `InitialMarkThreshold` 4, `RangeIncrease` 25 × `FirstTierMultiplier` 3, then
 `AdditionalMarkThreshold` 3.
 
-`combatBuffs` are ability buffs assumed to be up during a fight, optionally scaling
-with the champion's stacks. They only apply when the simulation asks for fight stats,
-never to the stats shown on the scoreboard:
-
-```json
-"combatBuffs": [ { "stat": "attackSpeedPercent", "amount": 0.35, "perStack": 0.05 } ]
-```
-
-Kindred's is her Q: `BaseBonusAS` 0.35 from `KindredQ` plus `ASPerMark` 0.05 from the
-passive.
 
 Two of these champions show it in their growth as well: Senna has no attack damage
 per level and Thresh has no armor per level, because both gain it from stacks.
@@ -439,3 +435,94 @@ enemy item with `kind: "Heal"`, `"Shield"`, or `lifeStealPercent` counts. The sa
 pairing decides `ShieldReduction`: Serpent's Fang is worth buying when enemy
 `shielding` tags plus shield-granting items clear a threshold, and dead weight when
 they do not.
+
+## Kits
+
+Champions whose abilities are simulated have a file in `Kits/`, read by their code in
+`SupportedChampions/<Name>/`. For now that is only Kindred (`Kits/kindred.json`).
+
+Every number is copied from the champion's CommunityDragon bins (`kindred.bin.json`
+and `kindredwolf.bin.json`), and what each number means comes from the game's own
+tooltip text in `lol.stringtable.json`. Per-rank lists are copied exactly as the game
+stores them, so index 1 is rank 1 and index 0 is unused (E's cooldown is
+`[14, 14, 12.5, 11, 9.5, 8, 8]`: rank 1 is 14s, rank 5 is 8s).
+
+- `q` — `BaseDamage` plus 75% bonus AD (the ratio is in `mSpellCalculations`), attack
+  speed `BaseBonusAS` + `ASPerMark` per mark for `BaseASDuration`, cooldown 9s or
+  `CDNewValue` when cast inside W.
+- `w` — the wolf bites the target for `CloneDamageFlat` + 20% bonus AD + 20% AP plus
+  `CloneBasePercentDamage` + `ClonePercentDamagePerBounty` per mark of **current**
+  health, as magic damage, for `ZoneDuration`. The wolf attacks at its own speed from
+  `kindredwolf.bin.json` (0.558, +2.7% per level) plus
+  `LambToWolfAttackSpeedConversionPercent` of Kindred's bonus attack speed.
+- `e` — after the cast, the 3rd attack triggers the pounce, each attack within
+  `TotalDuration` of the previous one ("within 4 seconds of each other"). The pounce
+  lands together with that attack (`attacksAfterCast: 3`, confirmed in game and
+  matching `StacksToProc` 4: the cast plus three attacks). The pounce is `BaseDamage` + 100% bonus AD plus `BasePercentDamage` +
+  `EDamagePerMark` per mark of **missing** health, physical. The bin multiplies it by
+  `1 + CritMod × crit chance × (crit damage − 1)`. Reading the two stat numbers in
+  that formula (8 and 9) as crit chance and crit damage is our inference: the same bin
+  names the other formula that uses stat 9 `CritDamage`.
+- When to cast E is computed, not configured. The pounce grows with missing health,
+  so its best use is as the killing blow with nothing wasted: after armor and the crit
+  bonus, `pounce(h) = h`, which gives `h* = s·(F + p·Max) / (1 + s·p)` (`s` is
+  mitigation × crit bonus, `F` the flat part, `p` the missing-health ratio). E is
+  cast when the target reaches `h*` plus the damage that lands before the pounce:
+  the three attacks at their exact expected damage (including on-hit effects that fire on
+  every attack, such as the jungle pet), the wolf bites that really fall in that
+  window (the kit knows when W ends and when the next bite is), and Q if it comes back
+  in time. Attack-counter procs count by how many land in those three attacks (Kraken
+  fires exactly once in any three); procs with a cooldown are left out on purpose. The
+  build panel shows this cast point for each enemy with your current items, plus what
+  to add when Q or wolf bites land in between. Underestimating only casts E a little
+  later, which costs nothing, while overestimating leaves the target alive and costs
+  an attack. Early on (level 3, rank 1, no marks, 75 AD) this is about 340 health on a
+  1:30 Red Brambleback with a jungle pet, and more when wolf bites or Q land in the
+  window. Later, with more bonus AD, crit and marks, the point moves
+  up on its own (about 220 → 660 health on a level 13 Garen). E is also cast
+  immediately when it would come off cooldown again before the target reaches that
+  point, so long fights do not lose casts.
+- `skillOrder` is **not** game data. It is the usual Kindred order, used only when
+  the Live Client API does not report ability ranks (it does for your own champion).
+
+Left out: R (it stops deaths and heals, but deals no damage), the W passive heal, the
+Q dash, and cast times. Monster-only modifiers (`MonsterBonusDmg` on W, `MonsterCap` on E) are not applied, so fights against camps are an
+approximation, and Smite is not part of the simulation. Fights are one enemy standing still, opening with W and Q (E as above), and they end at the kill or after 30 seconds. The kill time is interpolated
+between hits and averaged over four start timings of the first attack, so one hit
+more or fewer does not swing the result.
+
+### Measured in game, not in the data
+
+Some behaviour is not in any file we can read, so it comes from in-game tests and is
+pinned by `KindredInGameTests`. Each entry records the measurement that justifies it.
+
+- Damage numbers in game merge hits that land at the same moment. E's pounce lands
+  with the attack that triggers it, so the number shown is attack + pounce, both
+  normal physical damage reduced by armor. A 400-armor dummy took 15 from an attack
+  and showed 38 for attack + pounce with Press the Attack's +8% (the model gives
+  (15 + 20.5) × 1.08 = 38.3). Read measurements with that in mind: the pounce alone
+  is the merged number minus the attack.
+- The jungle pet bites for 37 true damage per attack (measured on red at level 3; the
+  companion data says `baseDamage` 35 with no growth, so where the extra 2 comes from is
+  unknown). The +10% does not apply to it: that buff is on the champion, and the pet is
+  its own unit, hence `byCompanion`.
+- Our own champion's AD, AP, health, resists and ability haste come from the Live
+  Client API (runes included). The simulation rebuilds stats from base + items and then
+  adds the difference, so rune shards count; a level 3 Kindred measured 75 AD against
+  69.8 rebuilt (5 from runes). Attack speed is left out because the snapshot can include a temporary
+  Q buff.
+
+### Jungle pets
+
+The three jungle pets (Scorchclaw, Gustwalker, Mosstomper, two item ids each) carry
+two effects, both `when` the target is a monster:
+
+- 37 true damage on every attack (measured, see above), with `area: true` and
+  `byCompanion: true`. The companion is its own unit
+  in `sru_jungle_companions.bin.json` with `baseDamage` 35 and attack speed 0.625; firing
+  on every one of our attacks and hitting the whole camp is a deliberate simplification.
+- +10% damage (`damageAmp` 0.1), from `DamageAmp` 1.1 on `PuppyControllerBuff` in the
+  same file.
+
+`MonsterDamageTaken` 0.5 (monsters deal half damage to you) is left out, because nothing
+simulates monsters hitting back yet.

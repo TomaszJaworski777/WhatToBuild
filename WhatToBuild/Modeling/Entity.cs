@@ -2,8 +2,6 @@ using WhatToBuild.Data;
 
 namespace WhatToBuild.Modeling;
 
-public sealed record CombatAssumption(double Stacks);
-
 public abstract class Entity
 {
     private double? _currentHealth;
@@ -36,6 +34,7 @@ public abstract class Entity
         ConditionProperty.Armor => Stats.Armor,
         ConditionProperty.MagicResist => Stats.MagicResist,
         ConditionProperty.Level => (this as ChampionState)?.Level,
+        ConditionProperty.IsMonster => this is NeutralState ? 1 : 0,
         _ => null,
     };
 
@@ -66,14 +65,14 @@ public sealed class ChampionState : Entity
         int level,
         IEnumerable<Item>? items = null,
         IEnumerable<StatModifier>? teamBuffs = null,
-        CombatAssumption? combat = null)
+        StatSheet? adjustment = null)
     {
         Champion = champion;
-        Combat = combat;
         Level = Math.Clamp(level, StatCalculator.MinLevel, StatCalculator.MaxLevel);
         Items = (items ?? []).ToList();
         TeamBuffs = (teamBuffs ?? []).ToList();
-        Stats = StatCalculator.ForChampion(champion, Level, Items, TeamBuffs, combat);
+        Stats = StatCalculator.ForChampion(champion, Level, Items, TeamBuffs);
+        StatCalculator.Apply(Stats, adjustment);
         BonusHealth = Items.Sum(i => i.Stats.Health);
         Mitigations = Items
             .SelectMany(i => i.Effects)
@@ -91,8 +90,6 @@ public sealed class ChampionState : Entity
     public IReadOnlyList<Item> Items { get; }
 
     public IReadOnlyList<StatModifier> TeamBuffs { get; }
-
-    public CombatAssumption? Combat { get; }
 
     public override string Name => Champion.Name;
 

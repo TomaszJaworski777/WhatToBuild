@@ -44,12 +44,5 @@
                          "firstBonus":  75,
                          "stepStacks":  3,
                          "stepBonus":  25
-                     },
-    "combatBuffs":  [
-                        {
-                            "stat":  "attackSpeedPercent",
-                            "amount":  0.35,
-                            "perStack":  0.05
-                        }
-                    ]
+                     }
 }

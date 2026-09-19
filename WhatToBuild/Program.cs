@@ -4,6 +4,7 @@ using WhatToBuild.Game;
 using WhatToBuild.Hubs;
 using WhatToBuild.Recommendations;
 using WhatToBuild.Services;
+using WhatToBuild.SupportedChampions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ var dataRoot = Path.Combine(AppContext.BaseDirectory, "GameData");
 builder.Services.AddSingleton(ChampionRepository.Load(dataRoot));
 builder.Services.AddSingleton(ItemRepository.Load(dataRoot));
 builder.Services.AddSingleton(NeutralRepository.Load(dataRoot));
+builder.Services.AddSingleton(ChampionKits.Load(dataRoot));
 
 string? replayFolder = null;
 #if DEBUG

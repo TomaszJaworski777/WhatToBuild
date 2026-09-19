@@ -18,20 +18,17 @@ public static class StatCalculator
         Champion champion,
         int level,
         IEnumerable<Item> items,
-        IEnumerable<StatModifier>? modifiers = null,
-        CombatAssumption? combat = null)
+        IEnumerable<StatModifier>? modifiers = null)
     {
         var growth = GrowthMultiplier(level);
         var b = champion.Base;
         var p = champion.PerLevel;
         var itemList = items.ToList();
         var modifierList = (modifiers ?? []).ToList();
-        var combatBuffs = combat is null ? [] : champion.CombatBuffs.Select(buff => (buff.Stat, Amount: buff.At(combat.Stacks))).ToList();
 
         var bonusAttackSpeed = p.AttackSpeed * growth
                                + itemList.Sum(i => i.Stats.AttackSpeedPercent)
                                + itemList.SelectMany(i => i.Effects).Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.AttackSpeedPercent).Sum(e => e.Amount)
-                               + combatBuffs.Where(buff => buff.Stat == Stats.AttackSpeedPercent).Sum(buff => buff.Amount)
                                + modifierList.Where(m => m.Stat == Stats.AttackSpeedPercent).Sum(m => m.Flat);
 
         var sheet = new StatSheet
@@ -58,6 +55,7 @@ public static class StatCalculator
             sheet.Armor += item.Stats.Armor;
             sheet.MagicResist += item.Stats.MagicResist;
             sheet.AttackRange += item.Stats.AttackRange;
+            sheet.AbilityHaste += item.Stats.AbilityHaste;
 
             foreach (var effect in item.Effects.Where(IsPermanentStatBuff))
             {
@@ -70,11 +68,6 @@ public static class StatCalculator
             Add(sheet, modifier.Stat, modifier.Flat);
         }
 
-        foreach (var buff in combatBuffs)
-        {
-            Add(sheet, buff.Stat, buff.Amount);
-        }
-
         foreach (var group in modifierList.Where(m => m.Percent != 0).GroupBy(m => m.Stat))
         {
             Scale(sheet, group.Key, 1 + group.Sum(m => m.Percent));
@@ -83,6 +76,31 @@ public static class StatCalculator
         sheet.Tenacity = StackMultiplicatively(TenacitySources(itemList, modifierList));
 
         return sheet;
+    }
+
+    public static StatSheet Adjustment(StatSheet observed, StatSheet rebuilt) => new()
+    {
+        Health = observed.Health - rebuilt.Health,
+        AttackDamage = observed.AttackDamage - rebuilt.AttackDamage,
+        AbilityPower = observed.AbilityPower - rebuilt.AbilityPower,
+        Armor = observed.Armor - rebuilt.Armor,
+        MagicResist = observed.MagicResist - rebuilt.MagicResist,
+        AbilityHaste = observed.AbilityHaste - rebuilt.AbilityHaste,
+    };
+
+    public static void Apply(StatSheet sheet, StatSheet? adjustment)
+    {
+        if (adjustment is null)
+        {
+            return;
+        }
+
+        sheet.Health += adjustment.Health;
+        sheet.AttackDamage += adjustment.AttackDamage;
+        sheet.AbilityPower += adjustment.AbilityPower;
+        sheet.Armor += adjustment.Armor;
+        sheet.MagicResist += adjustment.MagicResist;
+        sheet.AbilityHaste += adjustment.AbilityHaste;
     }
 
     public static double StackMultiplicatively(IEnumerable<double> sources) =>
@@ -148,5 +166,6 @@ public static class StatCalculator
         else if (stat == Stats.MagicResist) sheet.MagicResist += amount;
         else if (stat == Stats.AttackDamage) sheet.AttackDamage += amount;
         else if (stat == Stats.AbilityPower) sheet.AbilityPower += amount;
+        else if (stat == Stats.AbilityHaste) sheet.AbilityHaste += amount;
     }
 }

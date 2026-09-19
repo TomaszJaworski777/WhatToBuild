@@ -39,6 +39,7 @@ public enum ConditionProperty
     Armor,
     MagicResist,
     Level,
+    IsMonster,
 }
 
 public enum ConditionOp
@@ -98,6 +99,10 @@ public class Effect
     public double EveryAttacks { get; set; }
 
     public bool Splash { get; set; }
+
+    public bool Area { get; set; }
+
+    public bool ByCompanion { get; set; }
 
     public double RangedMultiplier { get; set; } = 1;
 

@@ -5,7 +5,6 @@
     "icon":  "2031.png",
     "cost":  150,
     "groups":  [ "Potion" ],
-    "groups":  [ "Potion" ],
     "buildPath":  [
 
                   ],

@@ -55,6 +55,16 @@ public static class ItemDescriber
             text += " to enemies around the target";
         }
 
+        if (effect.Area)
+        {
+            text += " to the target and every enemy around it";
+        }
+
+        if (effect.ByCompanion)
+        {
+            text += ", dealt by the companion";
+        }
+
         if (effect.Versus != DamageSource.All)
         {
             text += $" vs {Versus(effect.Versus)}";
@@ -136,6 +146,11 @@ public static class ItemDescriber
 
     private static string Condition(EffectCondition c)
     {
+        if (c.Property == ConditionProperty.IsMonster)
+        {
+            return "the target is a monster";
+        }
+
         var who = c.Subject == ConditionSubject.Target ? "target" : "you";
         var op = c.Op == ConditionOp.AtLeast ? "≥" : "≤";
         var value = c.Property == ConditionProperty.HealthPercent ? Percent(c.Value) : Number(c.Value);

@@ -3,6 +3,8 @@ using WhatToBuild.Data;
 using WhatToBuild.Dtos;
 using WhatToBuild.Game;
 using WhatToBuild.Modeling;
+using WhatToBuild.Modeling.Simulation;
+using WhatToBuild.SupportedChampions;
 
 namespace WhatToBuild.Recommendations;
 
@@ -34,9 +36,11 @@ public sealed class SampleRecommendations : IRecommendationSource
     private readonly NeutralRepository _neutrals;
     private readonly string _patch;
     private readonly HashSet<Guid> _components;
+    private readonly ChampionKits _kits;
 
-    public SampleRecommendations(ItemRepository items, NeutralRepository neutrals)
+    public SampleRecommendations(ItemRepository items, NeutralRepository neutrals, ChampionKits kits)
     {
+        _kits = kits;
         _items = items;
         _neutrals = neutrals;
         _patch = items.Patch;
@@ -50,7 +54,7 @@ public sealed class SampleRecommendations : IRecommendationSource
             return null;
         }
 
-        var context = new PlanContext(state, me, _neutrals, stack);
+        var context = new PlanContext(state, me, _neutrals, _kits, stack);
         var owned = me.Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)).ToList();
         var inventory = owned.ToList();
 
@@ -121,12 +125,15 @@ public sealed class SampleRecommendations : IRecommendationSource
             steps,
             skipped,
             TeamNeeds(context, planned, inventory),
+            CastHints(context, owned),
             [
                 "Sample plan: the item order is fixed until the planner is built. The numbers are real.",
                 context.MeasuredIncome is null
                     ? $"Times assume {FallbackGoldPerMinute:0} gold per minute until there is enough history."
                     : "Times use your gold income over the last 5 minutes.",
-                "Damage is auto attacks plus on-hit item effects at your current level, averaged over the enemy team. Abilities are not simulated.",
+                context.HasKit
+                    ? $"Each enemy is a simulated 1v1 until they die (30s at most): your attacks, on-hit items and {me.Champion.Name}'s abilities at Q{context.Ranks.Q} W{context.Ranks.W} E{context.Ranks.E}{(context.RanksObserved ? "" : ", ranks guessed from level")}. The enemy stands still and does not fight back, heal or shield."
+                    : $"Each enemy is a simulated 1v1 until they die (30s at most) with attacks and on-hit items only. {me.Champion.Name}'s abilities are not simulated yet.",
                 "Enemy stats are rebuilt from level, items and dragons.",
             ]);
     }
@@ -137,15 +144,29 @@ public sealed class SampleRecommendations : IRecommendationSource
 
     private sealed class PlanContext
     {
-        public PlanContext(GameState state, PlayerState me, NeutralRepository neutrals, GameStack stack)
+        public PlanContext(GameState state, PlayerState me, NeutralRepository neutrals, ChampionKits kits, GameStack stack)
         {
             State = state;
             Me = me;
             EnemyTeam = me.Team == Team.Order ? Team.Chaos : Team.Order;
             Buffs = state.TeamBuffs(me.Team, neutrals).ToList();
             Enemies = state.Enemies.Select(p => (p, state.EntityFor(p, neutrals))).ToList();
-            Combat = new CombatAssumption(me.EstimatedStacks.FirstOrDefault()?.Stacks ?? 0);
-            Scorer = new AttackDpsScorer(me.Champion, me.Level, Buffs, Enemies.Select(e => (Entity)e.Entity), Combat);
+            Ranks = kits.RanksFor(me.Champion, me.Level, state.ActivePlayerRanks);
+            RanksObserved = state.ActivePlayerRanks is { } observed && observed != AbilityRanks.None;
+            HasKit = kits.For(me.Champion) is not null;
+            Supported = kits.For(me.Champion);
+            Stacks = me.EstimatedStacks.FirstOrDefault()?.Stacks ?? 0;
+            Scorer = new FightScorer(
+                me.Champion,
+                me.Level,
+                Buffs,
+                Enemies.Select(e => (Entity)e.Entity),
+                Ranks,
+                Stacks,
+                () => kits.NewFight(me.Champion),
+                state.ActivePlayerStats is { } observedStats
+                    ? StatCalculator.Adjustment(observedStats, new ChampionState(me.Champion, me.Level, me.Items.SelectMany(i => Enumerable.Repeat(i.Item, i.Count)), Buffs).Stats)
+                    : null);
             MeasuredIncome = stack.GoldEarnedPerMinute(IncomeWindowSeconds);
             Income = Math.Max(100, MeasuredIncome ?? FallbackGoldPerMinute);
         }
@@ -160,43 +181,63 @@ public sealed class SampleRecommendations : IRecommendationSource
 
         public IReadOnlyList<(PlayerState Player, ChampionState Entity)> Enemies { get; }
 
-        public CombatAssumption Combat { get; }
+        public AbilityRanks Ranks { get; }
 
-        public AttackDpsScorer Scorer { get; }
+        public bool RanksObserved { get; }
+
+        public bool HasKit { get; }
+
+        public ISupportedChampion? Supported { get; }
+
+        public double Stacks { get; }
+
+        public FightScorer Scorer { get; }
 
         public double? MeasuredIncome { get; }
 
         public double Income { get; }
-
-        public ChampionState Us(IEnumerable<Item> inventory) => new(Me.Champion, Me.Level, inventory, Buffs, Combat);
     }
 
     private ImpactDto Impact(PlanContext context, IReadOnlyList<Item> before, IReadOnlyList<Item> after)
     {
-        var usBefore = context.Us(before);
-        var usAfter = context.Us(after);
+        var fights = context.Enemies
+            .Select(e => (e.Player, e.Entity,
+                Before: context.Scorer.Against(before, e.Entity),
+                After: context.Scorer.Against(after, e.Entity)))
+            .ToList();
 
-        var perEnemy = context.Enemies
-            .Select(e => new EnemyImpactDto(
-                e.Player.Champion.Name,
-                GameStateMapper.ChampionIconUrl(_patch, e.Player.Champion.Icon),
-                AttackDps.Against(usBefore, e.Entity).Total,
-                AttackDps.Against(usAfter, e.Entity).Total,
-                $"{e.Entity.Stats.Armor:0} armor, {e.Entity.Stats.Health:0} HP"))
+        var perEnemy = fights
+            .Select(f => new EnemyImpactDto(
+                f.Player.Champion.Name,
+                GameStateMapper.ChampionIconUrl(_patch, f.Player.Champion.Icon),
+                f.Before.EffectiveDps,
+                f.After.EffectiveDps,
+                f.Before.TimeToKill,
+                f.After.TimeToKill,
+                $"{f.Entity.Stats.Armor:0} armor, {f.Entity.Stats.MagicResist:0} MR, {f.Entity.Stats.Health:0} HP"))
             .OrderByDescending(e => Gain(e.DpsBefore, e.DpsAfter))
+            .ToList();
+
+        var total = fights.Sum(f => f.After.Damage);
+        var split = fights
+            .SelectMany(f => f.After.DamageBySource)
+            .GroupBy(d => d.Key)
+            .Select(g => new DamageShareDto(g.Key, total > 0 ? g.Sum(d => d.Value) / total : 0))
+            .OrderByDescending(s => s.Share)
             .ToList();
 
         return new ImpactDto(
             perEnemy.Count > 0 ? perEnemy.Average(e => e.DpsBefore) : 0,
             perEnemy.Count > 0 ? perEnemy.Average(e => e.DpsAfter) : 0,
-            perEnemy);
+            perEnemy,
+            split);
     }
 
     private IReadOnlyList<string> Why(Item item, PlanContext context, ImpactDto impact, IReadOnlyList<Item> after, double? goldNeeded)
     {
         var reasons = new List<string>
         {
-            $"+{Pct(Gain(impact.DpsBefore, impact.DpsAfter))} auto-attack damage against the enemy team ({impact.DpsBefore:0} → {impact.DpsAfter:0} DPS)",
+            $"+{Pct(Gain(impact.DpsBefore, impact.DpsAfter))} damage against the enemy team ({impact.DpsBefore:0} → {impact.DpsAfter:0} DPS until the kill)",
         };
 
         if (impact.PerEnemy.Count > 1)
@@ -204,6 +245,17 @@ public sealed class SampleRecommendations : IRecommendationSource
             var best = impact.PerEnemy[0];
             var worst = impact.PerEnemy[^1];
             reasons.Add($"Most against {best.Champion} (+{Pct(Gain(best.DpsBefore, best.DpsAfter))}), least against {worst.Champion} (+{Pct(Gain(worst.DpsBefore, worst.DpsAfter))})");
+        }
+
+        var slowest = impact.PerEnemy.Where(e => e.TtkAfter is not null).MaxBy(e => e.TtkAfter);
+        if (slowest is { TtkBefore: { } ttkBefore, TtkAfter: { } ttkAfter })
+        {
+            reasons.Add($"Time to kill {slowest.Champion}, the hardest target: {ttkBefore:0.0}s → {ttkAfter:0.0}s");
+        }
+
+        if (impact.Split.Count > 1)
+        {
+            reasons.Add("Your damage after buying: " + string.Join(", ", impact.Split.Take(4).Select(s => $"{s.Source} {Pct(s.Share)}")));
         }
 
         var enemies = context.Enemies;
@@ -342,6 +394,29 @@ public sealed class SampleRecommendations : IRecommendationSource
         return result;
     }
 
+    private IReadOnlyList<CastHintDto> CastHints(PlanContext context, List<Item> owned)
+    {
+        if (context.Supported is not { } supported)
+        {
+            return [];
+        }
+
+        var us = context.Scorer.Us(owned);
+
+        return context.Enemies
+            .SelectMany(e => supported
+                .Hints(new FightSetup(us, e.Entity, context.Ranks, context.Stacks))
+                .Select(h => new CastHintDto(
+                    e.Player.Champion.Name,
+                    GameStateMapper.ChampionIconUrl(_patch, e.Player.Champion.Icon),
+                    h.Ability,
+                    h.CastAtHealth,
+                    e.Entity.MaxHealth,
+                    h.KillingHealth,
+                    h.Additions.Select(a => $"+{a.Damage:0} {a.When}").ToList())))
+            .ToList();
+    }
+
     private (double Score, List<string> Sources) EnemyHealing(PlanContext context)
     {
         var enemies = context.Enemies;
@@ -382,7 +457,7 @@ public sealed class SampleRecommendations : IRecommendationSource
         {
             var before = context.Scorer.Score(owned);
             var after = context.Scorer.Score(plan.InventoryAfter);
-            why.Add($"+{Pct(Gain(before, after))} auto-attack damage right away ({before:0} → {after:0} DPS)");
+            why.Add($"+{Pct(Gain(before, after))} damage right away ({before:0} → {after:0} DPS)");
         }
 
         if (!plan.CompletesTarget && plan.Buy.Count > 0)

@@ -1,23 +1,51 @@
 ﻿{
-    "id":  "13615aca-64e8-da2e-37d5-af92d97112a5",
-    "riotId":  1101,
-    "name":  "Scorchclaw Pup",
-    "icon":  "1101.png",
-    "cost":  450,
-    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
-    "groups":  [ "GoldItems", "HuntersTalismanGroup", "DoransItems" ],
-    "buildPath":  [
-
-                  ],
-    "stats":  {
-
-              },
-    "effects":  [
-                    {
-                        "trigger":  "Always",
-                        "kind":  "StatBuff",
-                        "stat":  "omnivampPercent",
-                        "amount":  0.07
-                    }
-                ]
+    "id": "13615aca-64e8-da2e-37d5-af92d97112a5",
+    "riotId": 1101,
+    "name": "Scorchclaw Pup",
+    "icon": "1101.png",
+    "cost": 450,
+    "groups": [
+        "GoldItems",
+        "HuntersTalismanGroup",
+        "DoransItems"
+    ],
+    "buildPath": [],
+    "stats": {},
+    "effects": [
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "omnivampPercent",
+            "amount": 0.07
+        },
+        {
+            "trigger": "OnAttack",
+            "kind": "TrueDamage",
+            "amount": 37,
+            "area": true,
+            "byCompanion": true,
+            "when": [
+                {
+                    "subject": "Target",
+                    "property": "IsMonster",
+                    "op": "AtLeast",
+                    "value": 1
+                }
+            ]
+        },
+        {
+            "trigger": "Always",
+            "kind": "StatBuff",
+            "stat": "damageAmp",
+            "amount": 0.1,
+            "when": [
+                {
+                    "subject": "Target",
+                    "property": "IsMonster",
+                    "op": "AtLeast",
+                    "value": 1
+                }
+            ]
+        }
+    ]
 }

@@ -5,7 +5,6 @@
     "icon":  "1001.png",
     "cost":  300,
     "groups":  [ "Boots", "BootsWithoutActives" ],
-    "groups":  [ "Boots", "BootsWithoutActives" ],
     "buildPath":  [
 
                   ],

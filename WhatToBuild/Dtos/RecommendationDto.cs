@@ -9,7 +9,17 @@ public sealed record RecommendationDto(
     IReadOnlyList<BuildStepDto> BuildPath,
     IReadOnlyList<SkippedItemDto> Skipped,
     IReadOnlyList<TeamNeedDto> TeamNeeds,
+    IReadOnlyList<CastHintDto> CastHints,
     IReadOnlyList<string> Assumptions);
+
+public sealed record CastHintDto(
+    string Champion,
+    string Icon,
+    string Ability,
+    double CastAtHealth,
+    double MaxHealth,
+    double KillingHealth,
+    IReadOnlyList<string> Additions);
 
 public sealed record PurchaseDto(
     string Target,
@@ -37,13 +47,18 @@ public sealed record BuildStepDto(
 public sealed record ImpactDto(
     double DpsBefore,
     double DpsAfter,
-    IReadOnlyList<EnemyImpactDto> PerEnemy);
+    IReadOnlyList<EnemyImpactDto> PerEnemy,
+    IReadOnlyList<DamageShareDto> Split);
+
+public sealed record DamageShareDto(string Source, double Share);
 
 public sealed record EnemyImpactDto(
     string Champion,
     string Icon,
     double DpsBefore,
     double DpsAfter,
+    double? TtkBefore,
+    double? TtkAfter,
     string Note);
 
 public sealed record SkippedItemDto(ItemDto Item, string Reason);
