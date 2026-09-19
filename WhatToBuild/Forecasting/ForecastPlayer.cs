@@ -4,11 +4,6 @@ using WhatToBuild.Modeling;
 
 namespace WhatToBuild.Forecasting;
 
-/// <summary>
-/// One player as they are expected to be at <see cref="Time"/>: level, items (owned plus projected),
-/// item stacks and champion stacks. Enemy stats in every fight come from here, so a Heartsteel bought
-/// six minutes from now already carries six minutes of stacks when your third item lands.
-/// </summary>
 public sealed class ForecastPlayer
 {
     private static readonly Stat[] SheetStats =
@@ -58,7 +53,6 @@ public sealed class ForecastPlayer
 
     public IReadOnlyList<Item> Items => Build.Items;
 
-    /// <summary>Items owned at <see cref="Time"/> that the player does not own now.</summary>
     public IReadOnlyList<Item> NewItems => Build.Purchases.Select(p => p.Item).ToList();
 
     public IReadOnlyDictionary<Guid, double> ItemStacks { get; }
@@ -69,10 +63,8 @@ public sealed class ForecastPlayer
 
     public IReadOnlyList<StatModifier> TeamBuffs { get; }
 
-    /// <summary>Champion stacks that land on the stat sheet (Veigar AP, Garen resists, Cho'Gath health).</summary>
     public StatSheet StackStats { get; }
 
-    /// <summary>A shared instance for reading stats. Fights change health, so they use <see cref="NewEntity"/>.</summary>
     public ChampionState Entity { get; }
 
     public ChampionState NewEntity() => new(Champion, Level, Items, TeamBuffs, StackStats, ItemStacks);
@@ -80,10 +72,6 @@ public sealed class ForecastPlayer
     public override string ToString() => $"{Champion.Name} L{Level} @ {Time:0}s";
 }
 
-/// <summary>
-/// The whole game at a future time, cached by time bucket. Our own champion is not in here: the
-/// evaluator builds it per inventory.
-/// </summary>
 public sealed class WorldForecast
 {
     private readonly Dictionary<int, (IReadOnlyList<ForecastPlayer> Enemies, IReadOnlyList<ForecastPlayer> Allies)> _cache = new();
@@ -111,12 +99,10 @@ public sealed class WorldForecast
 
     public PlayerState Me => State.ActivePlayer ?? throw new InvalidOperationException("No active player.");
 
-    /// <summary>Snaps a time to its bucket, never before now.</summary>
     public double Snap(double time) => Now + Bucket(time) * BucketSeconds;
 
     public IReadOnlyList<ForecastPlayer> EnemiesAt(double time) => At(time).Enemies;
 
-    /// <summary>Allies other than you.</summary>
     public IReadOnlyList<ForecastPlayer> AlliesAt(double time) => At(time).Allies;
 
     private int Bucket(double time) => (int)Math.Round(Math.Max(0, time - Now) / BucketSeconds);

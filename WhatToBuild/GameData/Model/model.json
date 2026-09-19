@@ -17,7 +17,8 @@
     ],
     "cheapTargets": 3,
     "maxTimeAliveSeconds": 60,
-    "teamfightIntervalSeconds": 120
+    "teamfightIntervalSeconds": 120,
+    "caughtShare": 0.35
   },
   "focus": {
     "teamSize": 5,
@@ -85,8 +86,10 @@
     "champions": {
       "Kindred": {
         "damage": 1,
-        "survival": 0.1,
-        "clear": 1
+        "uptime": 0,
+        "survival": 0,
+        "clear": 1,
+        "movement": 0
       }
     }
   },
@@ -136,12 +139,25 @@
     "discountSeconds": 600,
     "stackLookaheadSeconds": 300,
     "replaceMargin": 0.03,
-    "keepMargin": 0.02,
+    "keepMargin": 0.08,
     "timeBucketSeconds": 15,
     "replanSeconds": 30,
     "sellRefund": 0.7,
     "cheapTimeBucketSeconds": 60,
-    "replaceFinishedMargin": 0.1
+    "replaceFinishedMargin": 0.1,
+    "opening": {
+      "name": "opening",
+      "budgetMilliseconds": 8000,
+      "screenCount": 30,
+      "beamWidth": 6,
+      "branching": 12,
+      "depth": 6,
+      "mode": "Screen",
+      "horizonGold": 20000
+    },
+    "openingSeconds": 90,
+    "firstRecallSeconds": 210,
+    "recallIntervalSeconds": 240
   },
   "income": {
     "startingGold": 500,
@@ -169,23 +185,27 @@
     "tempoWeightByMinute": [
       [
         4,
-        2.4
+        2.3
+      ],
+      [
+        9,
+        0.83
       ],
       [
         15,
-        0.8
+        0.46
       ],
       [
         22,
-        1.1
+        0.45
       ],
       [
         40,
-        1.1
+        0.45
       ]
     ],
-    "evasionExponent": 1,
-    "kiteSpeedExponent": 2,
+    "evasionExponent": 0.5,
+    "kiteSpeedExponent": 1,
     "maxKiteReduction": 0.7
   }
 }

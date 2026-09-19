@@ -96,7 +96,10 @@ public class ItemTests
 
         Assert.AreEqual(EffectTrigger.OnAttack, kraken.Trigger);
         Assert.AreEqual(EffectKind.PhysicalDamage, kraken.Kind);
-        Assert.AreEqual(175, kraken.Amount, 0.001);
+        Assert.AreEqual(150, kraken.Amount, 0.001);
+        Assert.AreEqual(5, kraken.PerLevel, 0.001);
+        Assert.AreEqual(9, kraken.PerLevelFrom);
+        Assert.AreEqual(0.75, kraken.MissingHealthAmp, 0.001);
         Assert.AreEqual(3, kraken.EveryAttacks, 0.001);
         Assert.AreEqual(0.8, kraken.RangedMultiplier, 0.001);
     }

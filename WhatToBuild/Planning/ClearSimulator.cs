@@ -11,15 +11,6 @@ public sealed record ClearResult(double KillSeconds, double WalkSeconds, IReadOn
     public double TotalSeconds => KillSeconds + WalkSeconds;
 }
 
-/// <summary>
-/// Full clear time: every camp in <c>jungle.camps</c>, each unit fought with the same fight simulation
-/// as champions (so the kit, jungle pet and items all count), at the monsters' strength at that game time.
-///
-/// Units in a camp die one after another, biggest first. Damage that hits more than the target (jungle
-/// pet bites, Hydra splash) chips the units still waiting, so cleave shortens the camp without a full
-/// multi-target simulation. Units whose game data is a placeholder (1 health) are skipped. Walking
-/// between camps is <c>walkSeconds</c> at base movement speed, shortened by speed from items.
-/// </summary>
 public sealed class ClearSimulator
 {
     private readonly NeutralRepository _neutrals;
@@ -81,7 +72,6 @@ public sealed class ClearSimulator
             camps.Add(new CampClear(camp, seconds));
         }
 
-        // Walking between camps is timed at base speed; boots and speed items shorten it.
         var walk = _settings.Jungle.WalkSeconds * us.Champion.Base.MoveSpeed / Math.Max(1, us.Stats.MoveSpeed);
         return new ClearResult(camps.Sum(c => c.Seconds), walk, camps);
     }

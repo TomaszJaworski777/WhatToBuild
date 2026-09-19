@@ -4,11 +4,6 @@ using WhatToBuild.Forecasting;
 
 namespace WhatToBuild.Planning;
 
-/// <summary>
-/// Every tunable number of the build model, read from <c>GameData/Model/model.json</c>. None of these are
-/// game data: they are judgement calls (how much damage a champion tag stands for, how long a teamfight
-/// lasts) and live in a file so they can be tuned without touching code. See the README's Model section.
-/// </summary>
 public sealed class ModelSettings
 {
     public const string FolderName = "Model";
@@ -33,30 +28,24 @@ public sealed class ModelSettings
 
     public sealed class FightSettings
     {
-        /// <summary>Seconds a teamfight lasts; survival beyond it is worth less and less.</summary>
         public double TeamfightSeconds { get; set; } = 12;
         public double MaxFightSeconds { get; set; } = 30;
         public List<double> AttackPhases { get; set; } = [0, 0.25, 0.5, 0.75];
         public List<double> ScreenAttackPhases { get; set; } = [0, 0.5];
         public List<double> CheapAttackPhases { get; set; } = [0.5];
-        /// <summary>How many of the biggest threats the pre-screen fights.</summary>
         public int CheapTargets { get; set; } = 3;
         public double MaxTimeAliveSeconds { get; set; } = 60;
-        /// <summary>Typical time between teamfights: a survival ability on a longer cooldown is not always up.</summary>
+        public double CaughtShare { get; set; } = 0.35;
         public double TeamfightIntervalSeconds { get; set; } = 120;
     }
 
     public sealed class FocusSettings
     {
         public int TeamSize { get; set; } = 5;
-        /// <summary>Extra share of enemy damage a full tank (tag 1) on your team draws.</summary>
         public double FrontlineWeight { get; set; } = 1.5;
         public double MeleeWeight { get; set; } = 0.3;
-        /// <summary>How far burst champions skip the frontline to reach a ranged carry, per burst tag.</summary>
         public double DiveBias { get; set; } = 1.2;
-        /// <summary>Extra focus on squishy damage dealers (tank tag under 0.3): enemies go for the carries first.</summary>
         public double CarryFocusBias { get; set; } = 1.0;
-        /// <summary>Share of melee enemies' attacks a ranged champion avoids by kiting and positioning.</summary>
         public double KiteReduction { get; set; } = 0.35;
     }
 
@@ -81,7 +70,6 @@ public sealed class ModelSettings
         public double BurstShare { get; set; }
         public double AbilityDamageStackRatio { get; set; }
         public double AverageTargetHealthPercent { get; set; } = 0.6;
-        /// <summary>Share of an ability aimed at someone else that still hits you (area damage).</summary>
         public double AbilityAreaShare { get; set; } = 0.3;
     }
 
@@ -127,48 +115,28 @@ public sealed class ModelSettings
             Champions.GetValueOrDefault(champion.Name) ?? Default;
     }
 
-    /// <summary>
-    /// What a champion wants from its items. The score is
-    /// <c>damage·ln(damage before death) + survival·ln(time alive) + clear·phase·ln(clear speed)</c>,
-    /// so each weight says how many percent of one is worth a percent of the other.
-    /// </summary>
     public sealed class ObjectiveWeights
     {
         public double Damage { get; set; } = 1;
         public double Survival { get; set; } = 0.25;
         public double Clear { get; set; } = 1;
 
-        /// <summary>How much faster movement around the map counts (see <see cref="MovementSettings"/>).</summary>
         public double Movement { get; set; } = 1;
+        public double Uptime { get; set; } = 1;
     }
 
-    /// <summary>
-    /// Movement speed is worth time: the share of a game you spend walking between camps, lanes and
-    /// fights shrinks as you get faster, and that time goes into farming and fighting. Tempo is
-    /// <c>1 / (walkShare · base speed / speed + 1 − walkShare)</c>, and the score adds
-    /// <c>tempoWeight · ln(tempo)</c>. <c>tempoWeight</c> is calibrated so that one point of movement speed is
-    /// worth about 12 gold of your other stats, the value the League wiki gives flat movement speed (Boots:
-    /// 300 gold for 25).
-    /// </summary>
     public sealed class MovementSettings
     {
         public Dictionary<string, double> WalkShare { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public double DefaultWalkShare { get; set; } = 0.3;
         public double TempoWeight { get; set; } = 1;
 
-        /// <summary>Incoming damage scales with (enemy team's average speed / yours) to this power: dodging and repositioning.</summary>
         public double EvasionExponent { get; set; } = 1;
 
-        /// <summary>How strongly kiting a melee champion grows with your speed over theirs.</summary>
         public double KiteSpeedExponent { get; set; } = 2;
 
         public double MaxKiteReduction { get; set; } = 0.7;
 
-        /// <summary>
-        /// [minute, weight] points, linearly interpolated. Measured so that one point of movement speed is worth
-        /// about 12 gold of your other stats at that point in the game: early on stats are worth more per gold,
-        /// so movement needs a larger weight to keep up. Empty means <see cref="TempoWeight"/> throughout.
-        /// </summary>
         public List<List<double>> TempoWeightByMinute { get; set; } = new();
 
         public double WalkShareFor(string position) => WalkShare.GetValueOrDefault(position, DefaultWalkShare);
@@ -208,12 +176,9 @@ public sealed class ModelSettings
         public double ClearWeightLate { get; set; } = 0.1;
         public double FadeFromSeconds { get; set; } = 720;
         public double FadeToSeconds { get; set; } = 1500;
-        /// <summary>Below this clear weight the clear is not simulated at all: its effect on the score would be noise.</summary>
         public double MinClearWeight { get; set; } = 0.05;
-        /// <summary>Clear weight starts fading at this many completed items and is gone at <see cref="ClearFadeToItems"/>.</summary>
         public double ClearFadeFromItems { get; set; } = 1.5;
         public double ClearFadeToItems { get; set; } = 2.5;
-        /// <summary>The same for the pre-screen, which has to stay cheap.</summary>
         public double CheapMinClearWeight { get; set; } = 0.25;
 
         public double ClearWeightAt(double seconds)
@@ -225,41 +190,40 @@ public sealed class ModelSettings
         }
     }
 
-    /// <summary>
-    /// One pass of the planner. The first stage has to answer inside a second of one core; later stages
-    /// run in the background for longer, look at more options with every attack timing, and replace the
-    /// build when they finish.
-    /// </summary>
     public sealed class PlanStage
     {
         public string Name { get; set; } = "quick";
         public double BudgetMilliseconds { get; set; } = 850;
-        /// <summary>How many pre-screened candidates get a proper score as your next item.</summary>
         public int ScreenCount { get; set; } = 10;
         public int BeamWidth { get; set; } = 4;
         public int Branching { get; set; } = 8;
         public int Depth { get; set; } = 3;
         public Planning.EvaluationMode Mode { get; set; } = Planning.EvaluationMode.Screen;
+
+        public double? HorizonGold { get; set; }
     }
 
     public sealed class PlannerSettings
     {
         public List<PlanStage> Stages { get; set; } = [new()];
+
+        public PlanStage? Opening { get; set; }
+
+        public double OpeningSeconds { get; set; } = 90;
         public double HorizonGold { get; set; } = 8000;
         public double MinHorizonSeconds { get; set; } = 480;
         public double DiscountSeconds { get; set; } = 600;
         public double StackLookaheadSeconds { get; set; } = 300;
         public double ReplaceMargin { get; set; } = 0.03;
-        /// <summary>The same for selling a finished item (2000 gold or more).</summary>
         public double ReplaceFinishedMargin { get; set; } = 0.1;
         public double KeepMargin { get; set; } = 0.02;
-        /// <summary>Share of the budget the cheap pre-screen may use before it stops.</summary>
         public double PrescreenShare { get; set; } = 0.4;
         public double TimeBucketSeconds { get; set; } = 15;
-        /// <summary>Coarser time grid for the pre-screen, so it reuses a few forecasts instead of building one per candidate.</summary>
         public double CheapTimeBucketSeconds { get; set; } = 60;
         public double ReplanSeconds { get; set; } = 30;
         public double SellRefund { get; set; } = 0.7;
+        public double FirstRecallSeconds { get; set; } = 210;
+        public double RecallIntervalSeconds { get; set; } = 240;
     }
 
     public sealed class IncomeSettings
@@ -270,9 +234,7 @@ public sealed class ModelSettings
         public double MaxPace { get; set; } = 2;
         public double PaceWindowSeconds { get; set; } = 300;
         public double MinRecentSpanSeconds { get; set; } = 120;
-        /// <summary>Share of the recent rate (vs. the whole-game average) in a player's own pace.</summary>
         public double RecentWeight { get; set; } = 0.3;
-        /// <summary>Share of the lobby's average pace in everyone else's pace, since their items refresh only on recall.</summary>
         public double TrendWeight { get; set; } = 0.4;
         public double BaselineOnlyUntilSeconds { get; set; } = 120;
         public double ObservedOnlyFromSeconds { get; set; } = 300;
@@ -280,22 +242,22 @@ public sealed class ModelSettings
     }
 }
 
-/// <summary>Everything the build model reads besides the game data itself.</summary>
 public sealed class ModelData
 {
-    public ModelData(ModelSettings settings, BaselineCurves baseline, BuildArchetypes archetypes)
+    public ModelData(ModelSettings settings, BaselineCurves baseline, MetaBuilds meta)
     {
         Settings = settings;
         Baseline = baseline;
-        Archetypes = archetypes;
+        Meta = meta;
     }
 
     public ModelSettings Settings { get; }
 
     public BaselineCurves Baseline { get; }
 
-    public BuildArchetypes Archetypes { get; }
+    public MetaBuilds Meta { get; }
 
     public static ModelData Load(string dataRoot) =>
-        new(ModelSettings.Load(dataRoot), BaselineCurves.Load(dataRoot), BuildArchetypes.Load(dataRoot));
+        new(ModelSettings.Load(dataRoot), BaselineCurves.Load(dataRoot),
+            new MetaBuilds(ChampionRepository.Load(dataRoot), ItemRepository.Load(dataRoot)));
 }

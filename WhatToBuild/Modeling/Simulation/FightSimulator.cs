@@ -25,8 +25,13 @@ public static class FightSimulator
             var onHits = OnHitEffects(setup.Attacker);
             var attackProgress = 1 - setup.AttackPhase;
 
-            while (fight.Time < setup.MaxSeconds && !fight.TargetDead)
+            while (fight.Time < setup.MaxSeconds && (setup.Sustained || !fight.TargetDead))
             {
+                if (fight.TargetDead)
+                {
+                    fight.Respawn();
+                }
+
                 fight.Regenerate(Fight.Step);
                 kit?.Update(fight);
 
@@ -39,6 +44,23 @@ public static class FightSimulator
                 }
 
                 fight.Time += Fight.Step;
+            }
+
+            if (setup.Sustained)
+            {
+                return new FightResult(
+                    fight.KilledAt,
+                    fight.Time,
+                    fight.Attacks,
+                    fight.DamageBySource.Values.Sum(),
+                    target.MaxHealth,
+                    new Dictionary<string, double>(fight.DamageBySource),
+                    fight.KillingBlow,
+                    fight.Removed,
+                    fight.Healed,
+                    fight.ShieldTotal,
+                    Sustained: true,
+                    Kills: fight.Kills + (fight.TargetDead ? 1 : 0));
             }
 
             return new FightResult(
@@ -67,6 +89,7 @@ public static class FightSimulator
         var ad = attacker.Stats.AttackDamage;
 
         fight.Deal(Attacks, fight.Physical(ad).Attack(), 1 - critChance);
+        fight.Spellblade();
 
         if (critChance > 0)
         {

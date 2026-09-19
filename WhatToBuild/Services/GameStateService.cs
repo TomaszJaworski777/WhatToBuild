@@ -93,11 +93,6 @@ public sealed class GameStateService : BackgroundService
         }
     }
 
-    /// <summary>
-    /// Adds every player's forecast gold per minute: the same rate the planner extrapolates (your exact
-    /// gold, everyone else's item value pulled toward the lobby trend). A regression over the recent
-    /// snapshots per player, so it is cheap enough for every poll.
-    /// </summary>
     private GameStateDto WithGoldRates(GameStateDto dto, GameState state)
     {
         var forecaster = new GameForecaster(state, _tracker.Stack, _model);
@@ -111,7 +106,6 @@ public sealed class GameStateService : BackgroundService
         };
     }
 
-    /// <summary>Sends a recommendation if it differs from the last one sent. Called by the poll and by the planner thread when a stage finishes.</summary>
     private async Task PushRecommendationAsync(RecommendationDto? recommendation, CancellationToken ct)
     {
         var json = JsonSerializer.Serialize(recommendation);

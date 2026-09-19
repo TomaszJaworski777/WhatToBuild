@@ -6,10 +6,6 @@ namespace WhatToBuild.SupportedChampions;
 
 public sealed record CastAddition(string When, double Damage);
 
-/// <summary>
-/// An ability that keeps you alive in a fight: for <see cref="UndyingSeconds"/> you cannot drop below
-/// <see cref="MinimumHealthPercent"/>, then you heal for <see cref="Heal"/>. Kindred's Lamb's Respite.
-/// </summary>
 public sealed record SurvivalAbility(string Name, double UndyingSeconds, double MinimumHealthPercent, double Heal, double Cooldown);
 
 public sealed record CastHint(string Ability, double CastAtHealth, double KillingHealth, IReadOnlyList<CastAddition> Additions);
@@ -24,7 +20,6 @@ public interface ISupportedChampion
 
     IReadOnlyList<CastHint> Hints(FightSetup setup);
 
-    /// <summary>The ability that stops you dying in a fight at these ranks, if the champion has one.</summary>
     SurvivalAbility? Survival(AbilityRanks ranks) => null;
 }
 
@@ -57,10 +52,6 @@ public sealed class ChampionKits
 
     public IChampionKit? NewFight(Champion champion) => For(champion)?.NewFight();
 
-    /// <summary>
-    /// Ability ranks at a future <paramref name="level"/>: the observed ranks, plus the points still to come
-    /// in the kit's skill order. Without observed ranks it is the skill order itself.
-    /// </summary>
     public AbilityRanks RanksAt(Champion champion, int level, AbilityRanks? observed)
     {
         if (observed is null || observed == AbilityRanks.None || For(champion) is not { } supported)

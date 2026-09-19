@@ -6,11 +6,6 @@ using WhatToBuild.Modeling.Simulation;
 
 namespace WhatToBuild.Planning;
 
-/// <summary>
-/// One kind of damage a champion puts out: raw damage per second, plus a lump at the start of a fight
-/// (burst). <see cref="TargetMaxHealthPerSecond"/> is the part that scales with the victim's health
-/// (Blade of the Ruined King), as a fraction of their max health per second.
-/// </summary>
 public sealed record DamageStream(
     string Source,
     DamageType Type,
@@ -19,17 +14,8 @@ public sealed record DamageStream(
     double Burst = 0,
     double TargetMaxHealthPerSecond = 0);
 
-/// <summary>A heal or shield and where it comes from, for explanations.</summary>
 public sealed record SustainSource(string Source, double Amount);
 
-/// <summary>
-/// How an enemy (or ally) fights at a forecast time, reduced to what item choices react to: the damage
-/// they deal by type and penetration, how much they heal and shield, and the Grievous Wounds they apply.
-///
-/// Auto attacks and item effects come from real stats and item data. Ability damage, champion healing and
-/// champion shielding are heuristics driven by the champion's tags (0–1 strength), level and stats, with
-/// every constant in model.json: we do not simulate enemy kits.
-/// </summary>
 public sealed class CombatProfile
 {
     public required ForecastPlayer Forecast { get; init; }
@@ -40,28 +26,22 @@ public sealed class CombatProfile
 
     public required IReadOnlyList<DamageStream> Streams { get; init; }
 
-    /// <summary>Healing on themselves per second in a fight, before Grievous Wounds.</summary>
     public required double SelfHealPerSecond { get; init; }
 
-    /// <summary>Healing they hand out to allies per second (supports).</summary>
     public required double AllyHealPerSecond { get; init; }
 
     public required IReadOnlyList<Shield> SelfShields { get; init; }
 
     public required double AllyShield { get; init; }
 
-    /// <summary>Grievous Wounds they apply when they hit you (strongest item source).</summary>
     public required double GrievousWounds { get; init; }
 
-    /// <summary>Fraction of shields they strip (Serpent's Fang), for allies' coverage.</summary>
     public required double ShieldReduction { get; init; }
 
-    /// <summary>Armor and magic resist shred they apply (Black Cleaver, Bloodletter's Curse), for allies' coverage.</summary>
     public required double ArmorShred { get; init; }
 
     public required double MagicResistShred { get; init; }
 
-    /// <summary>Kill priority weight, normalised across the team.</summary>
     public double Threat { get; set; }
 
     public required IReadOnlyList<SustainSource> HealSources { get; init; }
@@ -139,7 +119,7 @@ public sealed class CombatProfiler
             }
 
             var ranged = champion.IsRanged ? effect.RangedMultiplier : 1;
-            var raw = AttackerHits.OwnerAmount(effect, entity) * ranged;
+            var raw = AttackerHits.OwnerAmount(effect, entity) * ranged * (1 + effect.MissingHealthAmp * (1 - e.AverageTargetHealthPercent));
             var percent = (effect.PerTargetMaxHealth + effect.PerTargetCurrentHealth * e.AverageTargetHealthPercent) * ranged;
             var type = effect.Kind switch
             {
@@ -271,7 +251,6 @@ public sealed class CombatProfiler
         };
     }
 
-    /// <summary>Sets <see cref="CombatProfile.Threat"/>: estimated gold relative to the team, times how much damage the champion is built to deal.</summary>
     public void AssignThreat(IReadOnlyList<CombatProfile> team)
     {
         if (team.Count == 0)
@@ -298,11 +277,6 @@ public sealed class CombatProfiler
         }
     }
 
-    /// <summary>
-    /// What keeps <paramref name="target"/> alive in a fight with you: its own healing and shields, a share
-    /// of what its supports hand out, dragon buffs, and the Grievous Wounds and shield reduction your
-    /// allies already bring.
-    /// </summary>
     public TargetSustain SustainFor(CombatProfile target, IReadOnlyList<CombatProfile> team, IReadOnlyList<CombatProfile> ourAllies, GameState state, NeutralRepository neutrals)
     {
         var s = _settings.Sustain;

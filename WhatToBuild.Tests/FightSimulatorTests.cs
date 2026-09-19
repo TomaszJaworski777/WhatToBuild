@@ -41,9 +41,11 @@ public class FightSimulatorTests
     public void KrakenProcsOnEveryThirdAttackAtTheRangedValue()
     {
         var result = Fight(Kraken);
-        var proc = DamageCalculator.Create(new ChampionState(Garen, 11)).AdDamage(175 * 0.8).Attack().Run().HealthDamage;
+        var atFullHealth = DamageCalculator.Create(new ChampionState(Garen, 11)).AdDamage((150 + 5 * 3) * 0.8).Attack().Run().HealthDamage;
+        var procs = result.Attacks / 3;
 
-        Assert.AreEqual(result.Attacks / 3 * proc, result.DamageBySource[Kraken.Name], 0.001);
+        Assert.IsGreaterThan(procs * atFullHealth, result.DamageBySource[Kraken.Name]);
+        Assert.IsLessThan(procs * atFullHealth * 1.75, result.DamageBySource[Kraken.Name]);
     }
 
     [TestMethod]

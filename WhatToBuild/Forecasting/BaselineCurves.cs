@@ -11,11 +11,6 @@ public sealed class RoleCurve
     public List<double> GoldEarned { get; set; } = new();
 }
 
-/// <summary>
-/// Average level and total gold earned by role over game time, from <c>GameData/Model/baseline.json</c>.
-/// A player with an unknown role gets the average of all roles. Past the last point, gold keeps the last
-/// slope and level stops at 18.
-/// </summary>
 public sealed class BaselineCurves
 {
     public const string FileName = "baseline.json";
@@ -40,7 +35,6 @@ public sealed class BaselineCurves
 
     public double GoldAt(string role, double seconds) => Interpolate(Curve(role).GoldEarned, seconds);
 
-    /// <summary>Gold per second at <paramref name="seconds"/>.</summary>
     public double GoldRateAt(string role, double seconds)
     {
         const double half = 30;

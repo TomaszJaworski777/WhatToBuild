@@ -13,7 +13,6 @@ public sealed record RecommendationDto(
     IReadOnlyList<string>? Assumptions = null,
     IReadOnlyList<MatchupDto>? Matchups = null);
 
-/// <summary>What the build model sees at the forecast time of your next item.</summary>
 public sealed record ModelDto(
     double At,
     double DamageWeight,

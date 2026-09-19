@@ -118,6 +118,11 @@ CommunityDragon's `items.cdtb.bin.json` rather than written from memory.
 - Scaling, any of which may be combined with `amount`:
   `perBaseAd`, `perTotalAd`, `perBonusAd`, `perAp`, `perMaxHealth`, `perBonusHealth`,
   `perBonusArmor`, `perBonusMagicResist`, `perTargetMaxHealth`, `perTargetCurrentHealth`.
+- `missingHealthAmp` — damage times 1 + this × the target's missing health fraction.
+  Kraken Slayer is `0.75` (`MaxAmpNumber` 1.75 in its bin data).
+- `stacksTo` — the effect builds up evenly over this many attacks in a fight instead of
+  applying in full from the first hit. Black Cleaver is `5` (`MaxStacks`, 6% `ShredPerStack`);
+  Terminus's 30% penetration is `6`, 10% per hit alternating Light and Dark.
   "Bonus" is the stat minus the champion's base at its level, so items, runes and
   dragons all count.
   `perLethality` scales with the lethality from items, `perCritChance` with crit
@@ -569,9 +574,17 @@ earlier they are bought.
 - `gains` is what one stack gives, from the item's data values: `amount`, optionally
   `perMaxHealth` (Heartsteel: 10% of its proc, 7 + 0.6% max health).
 - `stacksPerMinute` is game data only for Rod of Ages (one per minute). Every other rate
-  is an estimate (`rateSource: "estimate"`) meant to be tuned: Heartsteel 1, Hubris 0.2,
+  is an estimate (`rateSource: "estimate"`) meant to be tuned: Heartsteel 1, Hubris 0.4,
   Mejai's 0.5, Dark Seal 0.3, the omnivamp boots 0.5, Yun Tal 15 (half when ranged, max
   62.5 = 25% crit), The Collector 0.2 kills, Cull 7 minions.
+- A `per` of "champion kill" or "champion takedown" counts at your own kill or takedown rate
+  this game, once it is 5 minutes in; the estimate is only the prior before that.
+- Hubris is a takedown buff, not a permanent stat: `OnTakedown` `StatBuff` 12 AD, `perStack` 3
+  per takedown since you bought it, `duration` 90 seconds (game data: `BaseADBonus`,
+  `ADPerStatue`, `BuffDuration`). Its value in a fight is weighted by how often it is up: carried
+  over from a takedown in the last 90 seconds, `1 − e^(−1.5λ)` for λ takedowns per minute, and
+  otherwise switched on by the first takedown inside the fight, which with k takedowns per fight
+  (λ × `teamfightIntervalSeconds`) leaves `1 − (1 − e^(−k))/k` of the fight on average.
 - Minutes owned come from when the app first saw the item on that player; an item that
   was already there when the app started counts from that moment.
 - In the build path, an item not bought yet is valued with the stacks it would have
@@ -589,9 +602,12 @@ data: it is judgement, kept in files so it can be tuned without touching code.
 - `baseline.json`: average level and gold earned by role over time. It only gives the
   *shape* of income over a game; how fast each player earns comes from the player. It is an
   estimate until the match-v5 aggregation in the spec replaces it.
-- `archetypes.json`: common build orders by archetype (marksman, bruiser, tank, mage, ...),
-  matched to a champion by its tags, position and the items it already owns. They are a
-  prior about **enemy** items only, never advice for you.
+
+Every champion file carries a `metaBuild`: its standard build in buy order, as item `id`s like
+`buildPath`. Enemies and allies keep what they own and are assumed to buy the rest of it in
+order, using owned components where the next item needs them. It is a forecast of other
+players, never advice for you. A test requires every champion to have a legal six-item build.
+The builds are hand-written estimates until the match-v5 aggregation in the spec replaces them.
 
 ### What an item is worth
 
@@ -606,13 +622,17 @@ Log terms make every weight read as "how many percent of one is worth a percent 
 other".
 
 - **Damage**: your kit fights every enemy as forecast at that time (level, items, item and
-  champion stacks), with their healing per second and shields. Grievous Wounds cuts the
+  champion stacks), with their healing per second and shields, for a whole `teamfightSeconds`
+  fight: when the target dies an identical one takes its place and cooldowns keep running, and
+  the damage counts in kills, health and shields alike. So a burst that only opens a fight is
+  not mistaken for damage over a fight. Grievous Wounds cuts the
   healing, Serpent's Fang the shields, The Collector executes, and a target that out-heals
   you scores near zero. Enemies are weighted by threat: forecast gold times how much damage
   they are built to deal.
-- **Damage before death**: your damage times how much of a `teamfightSeconds` fight you are
-  alive for. So survivability is priced in the same currency as damage, and matters more
-  the closer you are to dying inside a fight.
+- **Damage before death**: your damage times how much of a fight you are alive for. You are
+  caught in `caughtShare` of fights, where survival decides how long you last; in the rest your
+  positioning keeps you alive for the whole fight. So survivability is priced in the same
+  currency as damage without every item being judged as if you were always the one dived.
 - **Time alive**: each enemy's forecast damage streams, reduced by your armor, magic
   resist and mitigation against their penetration, times the share of their damage aimed
   at you (abilities also land `abilityAreaShare` of what was aimed at someone else). Shields,
@@ -672,9 +692,7 @@ League wiki's Movement speed page. It is worth three things:
 Plain Boots are a candidate on their own and do not use up one of the planner's `depth`
 items, so a plan can say "Boots now, finished boots later". Tier 3 boots (Gunmetal Greaves,
 Swiftmarch, ...) are never suggested: they are a free Feats of Strength upgrade, not a shop
-decision. On a 500-gold first back the advice is Boots; with 1400 gold it is the finished
-pair. That matches the common advice to buy Boots when a back cannot afford a meaningful
-component.
+decision.
 
 ### Gold and levels
 
@@ -696,6 +714,9 @@ never uses more than one core. It runs in `stages`:
    attack timing, the top `cheapTargets` threats, `cheapTimeBucketSeconds` time grid), the
    best `screenCount` get a proper score, then a beam search `depth` items deep. Its answer
    is sent to the page as soon as it is ready.
+0. **opening**: in the first `openingSeconds` of a game, instead of the quick stage, a whole
+   build is searched (`depth` 6, `horizonGold` 20000) with seconds of budget. Enemy builds are
+   fixed, so this is feasible, and later stages adjust that plan rather than starting over.
 2. **detailed**: runs afterwards while nothing relevant changes, with more candidates, a wider
    beam and every attack timing, and replaces the plan when it finishes.
 
@@ -703,6 +724,14 @@ A change in items, levels, kills or objectives cancels a detailed stage and star
 the quick one. Gold alone only refreshes the buy-now components and arrival times. Every
 `replanSeconds` the detailed stage re-runs on fresh state, keeping the current target
 unless another item beats it by `keepMargin`.
+
+Purchases happen at recalls: nothing is bought before `firstRecallSeconds`, and after that at
+the next recall (`recallIntervalSeconds` apart) once the gold is there. Cheap items therefore
+do not look like they arrive the moment you can afford them. Buy now spends your gold along
+the plan: after the first item's components, leftover gold goes to the next item's.
+
+Components no item on the plan uses will be sold at 70% one day; that 30% loss is charged at
+the plan's own rate of score per gold, so finishing what you hold components for counts.
 
 A plan's value is its score gain over your current items, integrated over time until you
 have earned `horizonGold` more, discounted over `discountSeconds`. Buying something earlier

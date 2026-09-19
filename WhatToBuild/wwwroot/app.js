@@ -246,6 +246,11 @@ function renderHealth(player, matchup) {
         </div>`;
 }
 
+function killTime(value) {
+    const window = lastRecommendation?.model?.teamfightSeconds;
+    return value == null && window ? `${window}s+` : seconds(value);
+}
+
 function renderVersus(player, matchup, after, nextName) {
     if (!matchup?.modelled) {
         return "";
@@ -254,7 +259,7 @@ function renderVersus(player, matchup, after, nextName) {
     const cast = matchup.casts?.[0];
     const lines = [
         `<div class="tip-name">You vs ${esc(player.champion)}</div>`,
-        `<div>Time to kill with your items: <b>${seconds(matchup.timeToKill)}</b> (${Math.round(matchup.dps)} DPS)</div>`,
+        `<div>Time to kill with your items: <b>${killTime(matchup.timeToKill)}</b> (${Math.round(matchup.dps)} DPS over a teamfight)</div>`,
     ];
 
     if (after && nextName) {
@@ -271,7 +276,7 @@ function renderVersus(player, matchup, after, nextName) {
 
     return `
         <span class="vs" ${tipAttr(`vs-${player.champion}`, lines.join(""))}>
-            ${ICONS.sword}<b>${seconds(matchup.timeToKill)}</b>${afterText}
+            ${ICONS.sword}<b>${killTime(matchup.timeToKill)}</b>${afterText}
         </span>`;
 }
 

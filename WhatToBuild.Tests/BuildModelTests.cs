@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using WhatToBuild.Data;
+using WhatToBuild.Dtos;
 using WhatToBuild.Forecasting;
 using WhatToBuild.Game;
 using WhatToBuild.Modeling;
@@ -63,7 +64,6 @@ public class BuildModelTests
         Objectives = new Dictionary<Team, ObjectiveCounts> { [Team.Order] = new(), [Team.Chaos] = new() },
     };
 
-    // Each enemy team owns about the same gold in items, so only the trait under test differs.
     private static PlayerState[] Healers() =>
     [
         Player("Aatrox", Team.Chaos, "TOP", 14, 3071, 3047, 3053),
@@ -109,11 +109,18 @@ public class BuildModelTests
         Player("Leona", Team.Chaos, "UTILITY", 11, 3190, 3047, 3109, 3083),
     ];
 
-    private static BuildEvaluator Evaluator(GameState state)
+    private static BuildEvaluator Evaluator(GameState state, ModelData? model = null)
     {
         var stack = new GameStack();
         stack.Push(state);
-        return new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
+        return new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, model ?? _model));
+    }
+
+    private static ModelData DefaultWeights()
+    {
+        var model = ModelData.Load(Path.Combine(AppContext.BaseDirectory, "GameData"));
+        model.Settings.Objectives.Champions.Clear();
+        return model;
     }
 
     private static Item StatsOnly(Item item) => new()
@@ -128,7 +135,6 @@ public class BuildModelTests
         Stats = item.Stats,
     };
 
-    /// <summary>How much an item's effects (not its stats) add to the score, as a fraction of fight value.</summary>
     private static double EffectValue(GameState state, int riotId, EvaluationMode mode = EvaluationMode.Screen)
     {
         var evaluator = Evaluator(state);
@@ -140,8 +146,6 @@ public class BuildModelTests
         var without = evaluator.Evaluate([.. owned, StatsOnly(item)], time, null, mode).Score;
         return Math.Exp(with - without) - 1;
     }
-
-    // ---- Fight sustain ------------------------------------------------------------------------------
 
     private static ChampionState KindredEntity(params int[] items) => new(_champions.ByName("Kindred")!, 13, items.Append(3006).Append(3031).Select(Item));
 
@@ -214,8 +218,6 @@ public class BuildModelTests
         Assert.IsLessThan(result.Damage / result.Seconds * 0.2, result.EffectiveDps);
     }
 
-    // ---- Forecasting --------------------------------------------------------------------------------
-
     [TestMethod]
     public void EnemyGoldIsTheirItemValueAndGrowsWithTheirOwnRate()
     {
@@ -257,7 +259,7 @@ public class BuildModelTests
     public void EnemiesFinishTheItemTheirComponentsAreFor()
     {
         var garen = Player("Garen", Team.Chaos, "TOP", 13, 3047, 3044);
-        var projector = new BuildProjector(_model.Archetypes, _items);
+        var projector = new BuildProjector(_items, _model.Meta);
         var build = projector.Project(garen, 3000, _ => Now);
 
         Assert.IsTrue(build.Purchases.Any(p => p.Item.BuildPath.Contains(Item(3044).Id)), $"Phage should turn into its item, got {string.Join(", ", build.Purchases.Select(p => p.Item.Name))}");
@@ -271,7 +273,7 @@ public class BuildModelTests
         var ornn = Player("Ornn", Team.Chaos, "TOP", 14, 3084, 3047);
         var state = Game([ornn]);
         state.ItemFirstSeen = new Dictionary<(string Champion, int Item), double> { [("Ornn", 3084)] = Now - 300 };
-        var world = new WorldForecast(new GameForecaster(state, new GameStack(), _model), new BuildProjector(_model.Archetypes, _items), _neutrals, 15);
+        var world = new WorldForecast(new GameForecaster(state, new GameStack(), _model), new BuildProjector(_items, _model.Meta), _neutrals, 15);
 
         var soon = world.EnemiesAt(Now).Single().ItemStacks[Item(3084).Id];
         var later = world.EnemiesAt(Now + 600).Single().ItemStacks[Item(3084).Id];
@@ -279,8 +281,6 @@ public class BuildModelTests
         Assert.IsGreaterThan(soon, later);
         Assert.IsGreaterThan(world.EnemiesAt(Now).Single().Entity.MaxHealth, world.EnemiesAt(Now + 600).Single().Entity.MaxHealth);
     }
-
-    // ---- What the model reacts to ------------------------------------------------------------------
 
     [TestMethod]
     public void AntiHealIsWorthMoreAgainstHealers()
@@ -314,8 +314,6 @@ public class BuildModelTests
     [TestMethod]
     public void PercentHealthDamageIsWorthBuyingAgainstTanks()
     {
-        // Kindred's W already scales with current health, so the gap to squishies is smaller than for most
-        // champions; what must hold is that the effect is worth real money against a tank line.
         var tanks = EffectValue(Game(Tanks()), 3153, EvaluationMode.Full);
         var fresh = EffectValue(Game([Player("Zed", Team.Chaos, "TOP", 7), Player("Xerath", Team.Chaos, "MIDDLE", 7)]), 3153, EvaluationMode.Full);
 
@@ -349,8 +347,6 @@ public class BuildModelTests
         Assert.IsGreaterThan(0, before.IncomingDps);
     }
 
-    // ---- Jungle -------------------------------------------------------------------------------------
-
     [TestMethod]
     public void ClearMattersEarlyAndFadesLater()
     {
@@ -373,7 +369,7 @@ public class BuildModelTests
             Items = [new OwnedItem(Item(1101), 1, 0)],
             IsActivePlayer = true,
         };
-        var evaluator = Evaluator(Game(NoSustain(), me: me, time: 300));
+        var evaluator = Evaluator(Game(NoSustain(), me: me, time: 300), DefaultWeights());
 
         var owned = evaluator.Context.Owned;
         var before = evaluator.Evaluate(owned, 300);
@@ -387,15 +383,13 @@ public class BuildModelTests
     [TestMethod]
     public void ClearStopsMatteringOnceYouHaveItems()
     {
-        var early = Evaluator(Game(NoSustain(), me: Kindred(1101), time: 300)).Context;
-        var built = Evaluator(Game(NoSustain(), me: Kindred(1101, 6672, 3031, 3036), time: 300)).Context;
+        var early = Evaluator(Game(NoSustain(), me: Kindred(1101), time: 300), DefaultWeights()).Context;
+        var built = Evaluator(Game(NoSustain(), me: Kindred(1101, 6672, 3031, 3036), time: 300), DefaultWeights()).Context;
 
         Assert.IsGreaterThan(0.5, early.ClearWeightAt(300));
         Assert.AreEqual(0, built.ClearWeightAt(300), 1e-9, "Three completed items: you are fighting, not farming.");
         Assert.AreEqual(0, early.ClearWeightAt(20 * 60), 1e-9, "Past the fade, clear speed no longer counts.");
     }
-
-    // ---- Movement speed ------------------------------------------------------------------------------
 
     [TestMethod]
     public void MoveSpeedFollowsTheWikiFormula()
@@ -419,7 +413,7 @@ public class BuildModelTests
     [TestMethod]
     public void BootsShortenTheWalkBetweenCamps()
     {
-        var evaluator = Evaluator(EarlyBack(3.5, 500));
+        var evaluator = Evaluator(EarlyBack(3.5, 500), DefaultWeights());
         var owned = evaluator.Context.Owned;
 
         var barefoot = evaluator.Evaluate(owned, 210);
@@ -433,9 +427,8 @@ public class BuildModelTests
     [TestMethod]
     public void OneBootsPointIsWorthAboutTwelveGoldOfStats()
     {
-        // The wiki values flat movement speed at 12 gold per point. Mid-game, with no clear left to speed up,
-        // map tempo alone should price Boots (+25) near 300 gold of plain stat components.
-        var evaluator = Evaluator(Game(NoSustain()));
+        var model = DefaultWeights();
+        var evaluator = Evaluator(Game(NoSustain()), model);
         var owned = evaluator.Context.Owned;
         var time = Now;
 
@@ -443,17 +436,63 @@ public class BuildModelTests
         var perGold = new[] { 1036, 1042, 1029, 1028, 1033 }
             .Average(id => (evaluator.Evaluate([.. owned, Item(id)], time, null, EvaluationMode.Full).Score - baseline.Score) / Item(id).Cost);
         var boots = evaluator.Evaluate([.. owned, Item(1001)], time, null, EvaluationMode.Full);
-        var tempoOnly = _model.Settings.Movement.TempoWeightAt(time) * Math.Log(boots.Tempo / baseline.Tempo);
+        var tempoOnly = model.Settings.Movement.TempoWeightAt(time) * Math.Log(boots.Tempo / baseline.Tempo);
 
         Assert.AreEqual(300, tempoOnly / perGold, 150, $"Tempo prices Boots at {tempoOnly / perGold:0} gold.");
     }
 
     [TestMethod]
-    public void OnASmallBackBuyBoots()
+    public void OnASmallBackSpendTowardThePlan()
     {
         var recommendation = new BuildRecommendations(_items, _neutrals, _kits, _model).Compute(EarlyBack(3.5, 500), new GameStack())!;
+        var planned = recommendation.BuildPath.Where(s => s.Status != BuildStepDto.Owned).Select(s => _items.ByRiotId(s.Item.RiotId)!).ToList();
 
-        Assert.AreEqual("Boots", recommendation.BuyNow.Summary, "300–600 gold and no meaningful component in reach: Boots.");
+        Assert.IsNotEmpty(recommendation.BuyNow.Items);
+        Assert.IsLessThanOrEqualTo(500, recommendation.BuyNow.Cost);
+        foreach (var bought in recommendation.BuyNow.Items.Select(i => _items.ByRiotId(i.RiotId)!))
+        {
+            Assert.IsTrue(planned.Any(p => p.Id == bought.Id || Builds(p, bought)), $"{bought.Name} is not part of the plan.");
+        }
+    }
+
+    private static bool Builds(Item parent, Item component) =>
+        parent.BuildPath.Any(id => id == component.Id || _items.ById(id) is { } child && Builds(child, component));
+
+    [TestMethod]
+    public void EveryChampionHasAStandardBuild()
+    {
+        foreach (var champion in _champions.All)
+        {
+            var build = _model.Meta.For(champion);
+            Assert.IsGreaterThanOrEqualTo(6, build.Count, $"{champion.Name} needs a full metaBuild.");
+            Assert.IsTrue(ItemRules.IsLegal(build), $"{champion.Name}'s metaBuild breaks the item rules.");
+        }
+    }
+
+    [TestMethod]
+    public void EnemiesKeepTheirItemsAndFollowTheirStandardBuild()
+    {
+        var garen = Player("Garen", Team.Chaos, "TOP", 13, 3047);
+        var build = new BuildProjector(_items, _model.Meta).Project(garen, 3300, _ => Now);
+        var standard = _model.Meta.For(garen.Champion);
+
+        Assert.Contains(Item(3047), build.Items, "What they own stays.");
+        Assert.AreEqual(standard.First(i => i.RiotId != 3047).Id, build.Purchases.First().Item.Id, "Next is the first standard item they lack.");
+    }
+
+    [TestMethod]
+    public void TheOpeningPlansAWholeBuild()
+    {
+        var opening = _model.Settings.Planner.Opening!;
+        var quick = new ModelSettings.PlanStage
+        {
+            Name = opening.Name, BudgetMilliseconds = 3000, ScreenCount = 12, BeamWidth = 4, Branching = 8, Depth = 6, Mode = opening.Mode, HorizonGold = opening.HorizonGold,
+        };
+
+        var plan = new BuildPlanner(Evaluator(EarlyBack(0.5, 0))).Plan(null, quick);
+
+        Assert.IsGreaterThanOrEqualTo(4, plan.Steps.Count(s => s.Item.Cost >= 2000), string.Join(" > ", plan.Steps.Select(s => s.Item.Name)));
+        Assert.IsTrue(plan.Steps.All(s => s.At >= _model.Settings.Planner.FirstRecallSeconds), "Nothing is bought before the first recall.");
     }
 
     [TestMethod]
@@ -465,8 +504,6 @@ public class BuildModelTests
         Assert.IsTrue(pool.Any(i => i.RiotId == 3006), "Tier 2 boots are candidates.");
         Assert.IsFalse(pool.Any(i => i.RiotId is 3172 or 3170 or 3171), "Tier 3 boots come from Feats of Strength, not the shop.");
     }
-
-    // ---- Kindred specifics ---------------------------------------------------------------------------
 
     private static KindredKitData KitData() =>
         KindredKitData.Load(Path.Combine(AppContext.BaseDirectory, "GameData", ChampionKits.FolderName, KindredKitData.FileName));
@@ -518,7 +555,6 @@ public class BuildModelTests
         var evaluation = evaluator.Evaluate(evaluator.Context.Owned, Now);
 
         Assert.IsNotNull(evaluator.BattlefieldAt(Now).Survival);
-        // Rank 2 at level 13: 140s cooldown, so it is up for 120/140 of teamfights.
         Assert.IsGreaterThan(evaluation.TimeAliveWithoutAbility + 4 * 120.0 / 140 - 0.01, evaluation.TimeAlive);
     }
 
@@ -532,11 +568,6 @@ public class BuildModelTests
         Assert.IsLessThan(4, evaluation.TimeAliveWithoutAbility, $"Lasts {evaluation.TimeAliveWithoutAbility:0.0}s under focus.");
     }
 
-    /// <summary>
-    /// Symmetry check: an enemy Kindred with your exact build, estimated from tags, should deal a good share
-    /// of what your simulated kit deals. The rest is her kit (Q's attack speed, the mark-scaling wolf), which
-    /// tags cannot know.
-    /// </summary>
     [TestMethod]
     public void TagEstimatesAreInReachOfTheSimulatedKit()
     {
@@ -549,7 +580,7 @@ public class BuildModelTests
             .ToList()).EffectiveDps;
 
         var enemy = new PlayerState { Champion = kindred, Team = Team.Chaos, Position = "JUNGLE", Level = 13, Items = build.Select((b, s) => new OwnedItem(b, 1, s)).ToList() };
-        var world = new WorldForecast(new GameForecaster(Game([enemy]), new GameStack(), _model), new BuildProjector(_model.Archetypes, _items), _neutrals, 15);
+        var world = new WorldForecast(new GameForecaster(Game([enemy]), new GameStack(), _model), new BuildProjector(_items, _model.Meta), _neutrals, 15);
         var profile = new CombatProfiler(_model.Settings).Profile(world.EnemiesAt(Now).Single());
         var estimated = profile.Streams.Sum(s =>
         {
@@ -578,6 +609,30 @@ public class BuildModelTests
     }
 
     [TestMethod]
+    public void HubrisIsUpMoreOftenTheMoreTakedownsYouGet()
+    {
+        var evaluator = Evaluator(Game(NoSustain()));
+
+        Assert.AreEqual(0, evaluator.TakedownBuffUptime(0, 90), 1e-9);
+        Assert.IsGreaterThan(1 - Math.Exp(-1.5), evaluator.TakedownBuffUptime(1, 90), "A takedown inside the fight also turns it on, on top of the 90 second carry-over.");
+        Assert.IsGreaterThan(evaluator.TakedownBuffUptime(0.4, 90), evaluator.TakedownBuffUptime(1, 90));
+        Assert.IsLessThan(1, evaluator.TakedownBuffUptime(3, 90));
+    }
+
+    [TestMethod]
+    public void HubrisGrowsWithYourTakedowns()
+    {
+        var quiet = Evaluator(Game(NoSustain(), me: Kindred(6697, 3006, 1101)));
+        var fed = Evaluator(Game(NoSustain(), me: new PlayerState
+        {
+            Champion = _champions.ByName("Kindred")!, Team = Team.Order, Position = "JUNGLE", Level = 13, IsActivePlayer = true, Kills = 12, Assists = 10,
+            Items = new[] { 6697, 3006, 1101 }.Select((id, slot) => new OwnedItem(Item(id), 1, slot)).ToList(),
+        }));
+
+        Assert.IsGreaterThan(quiet.Us(quiet.Context.Owned, Now).Stats.AttackDamage, fed.Us(fed.Context.Owned, Now).Stats.AttackDamage);
+    }
+
+    [TestMethod]
     public void AlliesShredMakesYouKillFaster()
     {
         var plain = Fight(KindredEntity(6672), null);
@@ -594,8 +649,6 @@ public class BuildModelTests
 
         Assert.AreEqual(0.3 * _model.Settings.Allies.ShredCoverage, sustain.ExternalArmorShred, 1e-9);
     }
-
-    // ---- Planner ------------------------------------------------------------------------------------
 
     private static GameState Replay() =>
         GameStateParser.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Replays", "demo", "000.json")), _champions, _items);
@@ -692,8 +745,6 @@ public class BuildModelTests
     [TestMethod]
     public void ASameStateReplanKeepsTheTarget()
     {
-        // The detailed stage may overrule the quick one once; after that, periodic replans of the same
-        // situation must not flip the target back and forth.
         var source = new BuildRecommendations(_items, _neutrals, _kits, _model);
         var state = Replay();
         source.Compute(state, new GameStack());

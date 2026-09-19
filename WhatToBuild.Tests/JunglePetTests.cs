@@ -97,7 +97,7 @@ public class JunglePetTests
         var ruinedKing = _items.ByRiotId(3153)!;
 
         Assert.StartsWith("On attack: 35 true damage", ItemDescriber.EffectLines(Gustwalker.Effects, kindred)[0]);
-        Assert.StartsWith("Every 3 attacks: 140 physical damage", ItemDescriber.EffectLines(kraken.Effects, new ChampionState(Kindred, 3, [kraken]))[0]);
+        Assert.StartsWith("Every 3 attacks: 120 physical damage", ItemDescriber.EffectLines(kraken.Effects, new ChampionState(Kindred, 3, [kraken]))[0]);
         Assert.StartsWith("On attack: 6% target current health physical damage", ItemDescriber.EffectLines(ruinedKing.Effects, new ChampionState(Kindred, 3, [ruinedKing]))[0]);
     }
 

@@ -37,5 +37,13 @@
                          "stat":  "attackSpeed",
                          "initialStacksPerMinute":  4
                      }
-                 ]
+                 ],
+    "metaBuild":  [
+                      "3a001178-2a87-adc2-4e71-323f79d6bc61",
+                      "c2821980-cb70-1ea5-aa5b-035485f74e15",
+                      "853ba6df-da00-2698-cb64-79dff1698b7c",
+                      "28bbc6fc-5c46-34fc-97df-c76560aabee4",
+                      "6430bf17-7fe7-21e4-8f47-eff9ad1dedb4",
+                      "921f4a96-2b86-a654-fab6-8978a75f2e17"
+                  ]
 }

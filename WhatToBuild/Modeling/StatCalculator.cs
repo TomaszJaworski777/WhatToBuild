@@ -86,10 +86,6 @@ public static class StatCalculator
     public const double MoveSpeedSoftCap = 415;
     public const double MoveSpeedHardCap = 490;
 
-    /// <summary>
-    /// Movement speed from base plus flat bonuses, times one plus additive percent bonuses, then the soft
-    /// caps: above 415 each point counts 80%, above 490 it counts 50% (League wiki, Movement speed).
-    /// </summary>
     public static double MoveSpeed(double flat, double percent)
     {
         var raw = flat * (1 + percent);

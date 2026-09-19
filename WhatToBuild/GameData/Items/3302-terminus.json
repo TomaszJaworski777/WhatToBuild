@@ -29,7 +29,8 @@
             "trigger": "Always",
             "kind": "StatBuff",
             "stat": "armorPenetrationPercent",
-            "amount": 0.3
+            "amount": 0.3,
+            "stacksTo": 6
         }
     ]
 }

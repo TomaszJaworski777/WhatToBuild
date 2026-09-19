@@ -4,7 +4,6 @@ using WhatToBuild.Planning;
 
 namespace WhatToBuild.Forecasting;
 
-/// <summary>Where a player stands now and how fast they earn, relative to the baseline for their role.</summary>
 public sealed record PlayerOutlook(
     PlayerState Player,
     string Role,
@@ -13,18 +12,6 @@ public sealed record PlayerOutlook(
     double Pace,
     bool EarnedIsExact);
 
-/// <summary>
-/// Forecasts every player's gold, level and champion stacks at a future game time.
-///
-/// Gold: your own is exact (current gold plus items). An enemy's is the value of their items, the only
-/// gold the API shows. Future gold extrapolates each player's own income rate: their whole-game average
-/// and their recent rate (a regression over <c>paceWindowSeconds</c>), taken relative to the baseline
-/// for their role. The baseline curve only gives the rate its shape over the game (income rises as
-/// the game goes on); how fast the player earns comes from the player. In the first minutes, before a
-/// rate means anything, the forecast leans on the baseline instead.
-/// Level: the baseline level plus today's lead or deficit, fading over <c>levelReversionSeconds</c>
-/// (catch-up experience).
-/// </summary>
 public sealed class GameForecaster
 {
     private const double TableStep = 15;
@@ -66,7 +53,6 @@ public sealed class GameForecaster
         }
     }
 
-    /// <summary>Total gold the player will have earned by <paramref name="time"/> (items plus unspent).</summary>
     public double EarnedAt(PlayerState player, double time)
     {
         var table = Table(player);
@@ -83,7 +69,6 @@ public sealed class GameForecaster
         return table[i] + (offset - i) * (table[i + 1] - table[i]);
     }
 
-    /// <summary>The game time at which the player's total earned gold reaches <paramref name="earned"/>.</summary>
     public double TimeToEarn(PlayerState player, double earned)
     {
         var table = Table(player);
@@ -107,7 +92,6 @@ public sealed class GameForecaster
         return Now + (last + (earned - table[last]) / slope) * TableStep;
     }
 
-    /// <summary>Expected level at <paramref name="time"/>, never below the current one.</summary>
     public int LevelAt(PlayerState player, double time)
     {
         var role = Outlook(player).Role;
@@ -118,13 +102,8 @@ public sealed class GameForecaster
         return (int)Math.Clamp(Math.Floor(level), player.Level, 18);
     }
 
-    /// <summary>
-    /// ± seconds around a forecast time, growing with the horizon: the income rate itself is uncertain by
-    /// <c>rateUncertainty</c>.
-    /// </summary>
     public double Spread(double time) => 10 + Math.Max(0, time - Now) * _income.RateUncertainty;
 
-    /// <summary>Champion stacks (Veigar AP, Garen resists, Nasus Q) by <paramref name="time"/>.</summary>
     public double StacksAt(PlayerState player, ChampionStacking stacking, double time)
     {
         var observed = player.EstimatedStacks.FirstOrDefault(s => s.Stat == stacking.Stat);
@@ -137,7 +116,6 @@ public sealed class GameForecaster
         return stacking.Max > 0 ? Math.Min(stacking.Max, stacks) : stacks;
     }
 
-    /// <summary>What a player's gold is taken to be: exact for you, the value of their items for everyone else.</summary>
     public static double GoldOf(GameState state, PlayerState player) =>
         player.IsActivePlayer ? state.GoldEarned : player.ItemValue;
 
@@ -146,8 +124,6 @@ public sealed class GameForecaster
         var role = RoleOf(player);
         var own = OwnPace(player);
 
-        // Item value only moves when someone recalls, so one player's rate is noisy. Everyone but you is
-        // pulled toward the lobby's average trend; your gold is exact every second, so yours is not.
         var pace = player.IsActivePlayer
             ? own
             : (1 - _income.TrendWeight) * own + _income.TrendWeight * LobbyPace();
@@ -158,10 +134,6 @@ public sealed class GameForecaster
         return new PlayerOutlook(player, role, GoldOf(_state, player), baselineRate * pace * 60, pace, player.IsActivePlayer);
     }
 
-    /// <summary>
-    /// The player's own income relative to the baseline for their role: their whole-game average rate,
-    /// blended with their recent rate by <c>recentWeight</c>, and trusted more as the game goes on.
-    /// </summary>
     private double OwnPace(PlayerState player)
     {
         var role = RoleOf(player);
@@ -184,14 +156,12 @@ public sealed class GameForecaster
         return Math.Clamp(1 + (observedPace - 1) * trust, _income.MinPace, _income.MaxPace);
     }
 
-    /// <summary>Average own pace of everyone whose gold is read from items: how fast this game is going.</summary>
     private double LobbyPace()
     {
         _lobbyPace ??= _state.Players.Where(p => !p.IsActivePlayer).Select(OwnPace).DefaultIfEmpty(1).Average();
         return _lobbyPace.Value;
     }
 
-    /// <summary>Gold per second over the recent window, by least squares so a recall purchase does not look like a spike.</summary>
     private double? RecentRate(PlayerState player)
     {
         var points = _stack.Series(s => s.Find(player.Champion) is { } p ? GoldOf(s, p) : null, _income.PaceWindowSeconds);

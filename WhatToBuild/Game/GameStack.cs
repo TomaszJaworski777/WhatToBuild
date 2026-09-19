@@ -14,7 +14,6 @@ public sealed class GameStack
 
     public int Count => _states.Count;
 
-    /// <summary>A snapshot another thread can read while this one keeps growing.</summary>
     public GameStack Copy()
     {
         var copy = new GameStack();

@@ -5,7 +5,6 @@ using WhatToBuild.Modeling;
 
 namespace WhatToBuild.Planning;
 
-/// <summary>One purchase on the plan: what, when it completes, and the inventory around it.</summary>
 public sealed record PlanStep(
     Item Item,
     double At,
@@ -17,7 +16,6 @@ public sealed record PlanStep(
     IReadOnlyDictionary<Guid, double> StacksBefore,
     IReadOnlyDictionary<Guid, double> StacksAfter);
 
-/// <summary>A completed item scored as your very next purchase, whether or not it made the plan.</summary>
 public sealed record CandidateValue(Item Item, double At, double Value, double Gain);
 
 public sealed class BuildPlan
@@ -28,7 +26,6 @@ public sealed class BuildPlan
 
     public required double Horizon { get; init; }
 
-    /// <summary>Every candidate scored as the next purchase, best first.</summary>
     public required IReadOnlyList<CandidateValue> Candidates { get; init; }
 
     public required int Evaluations { get; init; }
@@ -41,32 +38,18 @@ public sealed class BuildPlan
 
     public required string Stage { get; init; }
 
-    /// <summary>The evaluation mode the stage scored with; explanations reuse it so they cost nothing extra.</summary>
     public required EvaluationMode Mode { get; init; }
 
     public required bool Cancelled { get; init; }
 }
 
-/// <summary>Lets the caller stop a long planning stage and do small jobs while it runs.</summary>
 public interface IPlanControl
 {
-    /// <summary>True when the result is no longer wanted (the game changed).</summary>
     bool ShouldStop();
 
-    /// <summary>Called between evaluations; a chance to refresh gold-only parts of the advice.</summary>
     void Tick();
 }
 
-/// <summary>
-/// Beam search over your next purchases. Each purchase is scored at the moment you are forecast to
-/// afford it, against the enemies as they are forecast to be at that moment.
-///
-/// A plan's value is the score gain over your current items, integrated over time until a horizon a few
-/// items away, with a discount so near purchases count most. Buying something earlier makes it count for
-/// longer, so cheap high-impact items naturally go first, and an item that only pays off after the
-/// horizon is worth nothing now. When the inventory is full, a purchase sells the item that contributes
-/// least, and is only allowed if it beats keeping it by <c>replaceMargin</c>.
-/// </summary>
 public sealed class BuildPlanner
 {
     private readonly BuildEvaluator _evaluator;
@@ -82,16 +65,9 @@ public sealed class BuildPlanner
         _evaluator = evaluator;
         _context = evaluator.Context;
         _settings = _context.Settings.Planner;
-        // A tier 2 pair of boots is a component of its tier 3 upgrade, but that upgrade is not a shop
-        // purchase, so being part of one does not make the tier 2 pair a mere component.
         _components = _context.Items.All.Where(i => !IsUpgradedBoots(i)).SelectMany(i => i.BuildPath).ToHashSet();
     }
 
-    /// <summary>Completed items the planner considers: everything you can finish, off-meta included.</summary>
-    /// <remarks>
-    /// Plain Boots are a candidate too, although they are a component: a 300 gold purchase that gets you
-    /// around the map faster long before finished boots, which the planner should be able to suggest.
-    /// </remarks>
     public IReadOnlyList<Item> CandidatePool() =>
         _context.Items.All
             .Where(i => i.Cost >= 900 && !_components.Contains(i.Id) || IsBasicBoots(i))
@@ -100,15 +76,8 @@ public sealed class BuildPlanner
             .OrderBy(i => i.RiotId)
             .ToList();
 
-    /// <param name="previousTarget">The item the last plan led with; kept unless something is clearly better.</param>
-    /// <param name="stage">How hard to search. Defaults to the first (quick) stage in model.json.</param>
-    /// <param name="control">Optional cancellation and between-evaluation callback.</param>
     private static bool IsBasicBoots(Item item) => item.Groups.Contains("Boots") && item.BuildPath.Count == 0;
 
-    /// <summary>
-    /// Tier 3 boots (Gunmetal Greaves, Swiftmarch, ...) upgrade a finished pair for no gold once your team
-    /// earns Feats of Strength. They are not a shop decision, so they are never suggested; owned ones still count.
-    /// </summary>
     private bool IsUpgradedBoots(Item item) =>
         item.Groups.Contains("Boots")
         && item.BuildPath.Any(id => _context.Items.ById(id) is { } part && part.Groups.Contains("Boots") && part.BuildPath.Count > 0);
@@ -127,7 +96,7 @@ public sealed class BuildPlanner
 
         var horizon = Math.Max(
             now + _settings.MinHorizonSeconds,
-            forecaster.TimeToEarn(me, forecaster.EarnedAt(me, now) + _settings.HorizonGold));
+            forecaster.TimeToEarn(me, forecaster.EarnedAt(me, now) + (_stage.HorizonGold ?? _settings.HorizonGold)));
 
         var root = new Node
         {
@@ -140,7 +109,6 @@ public sealed class BuildPlanner
 
         var timedOut = false;
         var screened = Prescreen(root, horizon, previousTarget, watch, budget, ref timedOut);
-        // Plain Boots never win on their own against a whole item, but can win as the step before one.
         var firstLayer = Score(screened.Take(_stage.ScreenCount)
             .Concat(screened.Where(n => n.Item!.Id == previousTarget?.Id || IsBasicBoots(n.Item!)))
             .Distinct()
@@ -162,7 +130,6 @@ public sealed class BuildPlanner
         var beam = Beam(firstLayer, horizon, previousTarget);
         beam.AddRange(firstLayer.Where(n => IsBasicBoots(n.Item!) && !beam.Contains(n)));
 
-        // Plain Boots are always worth a look between big items, whatever the first layer ranked.
         foreach (var boots in firstLayer.Where(n => IsBasicBoots(n.Item!)).Select(n => n.Item!))
         {
             if (branching.All(b => b.Id != boots.Id))
@@ -171,8 +138,6 @@ public sealed class BuildPlanner
             }
         }
 
-        // Depth counts major purchases: a 300 gold pair of Boots does not use up one of them, so one extra
-        // layer lets a plan hold Boots and still reach `depth` real items.
         for (var layer = 2; layer <= _stage.Depth + 1 && beam.Count > 0 && !Stop(watch, budget); layer++)
         {
             var open = beam.Where(p => p.Depth < _stage.Depth).ToList();
@@ -221,7 +186,6 @@ public sealed class BuildPlanner
         };
     }
 
-    /// <summary>Stacks a stacking item has when scored: from purchase to a short look-ahead past the moment it is scored.</summary>
     public IReadOnlyDictionary<Guid, double> StacksAt(IReadOnlyDictionary<Guid, double> boughtAt, double time)
     {
         var stacks = new Dictionary<Guid, double>();
@@ -231,7 +195,7 @@ public sealed class BuildPlanner
             if (_context.Items.ById(id)?.Stacking is { } stacking)
             {
                 var minutes = (time + _settings.StackLookaheadSeconds - at) / 60;
-                stacks[id] = stacking.StacksAfter(minutes, _context.Champion.IsRanged);
+                stacks[id] = _context.StacksAfter(stacking, minutes);
             }
         }
 
@@ -251,10 +215,6 @@ public sealed class BuildPlanner
         return beam;
     }
 
-    /// <summary>
-    /// Every candidate as your next purchase, scored cheaply (one attack timing, the biggest threats only)
-    /// and ranked by the value of buying it alone. Only the best of these get a proper score.
-    /// </summary>
     private List<Node> Prescreen(Node root, double horizon, Item? previousTarget, Stopwatch watch, double budget, ref bool timedOut)
     {
         if (ItemRules.Slots(root.Inventory) >= ItemRules.InventorySlots)
@@ -298,10 +258,6 @@ public sealed class BuildPlanner
         return specs.Where(s => s.Scored).Where(s => s.Sold is null || s.ReplacementGain >= ReplaceMargin(s.Sold)).ToList();
     }
 
-    /// <summary>
-    /// How much better a swap must be than keeping the item it sells. Selling a finished item costs 30% of it
-    /// and invites swapping back later, so it needs a clear win; starters and consumables go for less.
-    /// </summary>
     private double ReplaceMargin(Item sold) =>
         sold.Cost >= 2000 && !_components.Contains(sold.Id) ? _settings.ReplaceFinishedMargin : _settings.ReplaceMargin;
 
@@ -331,7 +287,7 @@ public sealed class BuildPlanner
         var forecaster = _context.Forecaster;
         var need = purchase.Cost - refund - parent.GoldLeft;
         var bonus = parent.BonusGoldPerSecond;
-        var time = need <= 0 ? parent.Time : TimeToAfford(parent, need, bonus);
+        var time = need <= 0 ? parent.Time : _context.NextRecall(TimeToAfford(parent, need, bonus), _context.Now);
         if (time > horizon)
         {
             return null;
@@ -367,10 +323,6 @@ public sealed class BuildPlanner
         };
     }
 
-    /// <summary>
-    /// When <paramref name="need"/> more gold is in hand after <paramref name="parent"/>, counting the forecast
-    /// income plus <paramref name="bonus"/> gold per second from gold items bought along the plan.
-    /// </summary>
     private double TimeToAfford(Node parent, double need, double bonus)
     {
         var forecaster = _context.Forecaster;
@@ -398,11 +350,6 @@ public sealed class BuildPlanner
         return high;
     }
 
-    /// <summary>
-    /// Gold per second your gold items earn (The Collector per kill, Cull per minion). Per-kill income uses
-    /// your own kill rate this game when there is one, so it is worth more to a player who is snowballing.
-    /// Your current income already includes what owned items earn, so the plan only adds the difference.
-    /// </summary>
     public double GoldIncome(IEnumerable<Item> inventory)
     {
         var me = _context.Me;
@@ -436,6 +383,18 @@ public sealed class BuildPlanner
         var after = _evaluator.Evaluate(node.Inventory, node.Time, StacksAt(node.BoughtAt, node.Time), _stage.Mode);
         node.Gain = after.Score - baseline.Score;
 
+        var pathCost = 0.0;
+        for (var step = node; step.Parent is not null; step = step.Parent)
+        {
+            pathCost += step.Cost;
+        }
+
+        var stranded = StrandedGold(node.Inventory) - StrandedGold(_context.Owned);
+        if (stranded != 0 && node.Gain > 0 && pathCost > 0)
+        {
+            node.Gain -= (1 - _settings.SellRefund) * stranded * node.Gain / pathCost;
+        }
+
         if (node.Sold is not null)
         {
             var parent = node.Parent!;
@@ -446,10 +405,9 @@ public sealed class BuildPlanner
         node.Scored = true;
     }
 
-    /// <summary>
-    /// The item whose loss hurts least, among those that can be sold. Never the jungle pet, and never boots:
-    /// the model cannot price movement speed, so it would sell them for any stat.
-    /// </summary>
+    private double StrandedGold(IEnumerable<Item> inventory) =>
+        inventory.Where(i => _components.Contains(i.Id) && !IsBasicBoots(i)).Sum(i => i.Cost);
+
     private Item? LeastValuable(Node node)
     {
         var sellable = node.Inventory
@@ -545,7 +503,6 @@ public sealed class BuildPlanner
 
         public double CheapValue { get; set; }
 
-        /// <summary>Extra gold per second from gold items bought along the plan so far.</summary>
         public double BonusGoldPerSecond { get; init; }
 
         public Item? SellCandidate { get; set; }

@@ -19,9 +19,12 @@
         {
             "trigger": "OnAttack",
             "kind": "PhysicalDamage",
-            "amount": 175,
+            "amount": 150,
+            "perLevel": 5,
+            "perLevelFrom": 9,
             "everyAttacks": 3,
-            "rangedMultiplier": 0.8
+            "rangedMultiplier": 0.8,
+            "missingHealthAmp": 0.75
         }
     ]
 }

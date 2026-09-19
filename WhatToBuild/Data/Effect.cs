@@ -124,5 +124,13 @@ public class Effect
     public double PerCritChance { get; set; }
     public double PerTargetMaxHealth { get; set; }
     public double PerTargetCurrentHealth { get; set; }
+
+    public double MissingHealthAmp { get; set; }
+
+    public int StacksTo { get; set; }
+
+    public double PerStack { get; set; }
+
+    public double Duration { get; set; }
 }
 

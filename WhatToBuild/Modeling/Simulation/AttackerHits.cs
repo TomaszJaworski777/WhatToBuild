@@ -58,7 +58,8 @@ public static class AttackerHits
 
     public static DamageCalculator? ForEffect(Effect effect, ChampionState attacker, Entity target)
     {
-        var raw = RawAmount(effect, attacker, target) * (attacker.Champion.IsRanged ? effect.RangedMultiplier : 1);
+        var raw = RawAmount(effect, attacker, target) * (attacker.Champion.IsRanged ? effect.RangedMultiplier : 1)
+                  * (1 + effect.MissingHealthAmp * (1 - target.HealthPercent));
 
         if (effect.ByCompanion)
         {

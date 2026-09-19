@@ -77,6 +77,26 @@ public static class ItemDescriber
             text += $" when {string.Join(" and ", effect.When.Select(Condition))}";
         }
 
+        if (effect.MissingHealthAmp > 0)
+        {
+            text += $", up to {Percent(effect.MissingHealthAmp)} more against missing health";
+        }
+
+        if (effect.PerStack > 0)
+        {
+            text += $", plus {Number(effect.PerStack)} per stack";
+        }
+
+        if (effect.Duration > 0)
+        {
+            text += $" for {Number(effect.Duration)}s";
+        }
+
+        if (effect.StacksTo > 0)
+        {
+            text += $", building up over {effect.StacksTo} attacks";
+        }
+
         if (effect.Cooldown > 0)
         {
             text += $" ({Number(effect.Cooldown)}s cooldown)";

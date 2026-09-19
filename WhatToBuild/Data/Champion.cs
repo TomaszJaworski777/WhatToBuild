@@ -89,6 +89,8 @@ public class Champion
 
     public StackReading? StackReading { get; set; }
 
+    public List<Guid> MetaBuild { get; set; } = new();
+
     public double Tag(string name) => Tags.GetValueOrDefault(name);
 
     public bool IsRanged => Tag("ranged") > 0;

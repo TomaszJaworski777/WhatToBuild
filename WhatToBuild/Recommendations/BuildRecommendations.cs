@@ -12,10 +12,8 @@ namespace WhatToBuild.Recommendations;
 
 public interface IRecommendationSource
 {
-    /// <summary>Returns the latest recommendation for <paramref name="state"/>. Must not block the poll.</summary>
     RecommendationDto? For(GameState state, GameStack stack);
 
-    /// <summary>Raised when a recommendation becomes ready between polls.</summary>
     event Action<RecommendationDto?>? Updated;
 }
 
@@ -30,15 +28,6 @@ public sealed class NoRecommendations : IRecommendationSource
     }
 }
 
-/// <summary>
-/// Turns the build model into advice. Plans with <see cref="BuildPlanner"/> when something that matters
-/// changes (items, levels, kills, objectives) or every <c>replanSeconds</c>; between plans it only
-/// refreshes what depends on your gold: the buy-now components and the arrival times.
-///
-/// It runs while you play, so all of it happens on one background thread at below-normal priority:
-/// <see cref="For"/> hands over the latest state and returns the latest finished recommendation
-/// without waiting, and the game always wins the CPU.
-/// </summary>
 public sealed class BuildRecommendations : IRecommendationSource
 {
     private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
@@ -72,12 +61,10 @@ public sealed class BuildRecommendations : IRecommendationSource
         _patch = items.Patch;
     }
 
-    /// <summary>Raised on the planner thread whenever a new recommendation is ready, so the UI gets it without waiting for a poll.</summary>
     public event Action<RecommendationDto?>? Updated;
 
     private IReadOnlyList<ModelSettings.PlanStage> Stages => _model.Settings.Planner.Stages;
 
-    /// <summary>Queues <paramref name="state"/> for the background worker and returns the latest finished recommendation.</summary>
     public RecommendationDto? For(GameState state, GameStack stack)
     {
         if (state.ActivePlayer is null || !state.Enemies.Any())
@@ -98,15 +85,9 @@ public sealed class BuildRecommendations : IRecommendationSource
 
         _wake.Set();
 
-        // A recommendation from another game would be wrong, not just late.
         return _latestGame == GameKey(state) ? _latest : null;
     }
 
-    /// <summary>
-    /// The planner thread. A new state gets a quick plan, or only a refresh of the gold-dependent advice
-    /// if nothing relevant changed. When idle, it runs the next, more detailed stage, which is cancelled
-    /// as soon as the game changes in a way that matters.
-    /// </summary>
     private void Work()
     {
         while (true)
@@ -156,7 +137,6 @@ public sealed class BuildRecommendations : IRecommendationSource
         Updated?.Invoke(recommendation);
     }
 
-    /// <summary>Stops a detailed stage when the game changes, and keeps gold-dependent advice fresh while it runs.</summary>
     private sealed class WorkerControl(BuildRecommendations owner) : IPlanControl
     {
         private const double TickSeconds = 0.25;
@@ -189,17 +169,11 @@ public sealed class BuildRecommendations : IRecommendationSource
     private static string GameKey(GameState state) =>
         string.Join(',', state.Players.Select(p => p.Champion.Name).Order());
 
-    /// <summary>
-    /// Something that changes the answer happened (items, levels, kills, objectives, a new game), so the
-    /// quick stage runs at once. Time passing alone is handled by <see cref="Refresh"/> in the background,
-    /// with the detailed stage, so the plan does not flip between a quick and a detailed answer.
-    /// </summary>
     private bool NeedsReplan(GameState state) =>
         _planned is null
         || StateKey(state) != _key
         || state.GameTime < _plannedAt;
 
-    /// <summary>Works the recommendation out right away, on the calling thread, with the quick stage.</summary>
     public RecommendationDto? Compute(GameState state, GameStack stack)
     {
         if (state.ActivePlayer is null || !state.Enemies.Any())
@@ -217,8 +191,14 @@ public sealed class BuildRecommendations : IRecommendationSource
                 }
 
                 var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
-                _planned = Explain(evaluator, new BuildPlanner(evaluator).Plan(_target, Stages[0]));
-                _stageDone = 0;
+                var opening = _model.Settings.Planner.Opening is { } whole
+                              && state.GameTime < _model.Settings.Planner.OpeningSeconds
+                              && (_planned is null || GameKey(state) != GameKey(_planned.Context.State) || state.GameTime < _plannedAt)
+                    ? whole
+                    : null;
+
+                _planned = Explain(evaluator, new BuildPlanner(evaluator).Plan(_target, opening ?? Stages[0]));
+                _stageDone = opening is not null ? Stages.Count - 1 : 0;
                 _key = StateKey(state);
                 _plannedAt = state.GameTime;
                 _target = _planned.Plan.Steps.FirstOrDefault()?.Item;
@@ -228,7 +208,6 @@ public sealed class BuildRecommendations : IRecommendationSource
         }
     }
 
-    /// <summary>Runs the next planning stage on the plan in hand. False if there is none left or it was cancelled.</summary>
     public bool Refine(IPlanControl? control = null)
     {
         lock (_lock)
@@ -251,10 +230,6 @@ public sealed class BuildRecommendations : IRecommendationSource
         }
     }
 
-    /// <summary>
-    /// Re-plans for a newer <paramref name="state"/> of the same situation with the last (most detailed)
-    /// stage, keeping the current target unless something is clearly better. False if cancelled.
-    /// </summary>
     public bool Refresh(GameState state, GameStack stack, IPlanControl? control = null)
     {
         lock (_lock)
@@ -275,7 +250,6 @@ public sealed class BuildRecommendations : IRecommendationSource
         }
     }
 
-    /// <summary>The plan in hand, rendered for <paramref name="state"/> (current gold and arrival times).</summary>
     public RecommendationDto? Current(GameState state)
     {
         lock (_lock)
@@ -324,7 +298,7 @@ public sealed class BuildRecommendations : IRecommendationSource
             var step = explained.Step;
             needSoFar += step.Cost - (step.Sold is { } sold ? sold.Cost * _model.Settings.Planner.SellRefund : 0);
             var need = Math.Max(0, needSoFar - gold);
-            var eta = need <= 0 ? state.GameTime : forecaster.TimeToEarn(me, earnedNow + need);
+            var eta = need <= 0 ? state.GameTime : context.NextRecall(forecaster.TimeToEarn(me, earnedNow + need), state.GameTime);
 
             steps.Add(new BuildStepDto(
                 Map(step.Item, context),
@@ -371,30 +345,51 @@ public sealed class BuildRecommendations : IRecommendationSource
         }
 
         var scorer = new EvaluatorScorer(planned.Evaluator, state.GameTime);
-        var plan = ComponentPurchase.Plan(first.Item, inventory, gold, _items, scorer);
+        var start = inventory.ToList();
+        var bought = new List<Item>();
+        var cost = 0;
+        var completes = false;
 
-        var summary = plan.Buy.Count > 0
-            ? string.Join(" + ", plan.Buy.Select(i => i.Name))
-            : $"Save up for {first.Item.Name}";
-
-        if (plan.Buy.Count > 0)
+        foreach (var step in planned.Plan.Steps)
         {
-            var before = planned.Evaluator.Evaluate(inventory, state.GameTime);
-            var after = planned.Evaluator.Evaluate(plan.InventoryAfter, state.GameTime);
-            why.Add($"+{Pct(Math.Exp(after.Score - before.Score) - 1)} fight value right away ({before.Dps:0} → {after.Dps:0} DPS)");
+            if (step != first && step.Sold is not null)
+            {
+                break;
+            }
+
+            var plan = ComponentPurchase.Plan(step.Item, inventory, gold - cost, _items, scorer);
+            bought.AddRange(plan.Buy);
+            cost += plan.Cost;
+            inventory = plan.InventoryAfter.ToList();
+
+            if (step == first)
+            {
+                completes = plan.CompletesTarget;
+            }
+
+            if (!plan.CompletesTarget || gold - cost < 1)
+            {
+                break;
+            }
         }
 
-        if (!plan.CompletesTarget && plan.Buy.Count > 0)
+        var summary = bought.Count > 0
+            ? string.Join(" + ", bought.Select(i => i.Name))
+            : $"Save up for {first.Item.Name}";
+
+        if (bought.Count > 0)
         {
-            why.Add($"Components are picked for the most value now, with a {ComponentPurchase.BasicComponentWeight * 100:0}% bonus per 1000 gold of basic components, which are harder to fit into a later recall");
+            var before = planned.Evaluator.Evaluate(start, state.GameTime);
+            var after = planned.Evaluator.Evaluate(inventory, state.GameTime);
+            why.Add($"+{Pct(Math.Exp(after.Score - before.Score) - 1)} fight value right away ({before.Dps:0} → {after.Dps:0} DPS)");
         }
 
         return new PurchaseDto(
             first.Item.Name,
-            plan.Buy.Select(i => Map(i, context)).ToList(),
-            plan.Cost,
-            gold - plan.Cost,
-            plan.CompletesTarget,
+            bought.Select(i => Map(i, context)).ToList(),
+            cost,
+            gold - cost,
+            completes,
             summary,
             why);
     }
@@ -519,7 +514,7 @@ public sealed class BuildRecommendations : IRecommendationSource
             reasons.Add($"Replaces {sold.Name}, which adds the least to your build (sold for {sold.Cost * context.Settings.Planner.SellRefund:0} gold)");
         }
 
-        var usual = context.Projector.BuildOf(context.Projector.ArchetypeFor(context.Me));
+        var usual = context.Projector.BuildOf(context.Champion);
         if (usual.Count > 0 && usual.All(u => u.Id != item.Id))
         {
             reasons.Add("Off-meta pick: not in the usual build for your champion, but it scores well in this game");
@@ -627,10 +622,6 @@ public sealed class BuildRecommendations : IRecommendationSource
         return result;
     }
 
-    /// <summary>
-    /// Your fights against each enemy right now, with their healing, shields and stacks, for the board. Scored
-    /// once per forecast bucket, so it costs one evaluation every few polls.
-    /// </summary>
     private static IReadOnlyList<MatchupDto> Matchups(Planned planned, GameState state)
     {
         var now = planned.Evaluator.Evaluate(planned.Context.Owned, state.GameTime, null, EvaluationMode.Full);

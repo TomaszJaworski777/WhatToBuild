@@ -39,7 +39,6 @@ public sealed class KindredKit : IChampionKit
 
     private const double ProbeDamage = 1000;
 
-    /// <summary>How long a computed E cast point is reused. It moves slowly, and recomputing it every step dominated the cost of a fight.</summary>
     private const double CastPointRefresh = 0.1;
 
     private readonly KindredKitData _data;
@@ -96,6 +95,7 @@ public sealed class KindredKit : IChampionKit
         }
 
         _zoneUntil = fight.Time + _data.W.ZoneDuration;
+        fight.Cast();
         _nextBite = fight.Time;
         _wReadyAt = fight.Time + fight.Cooldown(KindredKitData.AtRank(_data.W.Cooldown, rank));
     }
@@ -110,6 +110,7 @@ public sealed class KindredKit : IChampionKit
 
         var q = _data.Q;
         fight.Deal(DanceOfArrows, fight.Physical(QDamage(fight)).Ability());
+        fight.Cast();
         fight.AddAttackSpeed(q.AttackSpeed + q.AttackSpeedPerMark * fight.Stacks, q.AttackSpeedDuration);
 
         var cooldown = InZone(fight) ? KindredKitData.AtRank(q.CooldownInW, rank) : q.Cooldown;
@@ -125,6 +126,7 @@ public sealed class KindredKit : IChampionKit
         }
 
         _eAttacksLeft = _data.E.AttacksAfterCast;
+        fight.Cast();
         _eExpiresAt = fight.Time + _data.E.Window;
         _eReadyAt = fight.Time + fight.Cooldown(KindredKitData.AtRank(_data.E.Cooldown, rank));
     }
@@ -220,8 +222,6 @@ public sealed class KindredKit : IChampionKit
 
         var killing = scale * (flat + percent * fight.Target.MaxHealth) / (1 + scale * percent);
 
-        // Against monsters the missing-health part is capped. If the cap binds at the uncapped answer, the
-        // pounce is flat from there on and kills from scale · (flat + cap).
         if (IsMonster(fight.Target) && percent * (fight.Target.MaxHealth - killing) > _data.E.MonsterCap)
         {
             killing = scale * (flat + _data.E.MonsterCap);
@@ -230,7 +230,6 @@ public sealed class KindredKit : IChampionKit
         return killing;
     }
 
-    /// <summary>Jungle and epic monsters, which W and E treat differently. Minions are not monsters.</summary>
     private static bool IsMonster(Entity target) => target is NeutralState { Neutral.Kind: not NeutralKind.Minion };
 
     private double AttacksBeforePounce(Fight fight)

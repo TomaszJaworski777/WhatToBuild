@@ -22,6 +22,7 @@ public sealed class DamageCalculator
     private double _armorReductionPercent;
     private double _magicResistReductionFlat;
     private double _magicResistReductionPercent;
+    private double? _attacksLanded;
 
     private DamageCalculator(Entity defender)
     {
@@ -62,6 +63,8 @@ public sealed class DamageCalculator
 
     public DamageCalculator MagicResistShred(double percent) => Set(() => _magicResistReductionPercent = Stack(_magicResistReductionPercent, percent));
 
+    public DamageCalculator AttacksLanded(double attacks) => Set(() => _attacksLanded = attacks);
+
     public DamageCalculator AttackerItems(IEnumerable<Item> items)
     {
         _attackerItems.AddRange(items);
@@ -93,22 +96,24 @@ public sealed class DamageCalculator
         {
             foreach (var effect in item.Effects.Where(e => ConditionsMet(e) && hit.Matches(e.Versus)))
             {
+                var amount = effect.Amount * Built(effect, hit);
+
                 switch (effect.Kind)
                 {
                     case EffectKind.ShieldReduction:
-                        shieldReduction = Stack(shieldReduction, effect.Amount);
+                        shieldReduction = Stack(shieldReduction, amount);
                         break;
                     case EffectKind.ArmorShred:
-                        armorShred = Stack(armorShred, effect.Amount);
+                        armorShred = Stack(armorShred, amount);
                         break;
                     case EffectKind.MagicResistShred:
-                        magicResistShred = Stack(magicResistShred, effect.Amount);
+                        magicResistShred = Stack(magicResistShred, amount);
                         break;
                     case EffectKind.StatBuff when effect.Stat == Stats.DamageAmp:
-                        damageAmp += effect.Amount;
+                        damageAmp += amount;
                         break;
                     case EffectKind.StatBuff when effect.Stat == Stats.ArmorPenetrationPercent:
-                        armorPen = Stack(armorPen, effect.Amount);
+                        armorPen = Stack(armorPen, amount);
                         break;
                 }
             }
@@ -140,6 +145,17 @@ public sealed class DamageCalculator
     }
 
     private bool ConditionsMet(Effect effect) => _defender.Satisfies(effect.When);
+
+    private double Built(Effect effect, Hit hit)
+    {
+        if (effect.StacksTo <= 0 || _attacksLanded is not { } landed)
+        {
+            return 1;
+        }
+
+        var before = landed - (hit.IsAttack ? 1 : 0);
+        return Math.Clamp(before / effect.StacksTo, 0, 1);
+    }
 
     private DamageCalculator Hit(DamageType type, double amount)
     {

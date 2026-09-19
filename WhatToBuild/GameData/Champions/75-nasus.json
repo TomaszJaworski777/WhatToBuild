@@ -39,5 +39,13 @@
                          "stat":  "abilityDamage",
                          "initialStacksPerMinute":  14
                      }
-                 ]
+                 ],
+    "metaBuild":  [
+                      "33f6f169-e182-b78b-768e-81a785567ef8",
+                      "28eaf0dc-17ed-48a1-b29a-a78842a02b75",
+                      "025a9ee0-7cb4-c4bd-62a9-bc8c8040f028",
+                      "9a843b01-4157-5b1e-b09f-f0ff4426b0fb",
+                      "7ee26a8c-8dd7-96b3-7115-6452e4228255",
+                      "ded16819-fecd-6c4e-0dbf-9d12231f730b"
+                  ]
 }

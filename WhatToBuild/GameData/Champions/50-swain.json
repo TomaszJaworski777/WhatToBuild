@@ -38,5 +38,13 @@
                          "stat":  "health",
                          "initialStacksPerMinute":  4
                      }
-                 ]
+                 ],
+    "metaBuild":  [
+                      "ee0f0e44-d1a4-41a7-ac38-29eff8739e30",
+                      "65c920ce-88e1-1d04-222d-d58f483a3e22",
+                      "1313e9c3-b17a-bf48-375c-e8b7a7b516ea",
+                      "00b97d96-1ad1-1959-26c1-996d94a4d0e2",
+                      "025a9ee0-7cb4-c4bd-62a9-bc8c8040f028",
+                      "8c3548e4-376a-4ba8-c076-0ebb2a699e99"
+                  ]
 }

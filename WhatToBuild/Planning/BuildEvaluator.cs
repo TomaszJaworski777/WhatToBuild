@@ -10,17 +10,13 @@ namespace WhatToBuild.Planning;
 
 public enum EvaluationMode
 {
-    /// <summary>One attack timing against the biggest threats only; used to pre-screen every candidate item.</summary>
     Cheap,
 
-    /// <summary>Fewer attack timings; used to rank many candidates.</summary>
     Screen,
 
-    /// <summary>Every attack timing; used for the plan that is shown.</summary>
     Full,
 }
 
-/// <summary>Everything about one planning run that does not depend on the inventory being scored.</summary>
 public sealed class BuildContext
 {
     public BuildContext(GameState state, GameStack stack, ItemRepository items, NeutralRepository neutrals, ChampionKits kits, ModelData model)
@@ -33,7 +29,7 @@ public sealed class BuildContext
         Model = model;
         Settings = model.Settings;
         Forecaster = new GameForecaster(state, stack, model);
-        Projector = new BuildProjector(model.Archetypes, items);
+        Projector = new BuildProjector(items, model.Meta);
         World = new WorldForecast(Forecaster, Projector, neutrals, Settings.Planner.TimeBucketSeconds);
         Objective = Settings.Objectives.For(Me.Champion);
         Owned = Me.Items.Where(i => i.Slot != 6).SelectMany(i => Enumerable.Repeat(i.Item, i.Count)).ToList();
@@ -71,7 +67,6 @@ public sealed class BuildContext
 
     public ModelSettings.ObjectiveWeights Objective { get; }
 
-    /// <summary>Your items, without the trinket.</summary>
     public IReadOnlyList<Item> Owned { get; }
 
     public IReadOnlyList<Item> Trinkets { get; }
@@ -80,15 +75,43 @@ public sealed class BuildContext
 
     public bool IsJungler { get; }
 
-    /// <summary>Observed minus rebuilt stats: runes and shards, which items do not change.</summary>
     public StatSheet? Adjustment { get; }
 
     public double Now => State.GameTime;
 
-    /// <summary>
-    /// How much clear speed counts at <paramref name="time"/>: fading with game time, and gone once you own
-    /// <c>clearFadeToItems</c> completed items, because by then you are fighting, not farming camps.
-    /// </summary>
+    public double? TakedownsPerMinute =>
+        Now >= Settings.Income.BaselineOnlyUntilSeconds * 2.5 ? (Me.Kills + Me.Assists) / (Now / 60) : null;
+
+    public double? KillsPerMinute =>
+        Now >= Settings.Income.BaselineOnlyUntilSeconds * 2.5 ? Me.Kills / (Now / 60) : null;
+
+    public double StackRate(ItemStacking stacking)
+    {
+        var observed = stacking.Per.Contains("champion takedown", StringComparison.OrdinalIgnoreCase) ? TakedownsPerMinute
+            : stacking.Per.Contains("champion kill", StringComparison.OrdinalIgnoreCase) ? KillsPerMinute
+            : null;
+
+        return observed ?? stacking.StacksPerMinute * (Champion.IsRanged ? stacking.RangedMultiplier : 1);
+    }
+
+    public double StacksAfter(ItemStacking stacking, double minutes)
+    {
+        var stacks = StackRate(stacking) * Math.Max(0, minutes);
+        return stacking.Max > 0 ? Math.Min(stacking.Max, stacks) : stacks;
+    }
+
+    public double NextRecall(double time, double now)
+    {
+        var planner = Settings.Planner;
+        var first = Math.Max(now, planner.FirstRecallSeconds);
+        if (time <= first)
+        {
+            return first;
+        }
+
+        return first + Math.Ceiling((time - first) / planner.RecallIntervalSeconds) * planner.RecallIntervalSeconds;
+    }
+
     public double ClearWeightAt(double time)
     {
         if (!IsJungler)
@@ -103,11 +126,9 @@ public sealed class BuildContext
         return jungle.ClearWeightAt(time) * byItems * Objective.Clear;
     }
 
-    /// <summary>Completed items you own now (legendary items, boots and starters not counted).</summary>
     public int CompletedItems { get; }
 }
 
-/// <summary>Both teams' combat profiles at one forecast time, plus how much of the enemy's damage lands on you.</summary>
 public sealed class Battlefield
 {
     public required double Time { get; init; }
@@ -118,7 +139,6 @@ public sealed class Battlefield
 
     public required IReadOnlyDictionary<CombatProfile, TargetSustain> Sustain { get; init; }
 
-    /// <summary>Share of each enemy's damage aimed at you.</summary>
     public required IReadOnlyDictionary<CombatProfile, double> Focus { get; init; }
 
     public required int OurLevel { get; init; }
@@ -127,21 +147,11 @@ public sealed class Battlefield
 
     public required double OurMarks { get; init; }
 
-    /// <summary>Your champion's survival ability at the forecast ranks (Lamb's Respite), if any.</summary>
     public required SurvivalAbility? Survival { get; init; }
 }
 
 public sealed record TargetResult(CombatProfile Enemy, FightResult Fight, TargetSustain Sustain, double GrievousWounds, double ShieldReduction);
 
-/// <summary>
-/// One inventory scored at one forecast time.
-///
-/// <see cref="Dps"/> is threat-weighted effective damage per second against each enemy (simulated with
-/// your kit, their forecast items, stacks, healing and shields). <see cref="TimeAlive"/> is how long you
-/// last under the share of the enemy team's projected damage aimed at you. Damage before death is DPS
-/// times how much of a teamfight you are alive for, so survivability is valued in the same currency as
-/// damage. For junglers, the clear time adds a phase-weighted term.
-/// </summary>
 public sealed class Evaluation
 {
     public required double Time { get; init; }
@@ -152,15 +162,12 @@ public sealed class Evaluation
 
     public required double TimeAlive { get; init; }
 
-    /// <summary>Time alive if your survival ability (Lamb's Respite) is down or not cast.</summary>
     public required double TimeAliveWithoutAbility { get; init; }
 
     public required double Uptime { get; init; }
 
-    /// <summary>Your movement speed with this inventory, after soft caps.</summary>
     public required double MoveSpeed { get; init; }
 
-    /// <summary>How much more of the game you spend doing things rather than walking, relative to base speed.</summary>
     public required double Tempo { get; init; }
 
     public double DamageBeforeDeath => Dps * Uptime;
@@ -212,9 +219,6 @@ public sealed class BuildEvaluator
         return _battlefields.GetOrAdd(key, _ => new Lazy<Battlefield>(() => BuildBattlefield(snapped))).Value;
     }
 
-    /// <param name="inventory">Items held (no trinket).</param>
-    /// <param name="time">Game time to score at; snapped to the forecast bucket.</param>
-    /// <param name="newStacks">Stacks on stacking items bought along the plan, by item id.</param>
     public Evaluation Evaluate(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks = null, EvaluationMode mode = EvaluationMode.Screen)
     {
         var snapped = mode == EvaluationMode.Cheap
@@ -235,7 +239,7 @@ public sealed class BuildEvaluator
             if (_context.Owned.Any(o => o.Id == item.Id))
             {
                 var minutes = (_context.State.MinutesOwned(_context.Me, item) ?? 0) + (field.Time - _context.Now) / 60;
-                stacks[item.Id] = item.Stacking!.StacksAfter(minutes, _context.Champion.IsRanged);
+                stacks[item.Id] = _context.StacksAfter(item.Stacking!, minutes);
             }
             else
             {
@@ -243,7 +247,41 @@ public sealed class BuildEvaluator
             }
         }
 
-        return new ChampionState(_context.Champion, field.OurLevel, inventory.Concat(_context.Trinkets), _context.TeamBuffs, _context.Adjustment, stacks);
+        return new ChampionState(_context.Champion, field.OurLevel, inventory.Concat(_context.Trinkets), _context.TeamBuffs, WithTakedownBuffs(inventory, stacks), stacks);
+    }
+
+    public double TakedownBuffUptime(double takedownsPerMinute, double duration)
+    {
+        var carried = 1 - Math.Exp(-takedownsPerMinute * duration / 60);
+        var perFight = takedownsPerMinute * _context.Settings.Fight.TeamfightIntervalSeconds / 60;
+        var inFight = perFight > 1e-9 ? 1 - (1 - Math.Exp(-perFight)) / perFight : 0;
+
+        return carried + (1 - carried) * inFight;
+    }
+
+    private StatSheet? WithTakedownBuffs(IReadOnlyList<Item> inventory, IReadOnlyDictionary<Guid, double> stacks)
+    {
+        var buffs = inventory.DistinctBy(i => i.Id)
+            .SelectMany(i => i.Effects.Where(e => e.Trigger == EffectTrigger.OnTakedown && e.Kind == EffectKind.StatBuff && e.Duration > 0 && e.Stat is not null)
+                .Select(e => (Item: i, Effect: e)))
+            .ToList();
+
+        if (buffs.Count == 0)
+        {
+            return _context.Adjustment;
+        }
+
+        var sheet = new StatSheet();
+        StatCalculator.Apply(sheet, _context.Adjustment);
+
+        foreach (var (item, effect) in buffs)
+        {
+            var rate = _context.TakedownsPerMinute ?? item.Stacking?.StacksPerMinute ?? 0;
+            var active = TakedownBuffUptime(rate, effect.Duration);
+            StatCalculator.AddStat(sheet, effect.Stat!, active * (effect.Amount + effect.PerStack * stacks.GetValueOrDefault(item.Id)));
+        }
+
+        return sheet;
     }
 
     private Evaluation Run(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks, EvaluationMode mode)
@@ -269,7 +307,7 @@ public sealed class BuildEvaluator
             var target = enemy.Forecast.NewEntity();
             var results = phases
                 .Select(phase => FightSimulator.Run(
-                    new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.MaxFightSeconds, phase, sustain),
+                    new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true),
                     _context.Kits.NewFight(_context.Champion)))
                 .ToList();
 
@@ -280,7 +318,8 @@ public sealed class BuildEvaluator
         var dps = targets.Sum(t => t.Enemy.Threat * t.Fight.EffectiveDps);
         var survival = Survival(us, field, targets, dps);
         var fightSeconds = settings.Fight.TeamfightSeconds;
-        var uptime = fightSeconds * (1 - Math.Exp(-survival.TimeAlive / fightSeconds));
+        var caught = settings.Fight.CaughtShare;
+        var uptime = fightSeconds * ((1 - caught) + caught * (1 - Math.Exp(-survival.TimeAlive / fightSeconds)));
 
         var clearWeight = _context.ClearWeightAt(time);
         ClearResult? clear = null;
@@ -293,7 +332,8 @@ public sealed class BuildEvaluator
         var tempo = 1 / (walkShare * _context.Champion.Base.MoveSpeed / Math.Max(1, us.Stats.MoveSpeed) + 1 - walkShare);
 
         var objective = _context.Objective;
-        var score = objective.Damage * Math.Log(Math.Max(MinimumValue, dps * uptime))
+        var score = objective.Damage * Math.Log(Math.Max(MinimumValue, dps))
+                    + objective.Uptime * Math.Log(Math.Max(MinimumValue, uptime))
                     + objective.Movement * settings.Movement.TempoWeightAt(time) * Math.Log(tempo)
                     + objective.Survival * Math.Log(Math.Max(MinimumValue, survival.TimeAlive))
                     + (clear is { } c ? clearWeight * Math.Log(1 / Math.Max(1, c.TotalSeconds)) : 0);
@@ -327,7 +367,6 @@ public sealed class BuildEvaluator
         var byType = new Dictionary<DamageType, double> { [DamageType.Physical] = 0, [DamageType.Magic] = 0, [DamageType.True] = 0 };
         double incoming = 0, burst = 0;
 
-        // Speed relative to the enemy team: faster than them, you dodge and reposition more; slower, less.
         var movement = settings.Movement;
         var enemySpeed = field.Enemies.Count > 0 ? field.Enemies.Average(e => e.Entity.Stats.MoveSpeed) : us.Stats.MoveSpeed;
         var evasion = Math.Pow(enemySpeed / Math.Max(1, us.Stats.MoveSpeed), movement.EvasionExponent);
@@ -336,13 +375,10 @@ public sealed class BuildEvaluator
         {
             foreach (var stream in enemy.Streams)
             {
-                // Abilities often hit more than their target, so part of an ability aimed elsewhere still lands.
                 var aimed = field.Focus[enemy];
                 var focus = stream.Flags.HasFlag(HitFlags.Ability)
                     ? aimed + (1 - aimed) * settings.EnemyDamage.AbilityAreaShare
                     : aimed;
-                // A ranged champion who positions well stays out of melee range for part of the fight, and
-                // the faster they are than that melee champion, the longer.
                 if (stream.Flags.HasFlag(HitFlags.Attack) && !enemy.Champion.IsRanged && us.Champion.IsRanged)
                 {
                     var kiting = settings.Focus.KiteReduction
@@ -425,8 +461,6 @@ public sealed class BuildEvaluator
 
             if (field.Survival is { } ability)
             {
-                // You drop to the floor, cannot die for the duration, then heal. Only counted as often as the
-                // cooldown allows it to be up for a teamfight.
                 var cooldown = ability.Cooldown * 100 / (100 + us.Stats.AbilityHaste);
                 var availability = Math.Clamp(settings.Fight.TeamfightIntervalSeconds / Math.Max(1, cooldown), 0, 1);
                 alive += availability * (ability.UndyingSeconds + ability.Heal * healPower * (1 - enemyGrievous) / net);
@@ -437,7 +471,6 @@ public sealed class BuildEvaluator
         return (Math.Clamp(alive, 0.25, cap), Math.Clamp(withoutAbility, 0.25, cap), incoming, burst, pool, healing, byType);
     }
 
-    /// <summary>Share of your damage that comes from attacks and on-hit items, which is what life steal heals from.</summary>
     private static double AttackShare(List<TargetResult> targets, ChampionState us)
     {
         var total = targets.Sum(t => t.Fight.Damage);
@@ -511,11 +544,6 @@ public sealed class BuildEvaluator
         };
     }
 
-    /// <summary>
-    /// Share of <paramref name="enemy"/>'s damage that lands on you. Each ally draws a share by how much of a
-    /// frontline they are, squishy carries draw extra because enemies prioritise them, and burst champions
-    /// skip the frontline to reach them.
-    /// </summary>
     private double Focus(CombatProfile enemy, IReadOnlyList<CombatProfile> allies)
     {
         var f = _context.Settings.Focus;

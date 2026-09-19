@@ -13,7 +13,6 @@ public interface IPurchaseScorer
 {
     double Score(IReadOnlyList<Item> inventory);
 
-    /// <summary>Called with every inventory about to be scored, so a scorer can work them out in parallel first.</summary>
     void Prepare(IReadOnlyList<IReadOnlyList<Item>> inventories)
     {
     }

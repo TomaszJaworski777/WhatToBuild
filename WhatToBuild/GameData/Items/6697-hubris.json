@@ -19,18 +19,15 @@
             "trigger": "OnTakedown",
             "kind": "StatBuff",
             "stat": "attackDamage",
-            "amount": 12
+            "amount": 12,
+            "perStack": 3,
+            "duration": 90
         }
     ],
     "stacking": {
-        "per": "champion kill",
-        "gains": [
-            {
-                "stat": "attackDamage",
-                "amount": 3
-            }
-        ],
+        "per": "champion takedown",
+        "gains": [],
         "stacksPerMinute": 0.4,
-        "rateSource": "estimate"
+        "rateSource": "estimate until 5 minutes in, then your own takedown rate"
     }
 }
