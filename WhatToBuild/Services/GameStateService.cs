@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using WhatToBuild.Data;
+using WhatToBuild.Forecasting;
+using WhatToBuild.Planning;
 using WhatToBuild.Dtos;
 using WhatToBuild.Game;
 using WhatToBuild.Hubs;
@@ -19,9 +21,12 @@ public sealed class GameStateService : BackgroundService
     private readonly NeutralRepository _neutrals;
     private readonly IRecommendationSource _recommendations;
     private readonly MatchupCalculator _matchups;
+    private readonly ModelData _model;
     private readonly string _patch;
     private readonly IHubContext<GameHub> _hub;
     private readonly ILogger<GameStateService> _logger;
+
+    private readonly object _sendLock = new();
 
     private string? _lastRecommendationJson;
 
@@ -31,6 +36,7 @@ public sealed class GameStateService : BackgroundService
         ItemRepository items,
         IRecommendationSource recommendations,
         MatchupCalculator matchups,
+        ModelData model,
         IHubContext<GameHub> hub,
         ILogger<GameStateService> logger)
     {
@@ -38,10 +44,12 @@ public sealed class GameStateService : BackgroundService
         _neutrals = neutrals;
         _recommendations = recommendations;
         _matchups = matchups;
+        _model = model;
         _patch = items.Patch;
         _hub = hub;
         _logger = logger;
         Latest = GameStateDto.Waiting(_patch);
+        _recommendations.Updated += recommendation => _ = PushRecommendationAsync(recommendation, CancellationToken.None);
     }
 
     public GameStateDto Latest { get; private set; }
@@ -73,22 +81,59 @@ public sealed class GameStateService : BackgroundService
 
             Latest = state is null
                 ? GameStateDto.Waiting(_patch)
-                : GameStateMapper.ToDto(state, _neutrals, _patch) with { Matchups = _matchups.For(state) };
+                : WithGoldRates(GameStateMapper.ToDto(state, _neutrals, _patch) with { Matchups = _matchups.For(state) }, state);
 
             await _hub.Clients.All.SendAsync(GameStateMessage, Latest, ct);
 
-            LatestRecommendation = state is null ? null : _recommendations.For(state, _tracker.Stack);
-
-            var json = JsonSerializer.Serialize(LatestRecommendation);
-            if (json != _lastRecommendationJson)
-            {
-                _lastRecommendationJson = json;
-                await _hub.Clients.All.SendAsync(RecommendationMessage, LatestRecommendation, ct);
-            }
+            await PushRecommendationAsync(state is null ? null : _recommendations.For(state, _tracker.Stack), ct);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Polling the game failed; retrying.");
+        }
+    }
+
+    /// <summary>
+    /// Adds every player's forecast gold per minute: the same rate the planner extrapolates (your exact
+    /// gold, everyone else's item value pulled toward the lobby trend). A regression over the recent
+    /// snapshots per player, so it is cheap enough for every poll.
+    /// </summary>
+    private GameStateDto WithGoldRates(GameStateDto dto, GameState state)
+    {
+        var forecaster = new GameForecaster(state, _tracker.Stack, _model);
+        var rates = state.Players.ToDictionary(p => p.Champion.Name, p => forecaster.Outlook(p).GoldPerMinute);
+
+        return dto with
+        {
+            Teams = dto.Teams
+                .Select(t => t with { Players = t.Players.Select(p => p with { GoldPerMinute = rates.GetValueOrDefault(p.Champion) }).ToList() })
+                .ToList(),
+        };
+    }
+
+    /// <summary>Sends a recommendation if it differs from the last one sent. Called by the poll and by the planner thread when a stage finishes.</summary>
+    private async Task PushRecommendationAsync(RecommendationDto? recommendation, CancellationToken ct)
+    {
+        var json = JsonSerializer.Serialize(recommendation);
+
+        lock (_sendLock)
+        {
+            if (json == _lastRecommendationJson)
+            {
+                return;
+            }
+
+            _lastRecommendationJson = json;
+            LatestRecommendation = recommendation;
+        }
+
+        try
+        {
+            await _hub.Clients.All.SendAsync(RecommendationMessage, recommendation, ct);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Sending the recommendation failed.");
         }
     }
 }

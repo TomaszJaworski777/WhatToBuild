@@ -1,0 +1,191 @@
+{
+  "fight": {
+    "teamfightSeconds": 10,
+    "maxFightSeconds": 30,
+    "attackPhases": [
+      0,
+      0.25,
+      0.5,
+      0.75
+    ],
+    "screenAttackPhases": [
+      0,
+      0.5
+    ],
+    "cheapAttackPhases": [
+      0.5
+    ],
+    "cheapTargets": 3,
+    "maxTimeAliveSeconds": 60,
+    "teamfightIntervalSeconds": 120
+  },
+  "focus": {
+    "teamSize": 5,
+    "frontlineWeight": 1.5,
+    "meleeWeight": 0.3,
+    "diveBias": 1.2,
+    "carryFocusBias": 1,
+    "kiteReduction": 0.3
+  },
+  "enemyDamage": {
+    "autoUptimeRanged": 1,
+    "autoUptimeMelee": 0.85,
+    "minAutoShare": 0.35,
+    "abilityCycleSeconds": 5,
+    "castsPerCycle": 3,
+    "apBase": 20,
+    "apPerLevel": 70,
+    "apRatio": 2.5,
+    "adBase": 20,
+    "adPerLevel": 70,
+    "adBonusRatio": 3,
+    "adRangedAbilityShare": 1,
+    "tankBase": 10,
+    "tankPerLevel": 20,
+    "tankBonusHealthRatio": 0.08,
+    "trueDamageShare": 0.5,
+    "burstShare": 1,
+    "abilityDamageStackRatio": 1,
+    "averageTargetHealthPercent": 0.6,
+    "abilityAreaShare": 0.15
+  },
+  "sustain": {
+    "healBase": 10,
+    "healPerLevel": 5,
+    "healApRatio": 0.3,
+    "healBonusAdRatio": 0.3,
+    "healBonusHealthRatio": 0.02,
+    "shieldBase": 60,
+    "shieldPerLevel": 25,
+    "shieldApRatio": 0.6,
+    "shieldBonusHealthRatio": 0.1,
+    "supportAllyShare": 0.75,
+    "allyReceiveShare": 0.5,
+    "dragonHealPerTag": 0.02,
+    "dragonShieldPerTag": 0.15,
+    "damageDealtMitigation": 0.65,
+    "enemyGrievousCoverage": 0.6
+  },
+  "allies": {
+    "grievousCoverage": 0.5,
+    "shieldReductionCoverage": 0.5,
+    "shredCoverage": 0.5
+  },
+  "threat": {
+    "goldExponent": 1,
+    "damageTagWeight": 0.6,
+    "burstTagWeight": 0.3
+  },
+  "objectives": {
+    "default": {
+      "damage": 1,
+      "survival": 0.25,
+      "clear": 1
+    },
+    "champions": {
+      "Kindred": {
+        "damage": 1,
+        "survival": 0.1,
+        "clear": 1
+      }
+    }
+  },
+  "jungle": {
+    "camps": [
+      "Blue Buff",
+      "Gromp",
+      "Wolves",
+      "Raptors",
+      "Red Buff",
+      "Krugs"
+    ],
+    "walkSeconds": 60,
+    "clearWeightEarly": 1,
+    "clearWeightLate": 0,
+    "fadeFromSeconds": 480,
+    "fadeToSeconds": 1000,
+    "minClearWeight": 0.05,
+    "cheapMinClearWeight": 0.25,
+    "clearFadeFromItems": 1.5,
+    "clearFadeToItems": 2.5
+  },
+  "planner": {
+    "stages": [
+      {
+        "name": "quick",
+        "budgetMilliseconds": 700,
+        "screenCount": 10,
+        "beamWidth": 4,
+        "branching": 8,
+        "depth": 3,
+        "mode": "Screen"
+      },
+      {
+        "name": "detailed",
+        "budgetMilliseconds": 6000,
+        "screenCount": 30,
+        "beamWidth": 8,
+        "branching": 14,
+        "depth": 3,
+        "mode": "Full"
+      }
+    ],
+    "prescreenShare": 0.4,
+    "horizonGold": 8000,
+    "minHorizonSeconds": 480,
+    "discountSeconds": 600,
+    "stackLookaheadSeconds": 300,
+    "replaceMargin": 0.03,
+    "keepMargin": 0.02,
+    "timeBucketSeconds": 15,
+    "replanSeconds": 30,
+    "sellRefund": 0.7,
+    "cheapTimeBucketSeconds": 60,
+    "replaceFinishedMargin": 0.1
+  },
+  "income": {
+    "startingGold": 500,
+    "rateUncertainty": 0.15,
+    "minPace": 0.5,
+    "maxPace": 2,
+    "paceWindowSeconds": 300,
+    "minRecentSpanSeconds": 120,
+    "recentWeight": 0.3,
+    "trendWeight": 0.4,
+    "baselineOnlyUntilSeconds": 120,
+    "observedOnlyFromSeconds": 300,
+    "levelReversionSeconds": 900
+  },
+  "movement": {
+    "walkShare": {
+      "JUNGLE": 0.45,
+      "UTILITY": 0.4,
+      "MIDDLE": 0.3,
+      "TOP": 0.25,
+      "BOTTOM": 0.25
+    },
+    "defaultWalkShare": 0.3,
+    "tempoWeight": 1,
+    "tempoWeightByMinute": [
+      [
+        4,
+        2.4
+      ],
+      [
+        15,
+        0.8
+      ],
+      [
+        22,
+        1.1
+      ],
+      [
+        40,
+        1.1
+      ]
+    ],
+    "evasionExponent": 1,
+    "kiteSpeedExponent": 2,
+    "maxKiteReduction": 0.7
+  }
+}

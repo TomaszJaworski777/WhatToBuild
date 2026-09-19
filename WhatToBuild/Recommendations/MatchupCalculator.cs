@@ -26,7 +26,6 @@ public sealed class MatchupCalculator
         return fights.Enemies
             .Select(e =>
             {
-                var fight = fights.Scorer.Against(fights.Owned, e.Entity);
                 var casts = fights.Hints(e.Entity)
                     .Select(h => new CastHintDto(
                         h.Ability,
@@ -35,7 +34,7 @@ public sealed class MatchupCalculator
                         h.Additions.Select(a => $"+{a.Damage:0} {a.When}").ToList()))
                     .ToList();
 
-                return new MatchupDto(e.Player.Champion.Name, fight.TimeToKill, fight.EffectiveDps, casts);
+                return new MatchupDto(e.Player.Champion.Name, null, 0, casts);
             })
             .ToList();
     }

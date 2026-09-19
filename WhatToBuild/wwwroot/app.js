@@ -204,6 +204,15 @@ function renderItems(items, extraSlot) {
     return `<div class="items">${cells.join("")}</div>`;
 }
 
+function renderIncome(player) {
+    if (player.goldPerMinute == null) {
+        return '<div class="gpm"></div>';
+    }
+
+    const source = player.isActivePlayer ? "from your exact gold" : "from item value, blended with the lobby's trend";
+    return `<div class="gpm" title="Forecast gold per minute, ${source}"><span class="coin"></span>${Math.round(player.goldPerMinute)}<small>/m</small></div>`;
+}
+
 function renderStats(player) {
     const chips = STATS
         .map((s) => s.hideZero && !player.stats[s.key]
@@ -238,7 +247,7 @@ function renderHealth(player, matchup) {
 }
 
 function renderVersus(player, matchup, after, nextName) {
-    if (!matchup) {
+    if (!matchup?.modelled) {
         return "";
     }
 
@@ -286,6 +295,7 @@ function renderPlayer(player, context) {
                 <span class="role">${esc(POSITIONS[player.position] ?? player.position)}</span>
             </div>
             <div class="kda"><span class="k">${player.kills}</span><i>/</i><span class="d">${player.deaths}</span><i>/</i><span class="a">${player.assists}</span></div>
+            ${renderIncome(player)}
             ${renderVersus(player, matchup, after, context.nextName)}
             ${renderItems(player.items, player.position === "BOTTOM")}
             ${renderHealth(player, matchup)}
@@ -311,7 +321,11 @@ function renderTeam(team, element, context) {
 }
 
 function boardContext() {
-    const matchups = new Map((lastState?.matchups ?? []).map((m) => [m.champion, m]));
+    const model = new Map((lastRecommendation?.matchups ?? []).map((m) => [m.champion, m]));
+    const matchups = new Map((lastState?.matchups ?? []).map((m) => {
+        const fight = model.get(m.champion);
+        return [m.champion, fight ? { ...m, timeToKill: fight.timeToKill, dps: fight.dps, modelled: true } : m];
+    }));
     const next = lastRecommendation?.buildPath?.find((s) => s.status === "Next");
     const after = new Map((next?.impact?.perEnemy ?? []).map((e) => [e.champion, e]));
 
@@ -392,6 +406,7 @@ function renderPath(rec, gameTime) {
             <li class="step step-${step.status.toLowerCase()}" ${itemAttrs(step.item, key)}>
                 <div class="slot slot-md"><img src="${esc(step.item.icon)}" alt="${esc(step.item.name)}" loading="lazy" /></div>
                 <span class="step-eta">${eta(step, gameTime)}</span>
+                ${step.sells ? `<span class="step-sells" title="Sells ${esc(step.sells)} to make room">sells ${esc(step.sells)}</span>` : ""}
             </li>`;
     }).join("");
 
@@ -424,6 +439,70 @@ function renderNeeds(needs, gameTime) {
 
         return `<span class="need ${n.coveredBy ? "need-ok" : "need-missing"}" ${tipAttr(`need-${n.need}`, `<div class="tip-name">${esc(n.need)}</div><div>${esc(n.detail)}</div>`)}><b>${esc(n.need)}</b>${status}</span>`;
     }).join("");
+}
+
+function pct(value) {
+    return `${Math.round(value * 100)}%`;
+}
+
+function renderModel(rec) {
+    const m = rec.model;
+    if (!m) {
+        return "";
+    }
+
+    const weights = [`damage ${m.damageWeight}`, `survival ${m.survivalWeight}`];
+    if (m.clearWeight > 0.005) {
+        weights.push(`clear ${m.clearWeight.toFixed(2)}`);
+    }
+
+    const you = [
+        `<span><b>${Math.round(m.dps)}</b> DPS</span>`,
+        m.survivalAbility
+            ? `<span><b>${m.timeAliveWithoutAbility.toFixed(1)}s</b> alive under focus, <b>${m.timeAlive.toFixed(1)}s</b> with ${esc(m.survivalAbility)} (${m.teamfightSeconds}s fights)</span>`
+            : `<span><b>${m.timeAlive.toFixed(1)}s</b> alive in a ${m.teamfightSeconds}s fight</span>`,
+        `<span><b>${Math.round(m.incomingDps)}</b> damage/s on you (${pct(m.physicalShare)} physical, ${pct(m.magicShare)} magic, ${pct(m.trueShare)} true)</span>`,
+        `<span>burst <b>${Math.round(m.incomingBurst)}</b> of ${Math.round(m.healthPool)} health</span>`,
+    ];
+    if (m.clearSeconds != null) {
+        you.push(`<span>clear <b>${Math.round(m.clearSeconds)}s</b> of fighting</span>`);
+    }
+
+    const rows = m.enemies.map((e) => {
+        const items = e.newItems.map((i) => `<span class="slot slot-xs" ${itemAttrs(i)}><img src="${esc(i.icon)}" alt="${esc(i.name)}" loading="lazy" /></span>`).join("");
+        const notes = e.notes.length ? ` ${tipAttr(`fc-${e.champion}`, `<div class="tip-name">${esc(e.champion)}</div>${list(e.notes, "tip-effects")}`)}` : "";
+        return `
+            <tr${notes}>
+                <td class="fc-champ"><img src="${esc(e.icon)}" alt="" />${esc(e.champion)} <span class="muted small">${esc(e.archetype)}</span></td>
+                <td>${e.levelNow}${e.level > e.levelNow ? ` → <b>${e.level}</b>` : ""}</td>
+                <td class="fc-items">${items || '<span class="muted">—</span>'}</td>
+                <td>${Math.round(e.health)}</td>
+                <td>${Math.round(e.armor)} / ${Math.round(e.magicResist)}</td>
+                <td>${e.healPerSecond >= 1 ? Math.round(e.healPerSecond) + "/s" : "—"}</td>
+                <td>${e.shield >= 1 ? Math.round(e.shield) : "—"}</td>
+                <td>${Math.round(e.dpsOnYou)} <span class="muted small">${pct(e.focus)}</span></td>
+                <td>${seconds(e.timeToKill)}</td>
+                <td>${pct(e.threat)}</td>
+            </tr>`;
+    }).join("");
+
+    const assumptions = rec.assumptions?.length
+        ? `<details class="assumptions"><summary>Assumptions</summary>${list(rec.assumptions, "why")}</details>`
+        : "";
+
+    return `
+        <div class="model">
+            <div class="model-head">
+                <span class="label">Forecast at ~${clock(m.at)}, when your next item lands</span>
+                <span class="muted small">weights: ${weights.join(" · ")} · ${esc(m.stage)} search: ${m.evaluations} builds scored in ${Math.round(m.planMilliseconds)} ms${m.timedOut ? " (time budget hit)" : ""}${m.refining ? ' · <span class="refining">refining in the background…</span>' : ""}</span>
+            </div>
+            <div class="model-you small">${you.join("")}</div>
+            <table class="forecast">
+                <thead><tr><th>Enemy</th><th>Level</th><th>New items</th><th>HP</th><th>Armor / MR</th><th>Heals</th><th>Shields</th><th>DPS on you</th><th>You kill in</th><th>Threat</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+            ${assumptions}
+        </div>`;
 }
 
 function renderBuild() {
@@ -467,7 +546,8 @@ function renderBuild() {
         </div>
         <div class="build-foot">
             ${needs ? `<div class="needs"><span class="label">Enemy team calls for</span>${needs}</div>` : "<div></div>"}
-        </div>`;
+        </div>
+        ${renderModel(rec)}`;
 }
 
 function renderAll() {

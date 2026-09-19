@@ -68,6 +68,7 @@ CommunityDragon's `items.cdtb.bin.json` rather than written from memory.
 | `InCombat` | Repeats while fighting, every `cooldown` seconds |
 | `WhenLow` | Fires when you drop low on health |
 | `OnTakedown` | Fires on a kill or assist |
+| `OutOfCombat` | Only while not fighting (Warmog's regeneration), so it never counts in a fight |
 
 ### `kind` — what it contributes
 
@@ -166,10 +167,11 @@ does nothing in.
 ### What is left out
 
 An item only gets an effect if it changes damage, survivability or a counter-item
-decision. Vision, gold generation, mana restoration, movement speed, ghosting,
-stasis and cooldown refunds are all omitted: they are real, but nothing in the
-evaluator can price them, and inventing a number for them would let hand-tuned
-guesses outvote the parts we can actually compute.
+decision. Vision, mana restoration, ghosting, stasis and cooldown refunds are all
+omitted: they are real, but nothing in the evaluator can price them, and inventing a
+number for them would let hand-tuned guesses outvote the parts we can actually compute.
+Movement speed is a stat (see Model → Movement speed). Gold generation lives in `stacking`
+gains of `gold` and is priced by the planner as earlier income (see Model → Planner).
 
 That means an empty `effects` array reads as "nothing here that changes a build
 decision", not "this item does nothing". 105 of the 219 items are in that state,
@@ -497,9 +499,16 @@ stores them, so index 1 is rank 1 and index 0 is unused (E's cooldown is
 - `skillOrder` is **not** game data. It is the usual Kindred order, used only when
   the Live Client API does not report ability ranks (it does for your own champion).
 
-Left out: R (it stops deaths and heals, but deals no damage), the W passive heal, the
-Q dash, and cast times. Monster-only modifiers (`MonsterBonusDmg` on W, `MonsterCap` on E) are not applied, so fights against camps are an
-approximation, and Smite is not part of the simulation. Fights are one enemy standing still, opening with W and Q (E as above), and they end at the kill or after 30 seconds. The kill time is interpolated
+- Against jungle and epic monsters (not minions), Wolf's bites deal `MonsterBonusDmg` (50%)
+  more ("Against jungle monsters, Wolf deals 50% increased damage"), and E's missing-health
+  part is capped at `MonsterCap` (200) ("Missing health damage is capped at 200 against
+  jungle monsters"). The cap applies before the crit bonus, and the E cast point accounts for
+  it. Both numbers are from `kindred.bin.json`, the wording from `lol.stringtable.json`.
+- `r` is Lamb's Respite, from `KindredR`: for `BuffDuration` (4s) nothing inside can drop below
+  10% health, then everyone inside heals `HealFlat` (225 / 300 / 375). It deals no damage, so
+  fights ignore it; the build model counts it as survival (see the Model section).
+
+Left out: the W passive heal, the Q dash, and cast times. Smite is not part of the simulation. Fights are one enemy standing still, opening with W and Q (E as above), and they end at the kill or after 30 seconds. The kill time is interpolated
 between hits and averaged over four start timings of the first attack, so one hit
 more or fewer does not swing the result.
 
@@ -565,8 +574,158 @@ earlier they are bought.
   62.5 = 25% crit), The Collector 0.2 kills, Cull 7 minions.
 - Minutes owned come from when the app first saw the item on that player; an item that
   was already there when the app started counts from that moment.
-- In the build path, an item not bought yet is valued with the stacks it would have by
-  30:00 if bought at its expected time, so the same item scores higher the earlier it
-  fits in.
+- In the build path, an item not bought yet is valued with the stacks it would have
+  `stackLookaheadSeconds` after its forecast purchase. Enemy items count stacks from their
+  own forecast purchase times, so a Heartsteel bought later is weaker at your next item.
 - Your own champion's stats already include stacks through the Live Client API; the
   simulation adjusts to them instead of adding stacks on top.
+
+## Model
+
+`Model/` holds everything the build planner reads besides game data. None of it is game
+data: it is judgement, kept in files so it can be tuned without touching code.
+
+- `model.json`: every constant of the model (below).
+- `baseline.json`: average level and gold earned by role over time. It only gives the
+  *shape* of income over a game; how fast each player earns comes from the player. It is an
+  estimate until the match-v5 aggregation in the spec replaces it.
+- `archetypes.json`: common build orders by archetype (marksman, bruiser, tank, mage, ...),
+  matched to a champion by its tags, position and the items it already owns. They are a
+  prior about **enemy** items only, never advice for you.
+
+### What an item is worth
+
+The planner scores an inventory at a game time with
+
+```
+score = damage · ln(damage before death) + survival · ln(time alive) + clear · phase · ln(1 / clear time)
+```
+
+using the weights for your champion from `objectives` (Kindred: damage 1, survival 0.1).
+Log terms make every weight read as "how many percent of one is worth a percent of the
+other".
+
+- **Damage**: your kit fights every enemy as forecast at that time (level, items, item and
+  champion stacks), with their healing per second and shields. Grievous Wounds cuts the
+  healing, Serpent's Fang the shields, The Collector executes, and a target that out-heals
+  you scores near zero. Enemies are weighted by threat: forecast gold times how much damage
+  they are built to deal.
+- **Damage before death**: your damage times how much of a `teamfightSeconds` fight you are
+  alive for. So survivability is priced in the same currency as damage, and matters more
+  the closer you are to dying inside a fight.
+- **Time alive**: each enemy's forecast damage streams, reduced by your armor, magic
+  resist and mitigation against their penetration, times the share of their damage aimed
+  at you (abilities also land `abilityAreaShare` of what was aimed at someone else). Shields,
+  heals, life steal, omnivamp (both cut by enemy Grievous Wounds) and revives extend it;
+  burst at the start of the fight shortens it. A champion's survival ability adds its undying
+  time plus its heal, scaled by how often its cooldown lets it be up for a fight
+  (`teamfightIntervalSeconds` / cooldown): for Kindred that is Lamb's Respite. A glass-cannon
+  Kindred lasts about 2.5 seconds without it at 35 minutes, about 7 with it. The page shows both numbers.
+- **Clear** (junglers): the full clear simulated camp by camp, weighted
+  `clearWeightEarly` at the start and fading to `clearWeightLate` (0) between
+  `fadeFromSeconds` and `fadeToSeconds` (8:00 to 16:40). It also fades out as you complete
+  items: full below `clearFadeFromItems`, gone at `clearFadeToItems` (2.5). By then you are
+  fighting, not farming camps.
+
+### Heuristics, and where they live
+
+Auto attacks and item effects are exact to the item data. What champion kits do is not
+simulated for enemies, so these are estimated from tags (0–1), level and stats:
+
+- `enemyDamage`: ability damage per cycle (`apBase + apPerLevel·level + apRatio·AP`, the same
+  for AD and tanks), cycle length, how much of a fight melee and ranged champions spend
+  attacking, how much of `trueDamage` is true, and how much of a combo lands as burst.
+  Calibrated by symmetry: an enemy Kindred with your build, estimated this way, deals about
+  60% of what your simulated kit deals (the rest is her own kit, which tags cannot know).
+  `TagEstimatesAreInReachOfTheSimulatedKit` keeps it between half and 1.2 times.
+- `sustain`: champion healing and shielding per tag, how much of a support's output goes to
+  allies (`supportAllyShare`) and reaches the target you are hitting (`allyReceiveShare`),
+  dragon healing and shields.
+- `focus`: the share of each enemy's damage aimed at you. Allies draw a share by frontline
+  (`tank` tag) and melee, squishy carries draw more (`carryFocusBias`), and burst champions
+  dive past the frontline (`diveBias`). A ranged champion avoids `kiteReduction` of melee
+  enemies' attacks by positioning. This is where positioning lives: the share is what reaches
+  you in a fight you play reasonably, not what five enemies could do if you stood still.
+- `allies`: how often an ally's Grievous Wounds, shield reduction or armor / magic resist
+  shred (Black Cleaver, Bloodletter's Curse) is already on the target you are hitting. Anti-heal
+  and shield reduction do not stack, so an ally's lowers what yours adds; shred lowers the
+  target's resists in every fight.
+
+### Movement speed
+
+Movement speed is on the stat sheet: base plus flat bonuses, times one plus percent bonuses,
+then the soft caps (above 415 each point counts 80%, above 490 it counts 50%), all from the
+League wiki's Movement speed page. It is worth three things:
+
+- **Tempo**: part of every game is walking between camps, lanes and fights (`walkShare` by
+  role: jungle 45%, support 40%, mid 30%, top and bottom 25%). Being faster shrinks it, and the
+  score adds `tempoWeight · ln(tempo)`. The weight follows `tempoWeightByMinute`, measured so one
+  point of movement speed is worth about 12 gold of your other stats at that point in the game
+  (the wiki's gold value for flat movement speed; Boots are 300 gold for 25).
+  `OneBootsPointIsWorthAboutTwelveGoldOfStats` checks it.
+- **Clear**: walking between camps (`walkSeconds`) is timed at base speed and shrinks with
+  yours.
+- **Fights**: incoming damage scales with (enemy team's average speed / yours) to the power
+  `evasionExponent`, which stands in for dodging and repositioning, and the melee attacks you
+  kite (`kiteReduction`) grow with (your speed / theirs) to the power `kiteSpeedExponent`.
+
+Plain Boots are a candidate on their own and do not use up one of the planner's `depth`
+items, so a plan can say "Boots now, finished boots later". Tier 3 boots (Gunmetal Greaves,
+Swiftmarch, ...) are never suggested: they are a free Feats of Strength upgrade, not a shop
+decision. On a 500-gold first back the advice is Boots; with 1400 gold it is the finished
+pair. That matches the common advice to buy Boots when a back cannot afford a meaningful
+component.
+
+### Gold and levels
+
+Your gold is exact. Everyone else's is the value of their items, the only gold the API
+shows. Future gold extrapolates each player's own rate: their whole-game average blended with
+a least-squares rate over `paceWindowSeconds` (`recentWeight`), relative to the baseline for
+their role. Item value only moves when someone recalls, so every other player's pace is
+pulled toward the lobby average by `trendWeight`. The first `baselineOnlyUntilSeconds` trust
+the baseline. Levels follow the baseline plus today's lead, fading over
+`levelReversionSeconds` (catch-up experience). Forecast times carry a spread of
+`rateUncertainty` × horizon.
+
+### Planner and time budget
+
+The planner runs while you play, on one background thread at below-normal priority, and
+never uses more than one core. It runs in `stages`:
+
+1. **quick** (`budgetMilliseconds` 700): every candidate item is pre-screened cheaply (one
+   attack timing, the top `cheapTargets` threats, `cheapTimeBucketSeconds` time grid), the
+   best `screenCount` get a proper score, then a beam search `depth` items deep. Its answer
+   is sent to the page as soon as it is ready.
+2. **detailed**: runs afterwards while nothing relevant changes, with more candidates, a wider
+   beam and every attack timing, and replaces the plan when it finishes.
+
+A change in items, levels, kills or objectives cancels a detailed stage and starts again from
+the quick one. Gold alone only refreshes the buy-now components and arrival times. Every
+`replanSeconds` the detailed stage re-runs on fresh state, keeping the current target
+unless another item beats it by `keepMargin`.
+
+A plan's value is its score gain over your current items, integrated over time until you
+have earned `horizonGold` more, discounted over `discountSeconds`. Buying something earlier
+makes it count for longer, so cheap high-impact items go first.
+
+Gold items pay for later ones. A stacking item whose gains are `gold` (The Collector's 25 per
+kill, Cull's 1 per minion) adds income from the moment the plan buys it, so every later item
+arrives sooner. Per-kill gold uses your own kill rate this game, so it is worth more when you
+are snowballing and nothing if you are not getting kills. Bought late, there is no time left
+to earn it back, so such items drift to the front of a plan or out of it.
+
+With a full inventory the planner sells the item that adds least (never boots and never the
+jungle pet). Selling a finished item (2000 gold or more) has to beat keeping it by
+`replaceFinishedMargin` (10%). Anything else needs `replaceMargin` (3%). A swap is marked
+"sells X" on the build path.
+
+Every completed item is a candidate, off-meta ones included; the page flags those.
+
+### Known gaps
+
+- Enemy kits are tags, not simulations, so enemy damage, healing and shields are estimates.
+- Lamb's Respite also stops enemies inside from dying; that cost to your damage is not priced.
+
+The board's per-enemy kill times come from the same model (current items, healing, shields,
+allies' anti-heal and shred), worked out on the planner thread. The poll itself only computes
+the E cast hints.

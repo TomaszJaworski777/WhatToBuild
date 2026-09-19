@@ -2,6 +2,7 @@ using WhatToBuild.Clients;
 using WhatToBuild.Data;
 using WhatToBuild.Game;
 using WhatToBuild.Hubs;
+using WhatToBuild.Planning;
 using WhatToBuild.Recommendations;
 using WhatToBuild.Services;
 using WhatToBuild.SupportedChampions;
@@ -13,6 +14,8 @@ builder.Services.AddSingleton(ChampionRepository.Load(dataRoot));
 builder.Services.AddSingleton(ItemRepository.Load(dataRoot));
 builder.Services.AddSingleton(NeutralRepository.Load(dataRoot));
 builder.Services.AddSingleton(ChampionKits.Load(dataRoot));
+builder.Services.AddSingleton(ModelData.Load(dataRoot));
+builder.Services.AddSingleton<IRecommendationSource, BuildRecommendations>();
 
 string? replayFolder = null;
 #if DEBUG
@@ -22,13 +25,11 @@ replayFolder = builder.Configuration["GameSource:ReplayFolder"];
 if (string.IsNullOrWhiteSpace(replayFolder))
 {
     builder.Services.AddSingleton<ILiveClient, LiveClient>();
-    builder.Services.AddSingleton<IRecommendationSource, NoRecommendations>();
 }
 else
 {
     var folder = Path.Combine(AppContext.BaseDirectory, replayFolder);
     builder.Services.AddSingleton<ILiveClient>(ReplayClient.FromFolder(folder, loop: true));
-    builder.Services.AddSingleton<IRecommendationSource, SampleRecommendations>();
 }
 
 builder.Services.AddSingleton<GameTracker>();

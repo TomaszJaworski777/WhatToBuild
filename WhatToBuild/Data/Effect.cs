@@ -13,6 +13,8 @@ public enum EffectTrigger
     WhenLow,
 
     OnTakedown,
+
+    OutOfCombat,
 }
 
 public enum DamageSource

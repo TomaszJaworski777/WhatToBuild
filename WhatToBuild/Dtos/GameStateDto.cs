@@ -57,7 +57,8 @@ public sealed record PlayerDto(
     StatsDto Stats,
     double? CurrentHealth,
     bool StatsAreExact,
-    IReadOnlyList<StackDto> EstimatedStacks);
+    IReadOnlyList<StackDto> EstimatedStacks,
+    double? GoldPerMinute = null);
 
 public sealed record ItemDto(
     int RiotId,

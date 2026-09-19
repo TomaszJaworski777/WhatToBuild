@@ -19,6 +19,14 @@ public sealed class KindredChampion : ISupportedChampion
 
     public IChampionKit NewFight() => new KindredKit(_data);
 
+    public SurvivalAbility? Survival(AbilityRanks ranks)
+    {
+        var r = _data.R;
+        return ranks.R <= 0
+            ? null
+            : new SurvivalAbility("Lamb's Respite", r.Duration, r.MinimumHealthPercent, KindredKitData.AtRank(r.Heal, ranks.R), KindredKitData.AtRank(r.Cooldown, ranks.R));
+    }
+
     public IReadOnlyList<CastHint> Hints(FightSetup setup) =>
         new KindredKit(_data).EHint(new Fight(setup)) is { } e ? [e] : [];
 }
@@ -31,6 +39,9 @@ public sealed class KindredKit : IChampionKit
 
     private const double ProbeDamage = 1000;
 
+    /// <summary>How long a computed E cast point is reused. It moves slowly, and recomputing it every step dominated the cost of a fight.</summary>
+    private const double CastPointRefresh = 0.1;
+
     private readonly KindredKitData _data;
     private readonly bool _holdE;
 
@@ -41,6 +52,8 @@ public sealed class KindredKit : IChampionKit
     private double _nextBite;
     private int _eAttacksLeft;
     private double _eExpiresAt;
+    private double _castAt;
+    private double _castAtUntil = double.MinValue;
 
     public KindredKit(KindredKitData data, bool holdE = true)
     {
@@ -124,7 +137,13 @@ public sealed class KindredKit : IChampionKit
         }
 
         var target = fight.Target;
-        var castAt = OptimalCastHealth(fight, rank);
+        if (fight.Time >= _castAtUntil)
+        {
+            _castAt = OptimalCastHealth(fight, rank);
+            _castAtUntil = fight.Time + CastPointRefresh;
+        }
+
+        var castAt = _castAt;
 
         if (target.CurrentHealth <= castAt)
         {
@@ -199,8 +218,20 @@ public sealed class KindredKit : IChampionKit
         var mitigation = PounceHit(fight, ProbeDamage).Run().HealthDamage / ProbeDamage;
         var scale = mitigation * CritBonus(fight.Attacker);
 
-        return scale * (flat + percent * fight.Target.MaxHealth) / (1 + scale * percent);
+        var killing = scale * (flat + percent * fight.Target.MaxHealth) / (1 + scale * percent);
+
+        // Against monsters the missing-health part is capped. If the cap binds at the uncapped answer, the
+        // pounce is flat from there on and kills from scale · (flat + cap).
+        if (IsMonster(fight.Target) && percent * (fight.Target.MaxHealth - killing) > _data.E.MonsterCap)
+        {
+            killing = scale * (flat + _data.E.MonsterCap);
+        }
+
+        return killing;
     }
+
+    /// <summary>Jungle and epic monsters, which W and E treat differently. Minions are not monsters.</summary>
+    private static bool IsMonster(Entity target) => target is NeutralState { Neutral.Kind: not NeutralKind.Minion };
 
     private double AttacksBeforePounce(Fight fight)
     {
@@ -231,10 +262,12 @@ public sealed class KindredKit : IChampionKit
     private double WolfBiteDamage(Fight fight, double targetHealth)
     {
         var w = _data.W;
-        return KindredKitData.AtRank(w.Damage, fight.Ranks.W)
-               + w.BonusAdRatio * AttackerHits.BonusAttackDamage(fight.Attacker)
-               + w.ApRatio * fight.Attacker.Stats.AbilityPower
-               + (w.CurrentHealth + w.CurrentHealthPerMark * fight.Stacks) * targetHealth;
+        var damage = KindredKitData.AtRank(w.Damage, fight.Ranks.W)
+                     + w.BonusAdRatio * AttackerHits.BonusAttackDamage(fight.Attacker)
+                     + w.ApRatio * fight.Attacker.Stats.AbilityPower
+                     + (w.CurrentHealth + w.CurrentHealthPerMark * fight.Stacks) * targetHealth;
+
+        return IsMonster(fight.Target) ? damage * (1 + w.MonsterBonusDamage) : damage;
     }
 
     private static double ExpectedAttackHit(Fight fight)
@@ -297,9 +330,15 @@ public sealed class KindredKit : IChampionKit
         var attacker = fight.Attacker;
         var missing = fight.Target.MaxHealth - fight.Target.CurrentHealth;
 
+        var fromMissing = (e.MissingHealth + e.MissingHealthPerMark * fight.Stacks) * missing;
+        if (IsMonster(fight.Target))
+        {
+            fromMissing = Math.Min(fromMissing, e.MonsterCap);
+        }
+
         var damage = KindredKitData.AtRank(e.Damage, fight.Ranks.E)
                      + e.BonusAdRatio * AttackerHits.BonusAttackDamage(attacker)
-                     + (e.MissingHealth + e.MissingHealthPerMark * fight.Stacks) * missing;
+                     + fromMissing;
 
         return damage * CritBonus(attacker);
     }

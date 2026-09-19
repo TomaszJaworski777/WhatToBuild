@@ -13,6 +13,8 @@ public sealed record ItemConflict(Item Candidate, Item Owned, string? Group)
 
 public static class ItemRules
 {
+    public const int InventorySlots = 6;
+
     public static readonly IReadOnlyDictionary<string, string> GroupLabels = new Dictionary<string, string>
     {
         ["LastWhisper"] = "Last Whisper",
@@ -65,4 +67,17 @@ public static class ItemRules
 
         return true;
     }
+
+    /// <summary>Inventory slots used: every item takes one, except stackable consumables, which share one.</summary>
+    public static int Slots(IEnumerable<Item> inventory)
+    {
+        var list = inventory.ToList();
+        return list.Count(i => !IsStackable(i)) + list.Where(IsStackable).Select(i => i.Id).Distinct().Count();
+    }
+
+    public static bool IsStackable(Item item) => item.Groups.Contains("Potion") || item.Cost < 100;
+
+    /// <summary>Starters and consumables, which players sell or use up to make room.</summary>
+    public static bool IsFiller(Item item) =>
+        IsStackable(item) || item.Groups.Contains("DoransItems") && !item.Groups.Contains("HuntersTalismanGroup");
 }

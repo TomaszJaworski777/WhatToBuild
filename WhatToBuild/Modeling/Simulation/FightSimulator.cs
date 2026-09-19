@@ -27,6 +27,7 @@ public static class FightSimulator
 
             while (fight.Time < setup.MaxSeconds && !fight.TargetDead)
             {
+                fight.Regenerate(Fight.Step);
                 kit?.Update(fight);
 
                 attackProgress += fight.AttackSpeed * Fight.Step;
@@ -47,7 +48,10 @@ public static class FightSimulator
                 fight.DamageBySource.Values.Sum(),
                 target.MaxHealth,
                 new Dictionary<string, double>(fight.DamageBySource),
-                fight.KillingBlow);
+                fight.KillingBlow,
+                fight.InitialPool - fight.Pool,
+                fight.Healed,
+                fight.ShieldTotal);
         }
         finally
         {

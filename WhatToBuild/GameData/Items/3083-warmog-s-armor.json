@@ -16,7 +16,7 @@
               },
     "effects":  [
                     {
-                        "trigger":  "InCombat",
+                        "trigger":  "OutOfCombat",
                         "kind":  "Heal",
                         "perMaxHealth":  0.03,
                         "cooldown":  1

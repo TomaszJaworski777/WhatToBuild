@@ -1,8 +1,28 @@
+using WhatToBuild.Data;
+
 namespace WhatToBuild.Modeling.Simulation;
 
 public sealed record AbilityRanks(int Q, int W, int E, int R)
 {
     public static readonly AbilityRanks None = new(0, 0, 0, 0);
+}
+
+/// <summary>
+/// What keeps the target alive besides its health: healing per second (before Grievous Wounds) and
+/// shields that absorb damage once per fight. The external values are what allies already apply to
+/// the target, as expected values, so 40% Grievous Wounds on an ally who is there half the time is 0.2.
+/// </summary>
+public sealed record TargetSustain(
+    double HealPerSecond,
+    IReadOnlyList<Shield> Shields,
+    double ExternalGrievousWounds = 0,
+    double ExternalShieldReduction = 0,
+    double ExternalArmorShred = 0,
+    double ExternalMagicResistShred = 0)
+{
+    public static readonly TargetSustain None = new(0, []);
+
+    public double ShieldTotal => Shields.Sum(s => s.Amount);
 }
 
 public sealed record FightSetup(
@@ -11,7 +31,8 @@ public sealed record FightSetup(
     AbilityRanks Ranks,
     double Stacks = 0,
     double MaxSeconds = 30,
-    double AttackPhase = 0);
+    double AttackPhase = 0,
+    TargetSustain? Sustain = null);
 
 public sealed class Fight
 {
@@ -19,14 +40,45 @@ public sealed class Fight
 
     private readonly Dictionary<string, double> _damage = new();
     private readonly List<(double Bonus, double Until)> _attackSpeedBuffs = new();
+    private readonly List<ShieldPool> _shields = new();
     private double _previousTime;
-    private double _previousDamage;
     private double _currentTime;
-    private double _currentDamage;
+    private double _poolAtBatchStart;
+    private double _batchDamage;
 
     public Fight(FightSetup setup)
     {
         Setup = setup;
+
+        var sustain = setup.Sustain ?? TargetSustain.None;
+        var attackerEffects = setup.Attacker.Items.SelectMany(i => i.Effects).ToList();
+
+        ShieldReduction = StackMultiplicatively(
+            attackerEffects.Where(e => e.Kind == EffectKind.ShieldReduction).Select(e => e.Amount)
+                .Append(sustain.ExternalShieldReduction));
+
+        GrievousWounds = attackerEffects
+            .Where(e => e.Kind == EffectKind.GrievousWounds)
+            .Select(e => e.Amount)
+            .Append(sustain.ExternalGrievousWounds)
+            .Max();
+
+        HealPerSecond = sustain.HealPerSecond * (1 - GrievousWounds);
+        ExternalArmorShred = sustain.ExternalArmorShred;
+        ExternalMagicResistShred = sustain.ExternalMagicResistShred;
+
+        ExecuteHealth = setup.Target is ChampionState
+            ? attackerEffects.Where(e => e.Kind == EffectKind.Execute).Select(e => e.Amount).DefaultIfEmpty(0).Max() * setup.Target.MaxHealth
+            : 0;
+
+        foreach (var shield in sustain.Shields.Where(s => s.Amount > 0))
+        {
+            _shields.Add(new ShieldPool(shield.Amount * (1 - ShieldReduction), shield.Versus));
+        }
+
+        ShieldTotal = _shields.Sum(s => s.Amount);
+        _poolAtBatchStart = Pool;
+        InitialPool = Pool;
     }
 
     public FightSetup Setup { get; }
@@ -43,11 +95,40 @@ public sealed class Fight
 
     public int Attacks { get; set; }
 
-    public bool TargetDead => Target.CurrentHealth <= 0;
+    public bool TargetDead { get; private set; }
 
     public double? KilledAt { get; private set; }
 
     public string? KillingBlow { get; private set; }
+
+    /// <summary>Fraction of the target's shields removed before they absorb anything (Serpent's Fang).</summary>
+    public double ShieldReduction { get; }
+
+    /// <summary>Fraction of the target's healing denied. Grievous Wounds does not stack, so this is the strongest source.</summary>
+    public double GrievousWounds { get; }
+
+    /// <summary>Healing the target gets per second, after Grievous Wounds.</summary>
+    public double HealPerSecond { get; }
+
+    /// <summary>Armor the target loses to allies' shred (Black Cleaver on a teammate), as an expected fraction.</summary>
+    public double ExternalArmorShred { get; }
+
+    public double ExternalMagicResistShred { get; }
+
+    /// <summary>Health at or below which the target dies outright (The Collector).</summary>
+    public double ExecuteHealth { get; }
+
+    /// <summary>Total shield the target starts with, after shield reduction.</summary>
+    public double ShieldTotal { get; }
+
+    public double Healed { get; private set; }
+
+    public double ShieldLeft => _shields.Sum(s => s.Amount);
+
+    /// <summary>What still has to be dealt to kill the target: health above the execute line plus shields.</summary>
+    public double Pool => Math.Max(0, Target.CurrentHealth - ExecuteHealth) + ShieldLeft;
+
+    public double InitialPool { get; }
 
     public IReadOnlyDictionary<string, double> DamageBySource => _damage;
 
@@ -76,6 +157,19 @@ public sealed class Fight
 
     public DamageCalculator Magic(double amount) => AttackerHits.Magic(Attacker, Target, amount);
 
+    /// <summary>Heals the target for one step, from the first hit on.</summary>
+    public void Regenerate(double seconds)
+    {
+        if (TargetDead || HealPerSecond <= 0 || _damage.Count == 0)
+        {
+            return;
+        }
+
+        var before = Target.CurrentHealth;
+        Target.CurrentHealth += HealPerSecond * seconds;
+        Healed += Target.CurrentHealth - before;
+    }
+
     public void Deal(string source, DamageCalculator hit, double multiplier = 1)
     {
         if (TargetDead)
@@ -83,26 +177,64 @@ public sealed class Fight
             return;
         }
 
-        var damage = hit.Run().HealthDamage * multiplier;
-        Target.CurrentHealth -= damage;
-        _damage[source] = _damage.GetValueOrDefault(source) + damage;
+        if (ExternalArmorShred > 0)
+        {
+            hit.ArmorShred(ExternalArmorShred);
+        }
+
+        if (ExternalMagicResistShred > 0)
+        {
+            hit.MagicResistShred(ExternalMagicResistShred);
+        }
+
+        var result = hit.Run();
+        var damage = result.HealthDamage * multiplier;
 
         if (Time > _currentTime)
         {
             _previousTime = _currentTime;
-            _previousDamage = _currentDamage;
             _currentTime = Time;
+            _poolAtBatchStart = Pool;
+            _batchDamage = 0;
         }
 
-        _currentDamage += damage;
-
-        if (TargetDead)
+        var toHealth = damage;
+        foreach (var shield in _shields)
         {
-            var needed = Target.MaxHealth - _previousDamage;
-            var share = _currentDamage > _previousDamage ? needed / (_currentDamage - _previousDamage) : 1;
+            if (toHealth <= 0)
+            {
+                break;
+            }
+
+            if (shield.Amount > 0 && result.Hit.Matches(shield.Versus))
+            {
+                var absorbed = Math.Min(shield.Amount, toHealth);
+                shield.Amount -= absorbed;
+                toHealth -= absorbed;
+            }
+        }
+
+        Target.CurrentHealth -= toHealth;
+        _damage[source] = _damage.GetValueOrDefault(source) + damage;
+        _batchDamage += damage;
+
+        if (Target.CurrentHealth <= ExecuteHealth)
+        {
+            TargetDead = true;
+            var share = _batchDamage > 0 ? _poolAtBatchStart / _batchDamage : 1;
             KilledAt = _previousTime + Math.Clamp(share, 0, 1) * (_currentTime - _previousTime);
             KillingBlow = source;
         }
+    }
+
+    private static double StackMultiplicatively(IEnumerable<double> sources) =>
+        1 - sources.Aggregate(1.0, (remaining, source) => remaining * (1 - Math.Clamp(source, 0, 1)));
+
+    private sealed class ShieldPool(double amount, DamageSource versus)
+    {
+        public double Amount { get; set; } = amount;
+
+        public DamageSource Versus { get; } = versus;
     }
 }
 
@@ -113,13 +245,21 @@ public sealed record FightResult(
     double Damage,
     double TargetHealth,
     IReadOnlyDictionary<string, double> DamageBySource,
-    string? KillingBlow = null)
+    string? KillingBlow = null,
+    double? Progress = null,
+    double Healed = 0,
+    double Shielded = 0)
 {
     public const double MinimumKillTime = 0.1;
 
+    /// <summary>
+    /// Target health removed per second. With a kill it is the target's health over the time to kill,
+    /// so shields and healing slow it down. Without one it is net progress: damage minus what was
+    /// healed back, so a target that out-heals you scores close to zero rather than your raw damage.
+    /// </summary>
     public double EffectiveDps => TimeToKill is { } kill
         ? TargetHealth / Math.Max(MinimumKillTime, kill)
-        : Seconds > 0 ? Damage / Seconds : 0;
+        : Seconds > 0 ? Math.Max(0, Progress ?? Damage) / Seconds : 0;
 
     public static FightResult Average(IReadOnlyList<FightResult> results)
     {
@@ -134,6 +274,9 @@ public sealed record FightResult(
             results
                 .SelectMany(r => r.DamageBySource)
                 .GroupBy(d => d.Key)
-                .ToDictionary(g => g.Key, g => g.Sum(d => d.Value) / results.Count));
+                .ToDictionary(g => g.Key, g => g.Sum(d => d.Value) / results.Count),
+            Progress: results.All(r => r.Progress is not null) ? results.Average(r => r.Progress!.Value) : null,
+            Healed: results.Average(r => r.Healed),
+            Shielded: results.Average(r => r.Shielded));
     }
 }

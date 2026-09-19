@@ -74,8 +74,32 @@ public static class StatCalculator
         }
 
         sheet.Tenacity = StackMultiplicatively(TenacitySources(itemList, modifierList));
+        sheet.MoveSpeed = MoveSpeed(
+            b.MoveSpeed + itemList.Sum(i => i.Stats.MoveSpeedFlat),
+            itemList.Sum(i => i.Stats.MoveSpeedPercent)
+            + itemList.SelectMany(i => i.Effects).Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.MoveSpeedPercent).Sum(e => e.Amount)
+            + modifierList.Where(m => m.Stat == Stats.MoveSpeedPercent).Sum(m => m.Flat));
 
         return sheet;
+    }
+
+    public const double MoveSpeedSoftCap = 415;
+    public const double MoveSpeedHardCap = 490;
+
+    /// <summary>
+    /// Movement speed from base plus flat bonuses, times one plus additive percent bonuses, then the soft
+    /// caps: above 415 each point counts 80%, above 490 it counts 50% (League wiki, Movement speed).
+    /// </summary>
+    public static double MoveSpeed(double flat, double percent)
+    {
+        var raw = flat * (1 + percent);
+
+        if (raw > MoveSpeedHardCap)
+        {
+            return MoveSpeedSoftCap + (MoveSpeedHardCap - MoveSpeedSoftCap) * 0.8 + (raw - MoveSpeedHardCap) * 0.5;
+        }
+
+        return raw > MoveSpeedSoftCap ? MoveSpeedSoftCap + (raw - MoveSpeedSoftCap) * 0.8 : raw;
     }
 
     public static StatSheet Adjustment(StatSheet observed, StatSheet rebuilt) => new()

@@ -200,6 +200,7 @@ public static class ItemDescriber
         EffectTrigger.InCombat => "In combat",
         EffectTrigger.WhenLow => "When low",
         EffectTrigger.OnTakedown => "On takedown",
+        EffectTrigger.OutOfCombat => "Out of combat",
         _ => trigger.ToString(),
     };
 

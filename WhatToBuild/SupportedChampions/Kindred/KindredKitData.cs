@@ -15,6 +15,8 @@ public sealed class KindredKitData
 
     public EData E { get; set; } = new();
 
+    public RData R { get; set; } = new();
+
     public List<string> SkillOrder { get; set; } = new();
 
     public static KindredKitData Load(string path) =>
@@ -48,6 +50,7 @@ public sealed class KindredKitData
         public double WolfAttackSpeedRatio { get; set; }
         public double WolfAttackSpeedPerLevel { get; set; }
         public double WolfShareOfBonusAttackSpeed { get; set; }
+        public double MonsterBonusDamage { get; set; }
     }
 
     public sealed class EData
@@ -60,5 +63,14 @@ public sealed class KindredKitData
         public double MissingHealth { get; set; }
         public double MissingHealthPerMark { get; set; }
         public double CritChanceRatio { get; set; }
+        public double MonsterCap { get; set; } = double.PositiveInfinity;
+    }
+
+    public sealed class RData
+    {
+        public double Duration { get; set; }
+        public double MinimumHealthPercent { get; set; }
+        public List<double> Heal { get; set; } = new();
+        public List<double> Cooldown { get; set; } = new();
     }
 }

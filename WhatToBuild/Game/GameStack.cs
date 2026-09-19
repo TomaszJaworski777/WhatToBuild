@@ -14,6 +14,14 @@ public sealed class GameStack
 
     public int Count => _states.Count;
 
+    /// <summary>A snapshot another thread can read while this one keeps growing.</summary>
+    public GameStack Copy()
+    {
+        var copy = new GameStack();
+        copy._states.AddRange(_states);
+        return copy;
+    }
+
     public bool Push(GameState state)
     {
         if (Latest is { } last && state.GameTime <= last.GameTime)

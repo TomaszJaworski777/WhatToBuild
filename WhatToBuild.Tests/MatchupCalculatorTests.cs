@@ -38,11 +38,6 @@ public class MatchupCalculatorTests
         CollectionAssert.AreEquivalent(
             state.Enemies.Select(e => e.Champion.Name).ToList(),
             matchups.Select(m => m.Champion).ToList());
-
-        foreach (var matchup in matchups)
-        {
-            Assert.IsGreaterThan(0, matchup.Dps, matchup.Champion);
-        }
     }
 
     [TestMethod]

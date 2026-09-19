@@ -12,6 +12,11 @@ public sealed record PurchasePlan(
 public interface IPurchaseScorer
 {
     double Score(IReadOnlyList<Item> inventory);
+
+    /// <summary>Called with every inventory about to be scored, so a scorer can work them out in parallel first.</summary>
+    void Prepare(IReadOnlyList<IReadOnlyList<Item>> inventories)
+    {
+    }
 }
 
 public static class ComponentPurchase
@@ -40,10 +45,7 @@ public static class ComponentPurchase
         Collect(root, candidates, includeSelf: false);
         candidates = candidates.OrderByDescending(c => c.PriceToBuy).Take(MaxCandidates).ToList();
 
-        var best = new List<Node>();
-        var bestCost = 0;
-        var bestInventory = ownedList;
-        var bestValue = Value(scorer, ownedList, []);
+        var options = new List<(List<Node> Chosen, int Cost, List<Item> Inventory)>();
 
         for (var mask = 1; mask < 1 << candidates.Count; mask++)
         {
@@ -70,11 +72,23 @@ public static class ComponentPurchase
             }
 
             var inventory = InventoryAfter(ownedList, chosen);
-            if (!ItemRules.IsLegal(inventory))
+            if (!ItemRules.IsLegal(inventory) || ItemRules.Slots(inventory) > Math.Max(ItemRules.InventorySlots, ItemRules.Slots(ownedList)))
             {
                 continue;
             }
 
+            options.Add((chosen, cost, inventory));
+        }
+
+        scorer?.Prepare([ownedList, .. options.Select(o => (IReadOnlyList<Item>)o.Inventory)]);
+
+        var best = new List<Node>();
+        var bestCost = 0;
+        var bestInventory = ownedList;
+        var bestValue = Value(scorer, ownedList, []);
+
+        foreach (var (chosen, cost, inventory) in options)
+        {
             var value = Value(scorer, inventory, chosen);
             if (value > bestValue)
             {
