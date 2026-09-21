@@ -12,7 +12,8 @@ public sealed record RecommendationDto(
     ModelDto? Model = null,
     IReadOnlyList<string>? Assumptions = null,
     IReadOnlyList<MatchupDto>? Matchups = null,
-    FormAdviceDto? Form = null);
+    FormAdviceDto? Form = null,
+    bool Calculating = false);
 
 public sealed record FormAdviceDto(
     string? Detected,
@@ -57,7 +58,15 @@ public sealed record ModelDto(
     int Candidates,
     bool TimedOut,
     string Stage,
-    bool Refining);
+    bool Refining,
+    int StageIndex = 0,
+    int StageCount = 1,
+    double StableSeconds = 0,
+    int TrendSamples = 0,
+    double TrendConfidence = 0,
+    int CoreItems = 3,
+    string CoreLabel = "",
+    int BuiltItems = 0);
 
 public sealed record EnemyForecastDto(
     string Champion,

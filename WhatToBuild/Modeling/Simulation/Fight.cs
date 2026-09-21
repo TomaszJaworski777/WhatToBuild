@@ -227,8 +227,34 @@ public sealed class Fight
     }
 
     private static bool IsCastDamage(Effect effect) =>
-        effect.Trigger == EffectTrigger.OnAbility
-        && effect.Kind is EffectKind.PhysicalDamage or EffectKind.MagicDamage or EffectKind.TrueDamage or EffectKind.AdaptiveDamage;
+        effect.Trigger == EffectTrigger.OnAbility && IsDamage(effect);
+
+    private static bool IsUltimateDamage(Effect effect) =>
+        effect.Trigger == EffectTrigger.OnUltimate && IsDamage(effect);
+
+    private static bool IsDamage(Effect effect) =>
+        effect.Kind is EffectKind.PhysicalDamage or EffectKind.MagicDamage or EffectKind.TrueDamage or EffectKind.AdaptiveDamage;
+
+    /// <summary>Kits call this when their ultimate hits enemies, for items gated on it.</summary>
+    public void Ultimate()
+    {
+        foreach (var (item, effect) in Attacker.Items
+                     .SelectMany(i => i.Effects.Select(e => (Item: i, Effect: e)))
+                     .Where(x => IsUltimateDamage(x.Effect)))
+        {
+            if (Time < _castReadyAt.GetValueOrDefault(effect) || !Target.Satisfies(effect.When))
+            {
+                continue;
+            }
+
+            if (AttackerHits.ForEffect(effect, Attacker, Target) is { } hit)
+            {
+                Deal(item.Name, hit.Ability());
+            }
+
+            _castReadyAt[effect] = Time + effect.Cooldown;
+        }
+    }
 
     public void AddAttackSpeed(double bonus, double duration)
     {

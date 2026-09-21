@@ -44,6 +44,9 @@ public sealed class DamageCalculator
 
     public DamageCalculator Crit() => Flag(HitFlags.Attack | HitFlags.Crit);
 
+    /// <summary>A critical strike that is not an attack, such as an ability that can crit.</summary>
+    public DamageCalculator Critical() => Flag(HitFlags.Crit);
+
     public DamageCalculator ArmorPenetration(double percent) => Set(() => _armorPenetrationPercent = Stack(_armorPenetrationPercent, percent));
 
     public DamageCalculator Lethality(double flat) => Set(() => _lethality += flat);

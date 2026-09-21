@@ -25,15 +25,22 @@ public sealed class GameForecaster
     private readonly Dictionary<PlayerState, PlayerOutlook> _outlooks = new();
     private readonly Dictionary<PlayerState, double[]> _earnedTables = new();
     private readonly object _lock = new();
-    private double? _lobbyPace;
 
     public GameForecaster(GameState state, GameStack stack, ModelData model)
+        : this(state, stack, model, new GameTrends(state, stack, model))
+    {
+    }
+
+    public GameForecaster(GameState state, GameStack stack, ModelData model, GameTrends trends)
     {
         _state = state;
         _stack = stack;
         _baseline = model.Baseline;
         _income = model.Settings.Income;
+        Trends = trends;
     }
+
+    public GameTrends Trends { get; }
 
     public double Now => _state.GameTime;
 
@@ -121,61 +128,9 @@ public sealed class GameForecaster
 
     private PlayerOutlook BuildOutlook(PlayerState player)
     {
-        var role = RoleOf(player);
-        var own = OwnPace(player);
+        var trend = Trends.For(player);
 
-        var pace = player.IsActivePlayer
-            ? own
-            : (1 - _income.TrendWeight) * own + _income.TrendWeight * LobbyPace();
-
-        pace = Math.Clamp(pace, _income.MinPace, _income.MaxPace);
-        var baselineRate = (_baseline.GoldAt(role, Now) - _income.StartingGold) / Math.Max(1, Now);
-
-        return new PlayerOutlook(player, role, GoldOf(_state, player), baselineRate * pace * 60, pace, player.IsActivePlayer);
-    }
-
-    private double OwnPace(PlayerState player)
-    {
-        var role = RoleOf(player);
-        var earned = GoldOf(_state, player);
-        var baselineRate = (_baseline.GoldAt(role, Now) - _income.StartingGold) / Math.Max(1, Now);
-
-        var average = Now > 60 ? Math.Max(0, earned - _income.StartingGold) / Now : (double?)null;
-        var recent = RecentRate(player);
-        var observed = (average, recent) switch
-        {
-            ({ } a, { } r) => (1 - _income.RecentWeight) * a + _income.RecentWeight * r,
-            ({ } a, null) => a,
-            _ => (double?)null,
-        };
-
-        var trust = Math.Clamp(
-            (Now - _income.BaselineOnlyUntilSeconds) / Math.Max(1, _income.ObservedOnlyFromSeconds - _income.BaselineOnlyUntilSeconds), 0, 1);
-        var observedPace = observed is { } rate && baselineRate > 0 ? rate / baselineRate : 1;
-
-        return Math.Clamp(1 + (observedPace - 1) * trust, _income.MinPace, _income.MaxPace);
-    }
-
-    private double LobbyPace()
-    {
-        _lobbyPace ??= _state.Players.Where(p => !p.IsActivePlayer).Select(OwnPace).DefaultIfEmpty(1).Average();
-        return _lobbyPace.Value;
-    }
-
-    private double? RecentRate(PlayerState player)
-    {
-        var points = _stack.Series(s => s.Find(player.Champion) is { } p ? GoldOf(s, p) : null, _income.PaceWindowSeconds);
-
-        if (points.Count < 2 || points[^1].GameTime - points[0].GameTime < _income.MinRecentSpanSeconds)
-        {
-            return null;
-        }
-
-        var meanTime = points.Average(p => p.GameTime);
-        var meanValue = points.Average(p => p.Value);
-        var spread = points.Sum(p => (p.GameTime - meanTime) * (p.GameTime - meanTime));
-
-        return spread > 0 ? Math.Max(0, points.Sum(p => (p.GameTime - meanTime) * (p.Value - meanValue)) / spread) : null;
+        return new PlayerOutlook(trend.Player, trend.Role, trend.Earned, trend.GoldPerMinute, trend.Pace, trend.EarnedIsExact);
     }
 
     private double[] Table(PlayerState player)
@@ -203,9 +158,5 @@ public sealed class GameForecaster
         }
     }
 
-    private string RoleOf(PlayerState player)
-    {
-        var position = player.Position.ToUpperInvariant();
-        return _baseline.Knows(position) ? position : "";
-    }
+    private string RoleOf(PlayerState player) => Trends.RoleOf(player);
 }

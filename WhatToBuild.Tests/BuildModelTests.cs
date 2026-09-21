@@ -481,17 +481,36 @@ public class BuildModelTests
     }
 
     [TestMethod]
+    public void EveryBuildGetsBoots()
+    {
+        var opening = _model.Settings.Planner.Ladder(0).First(s => s.Mode != EvaluationMode.Full);
+        var stage = new ModelSettings.PlanStage
+        {
+            Name = opening.Name, BudgetMilliseconds = 8000, ScreenCount = opening.ScreenCount, BeamWidth = opening.BeamWidth,
+            Branching = opening.Branching, Depth = opening.Depth, Mode = opening.Mode, HorizonGold = opening.HorizonGold,
+        };
+
+        var plan = new BuildPlanner(Evaluator(EarlyBack(0.5, 0))).Plan(null, stage);
+
+        var names = string.Join(" > ", plan.Steps.Select(s => s.Item.Name));
+
+        Assert.IsGreaterThan(2, plan.Steps.Count, $"The plan is a whole build: {names}");
+        Assert.IsTrue(plan.Steps.Any(s => s.Item.Groups.Contains("Boots")), $"No boots in the build: {names}");
+    }
+
+    [TestMethod]
     public void TheOpeningPlansAWholeBuild()
     {
-        var opening = _model.Settings.Planner.Opening!;
+        var opening = _model.Settings.Planner.Ladder(0).First(s => s.Mode != EvaluationMode.Full);
         var quick = new ModelSettings.PlanStage
         {
-            Name = opening.Name, BudgetMilliseconds = 3000, ScreenCount = 12, BeamWidth = 4, Branching = 8, Depth = 6, Mode = opening.Mode, HorizonGold = opening.HorizonGold,
+            Name = opening.Name, BudgetMilliseconds = 8000, ScreenCount = 12, BeamWidth = 4, Branching = 8, Depth = 6, Mode = opening.Mode, HorizonGold = opening.HorizonGold,
         };
 
         var plan = new BuildPlanner(Evaluator(EarlyBack(0.5, 0))).Plan(null, quick);
 
-        Assert.IsGreaterThanOrEqualTo(4, plan.Steps.Count(s => s.Item.Cost >= 2000), string.Join(" > ", plan.Steps.Select(s => s.Item.Name)));
+        Assert.IsGreaterThanOrEqualTo(3, plan.Steps.Count(s => s.Item.Cost >= 2000), string.Join(" > ", plan.Steps.Select(s => s.Item.Name)));
+        Assert.IsGreaterThanOrEqualTo(4, plan.Steps.Count, string.Join(" > ", plan.Steps.Select(s => s.Item.Name)));
         Assert.IsTrue(plan.Steps.All(s => s.At >= _model.Settings.Planner.FirstRecallSeconds), "Nothing is bought before the first recall.");
     }
 
@@ -735,9 +754,13 @@ public class BuildModelTests
         source.Compute(state, new GameStack());
 
         Assert.IsTrue(source.Refine());
+        Assert.AreEqual("detailed", source.Current(state)!.Model!.Stage);
+        Assert.IsTrue(source.Current(state)!.Model!.Refining, "A deeper stage is still to come.");
+
+        Assert.IsTrue(source.Refine());
         var refined = source.Current(state)!;
 
-        Assert.AreEqual("detailed", refined.Model!.Stage);
+        Assert.AreEqual("whole build", refined.Model!.Stage);
         Assert.IsFalse(refined.Model.Refining);
         Assert.IsFalse(source.Refine(), "There is no stage after the last one.");
     }

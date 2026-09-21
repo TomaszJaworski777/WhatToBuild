@@ -36,6 +36,7 @@ public sealed class ModelSettings
     public sealed class FightSettings
     {
         public double TeamfightSeconds { get; set; } = 12;
+        public double UltimateSeconds { get; set; } = 100;
         public double MaxFightSeconds { get; set; } = 30;
         public List<double> AttackPhases { get; set; } = [0, 0.25, 0.5, 0.75];
         public List<double> ScreenAttackPhases { get; set; } = [0, 0.5];
@@ -219,6 +220,23 @@ public sealed class ModelSettings
 
         public PlanStage? Opening { get; set; }
 
+        public List<PlanStage> OpeningStages { get; set; } = [];
+
+        public IReadOnlyList<PlanStage> Ladder(double gameTime)
+        {
+            if (gameTime >= OpeningSeconds)
+            {
+                return Stages;
+            }
+
+            if (OpeningStages.Count > 0)
+            {
+                return OpeningStages;
+            }
+
+            return Opening is { } opening ? [opening] : Stages;
+        }
+
         public double OpeningSeconds { get; set; } = 90;
         public double HorizonGold { get; set; } = 8000;
         public double MinHorizonSeconds { get; set; } = 480;
@@ -228,6 +246,15 @@ public sealed class ModelSettings
         public double ReplaceFinishedMargin { get; set; } = 0.1;
         public double KeepMargin { get; set; } = 0.02;
         public double PrescreenShare { get; set; } = 0.4;
+        public double SpikeWeight { get; set; } = 0.25;
+        public int SpikeChecks { get; set; } = 2;
+        public double SpikeWindowSeconds { get; set; } = 150;
+        public int ReorderPasses { get; set; } = 2;
+        public double CompareSeconds { get; set; } = 2400;
+        public bool RequireBoots { get; set; } = true;
+        public int BootsLines { get; set; } = 2;
+        public int MinScreened { get; set; } = 12;
+        public int MinScored { get; set; } = 4;
         public double TimeBucketSeconds { get; set; } = 15;
         public double CheapTimeBucketSeconds { get; set; } = 60;
         public double ReplanSeconds { get; set; } = 30;
@@ -249,6 +276,8 @@ public sealed class ModelSettings
         public double BaselineOnlyUntilSeconds { get; set; } = 120;
         public double ObservedOnlyFromSeconds { get; set; } = 300;
         public double LevelReversionSeconds { get; set; } = 900;
+        public double PaceBucket { get; set; } = 0.1;
+        public double TakedownBucket { get; set; } = 2;
     }
 }
 

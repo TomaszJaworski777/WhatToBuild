@@ -1,56 +1,56 @@
 ﻿{
-    "id":  "54868bae-e663-138e-97e9-7f47d48bf4f9",
-    "riotId":  203,
-    "internalName":  "Kindred",
-    "name":  "Kindred",
-    "icon":  "Kindred.png",
-    "attackSpeedRatio":  0.625,
-    "base":  {
-                 "health":  595,
-                 "mana":  300,
-                 "attackDamage":  65,
-                 "armor":  29,
-                 "magicResist":  33,
-                 "attackSpeed":  0.625,
-                 "healthRegen":  7,
-                 "manaRegen":  7,
-                 "moveSpeed":  325,
-                 "attackRange":  500
-             },
-    "perLevel":  {
-                     "health":  104,
-                     "mana":  35,
-                     "attackDamage":  3.25,
-                     "armor":  4.7,
-                     "magicResist":  1.1,
-                     "attackSpeed":  0.035,
-                     "healthRegen":  0.55,
-                     "manaRegen":  0.4
-                 },
-    "tags":  {
-                 "adDamageDealer":  0.9,
-                 "ranged":  1,
-                 "healing":  0.2
-             },
-    "stacking":  [
-                     {
-                         "stat":  "abilityDamage",
-                         "initialStacksPerMinute":  0.7
-                     }
-                 ],
-    "stackReading":  {
-                         "stat":  "attackRange",
-                         "firstStacks":  4,
-                         "firstBonus":  75,
-                         "stepStacks":  3,
-                         "stepBonus":  25
-                     },
-    "metaBuild":  [
-                      "206b362f-fe5e-0538-c3fb-5b9b7145d61f",
-                      "c2821980-cb70-1ea5-aa5b-035485f74e15",
-                      "81f53a95-4bed-bc68-fab5-ae1fc82166eb",
-                      "879ddf1c-0e7e-35d2-427e-9cf60c653dfb",
-                      "834673d5-2fcc-e469-a7d8-9e3ff6033789",
-                      "84407203-878e-6a65-9b75-3dd9630d9569"
-                  ]
+    "id": "54868bae-e663-138e-97e9-7f47d48bf4f9",
+    "riotId": 203,
+    "internalName": "Kindred",
+    "name": "Kindred",
+    "icon": "Kindred.png",
+    "attackSpeedRatio": 0.625,
+    "base": {
+        "health": 595,
+        "mana": 300,
+        "attackDamage": 65,
+        "armor": 29,
+        "magicResist": 33,
+        "attackSpeed": 0.625,
+        "healthRegen": 7,
+        "manaRegen": 7,
+        "moveSpeed": 325,
+        "attackRange": 500
+    },
+    "perLevel": {
+        "health": 104,
+        "mana": 35,
+        "attackDamage": 3.25,
+        "armor": 4.7,
+        "magicResist": 1.1,
+        "attackSpeed": 0.035,
+        "healthRegen": 0.55,
+        "manaRegen": 0.4
+    },
+    "tags": {
+        "adDamageDealer": 0.9,
+        "ranged": 1,
+        "healing": 0.2
+    },
+    "stacking": [
+        {
+            "stat": "abilityDamage",
+            "initialStacksPerMinute": 0.35
+        }
+    ],
+    "stackReading": {
+        "stat": "attackRange",
+        "firstStacks": 4,
+        "firstBonus": 75,
+        "stepStacks": 3,
+        "stepBonus": 25
+    },
+    "metaBuild": [
+        "206b362f-fe5e-0538-c3fb-5b9b7145d61f",
+        "c2821980-cb70-1ea5-aa5b-035485f74e15",
+        "81f53a95-4bed-bc68-fab5-ae1fc82166eb",
+        "879ddf1c-0e7e-35d2-427e-9cf60c653dfb",
+        "834673d5-2fcc-e469-a7d8-9e3ff6033789",
+        "84407203-878e-6a65-9b75-3dd9630d9569"
+    ]
 }

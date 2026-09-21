@@ -743,27 +743,49 @@ their role. Item value only moves when someone recalls, so every other player's 
 pulled toward the lobby average by `trendWeight`. The first `baselineOnlyUntilSeconds` trust
 the baseline. Levels follow the baseline plus today's lead, fading over
 `levelReversionSeconds` (catch-up experience). Forecast times carry a spread of
-`rateUncertainty` × horizon.
+`rateUncertainty` × horizon. All of it lives in `GameTrends`, which the forecaster, the enemy
+build projection and the planner's replanning all read (see Model → Planner).
 
 ### Planner and time budget
 
 The planner runs while you play, on one background thread at below-normal priority, and
-never uses more than one core. It runs in `stages`:
+never uses more than one core.
 
-1. **quick** (`budgetMilliseconds` 700): every candidate item is pre-screened cheaply (one
-   attack timing, the top `cheapTargets` threats, `cheapTimeBucketSeconds` time grid), the
-   best `screenCount` get a proper score, then a beam search `depth` items deep. Its answer
-   is sent to the page as soon as it is ready.
-0. **opening**: in the first `openingSeconds` of a game, instead of the quick stage, a whole
-   build is searched (`depth` 6, `horizonGold` 20000) with seconds of budget. Enemy builds are
-   fixed, so this is feasible, and later stages adjust that plan rather than starting over.
-2. **detailed**: runs afterwards while nothing relevant changes, with more candidates, a wider
-   beam and every attack timing, and replaces the plan when it finishes.
+**The trend layer decides when to think again.** `GameTrends` reads the history of states and
+turns it into, per player, a gold rate (their own average blended with the recent slope over
+`paceWindowSeconds`, pulled toward the lobby trend for enemies), a pace against the baseline
+curve, a takedown rate and a confidence that rises from `baselineOnlyUntilSeconds` to
+`observedOnlyFromSeconds`. Everything downstream — your income, enemy gold, the items they
+are predicted to hold at each future moment — reads those trends and nothing else.
 
-A change in items, levels, kills or objectives cancels a detailed stage and starts again from
-the quick one. Gold alone only refreshes the buy-now components and arrival times. Every
-`replanSeconds` the detailed stage re-runs on fresh state, keeping the current target
-unless another item beats it by `keepMargin`.
+The trends also produce a **signature**: every player's champion, level, items, takedowns
+bucketed by `takedownBucket` and pace bucketed by `paceBucket`, plus objectives. Gold ticking
+up, a few CS or a second passing do not change it. This is what the planner watches:
+
+- **The signature has not moved** → the build is not re-picked. It is replayed against the new
+  state, so arrival times, gold needed and the forecast all move, and the plan does not.
+- **The signature moved** → the ladder restarts at its first rung so the next item is
+  re-decided straight away, keeping what it already found (below).
+
+Planning climbs a **ladder** of stages, each deeper than the last, whenever no new state is
+waiting. `openingStages` runs while the game loads (before `openingSeconds`): a whole-build
+sketch, then a wider search, then the same at full fidelity — it keeps thinking for as long as
+the loading screen lasts instead of answering once. `stages` runs in game: **quick** (a beam
+`depth` 2 deep, under a second, so a change is answered immediately), **detailed**, then
+**whole build** (`depth` 6, `horizonGold` 20000, full-fidelity scoring). The page shows which
+rung is in hand and whether a deeper one is still running.
+
+Two rules keep what was already worked out:
+
+- **The build never shrinks.** When a shallow rung returns fewer items than the build in hand,
+  the rest of that build is replayed onto the end of it. Going from the loading screen into
+  the game, or reacting to an enemy item, changes the next step without throwing away the
+  five steps behind it.
+- **The next item only changes when keeping it is measurably worse.** A cheap rung, and any
+  rung that ran out of time budget, may re-order and re-time the build but never moves the item
+  you are saving for. A full-fidelity rung that finished has to beat keeping it by `keepMargin`,
+  both replayed the same way so the two numbers can be compared. Every `replanSeconds` the
+  deepest stage re-runs on fresh state under the same rule.
 
 Purchases happen at recalls: nothing is bought before `firstRecallSeconds`, and after that at
 the next recall (`recallIntervalSeconds` apart) once the gold is there. Cheap items therefore
@@ -776,6 +798,59 @@ the plan's own rate of score per gold, so finishing what you hold components for
 A plan's value is its score gain over your current items, integrated over time until you
 have earned `horizonGold` more, discounted over `discountSeconds`. Buying something earlier
 makes it count for longer, so cheap high-impact items go first.
+
+### The core
+
+The slider in the page header sets how big a core to aim at: one to five items, three by
+default, always plus shoes. Shoes never use up one of its places.
+
+The plan works toward that core as a package — the search is as deep as the part of it you have
+not built yet, so with three items it weighs three-item builds against each other rather than
+picking an item at a time. Order counts as much as choice, and it comes out of the same scoring:
+every item is valued at the minute it would land, so a clear item earns its keep while clear
+still has weight and a late-game item is not bought early. The search compares orderings on its
+own, but only along the lines its beam kept, so the build it settles on is walked once more,
+swapping neighbours for as long as that buys anything (`reorderPasses`). While the next item is
+being held still for stability, the pass leaves the first place alone and sorts the rest. Once the core stands there is nothing left to save toward, so the
+search is one item deep and the answer is simply the best item at the moment you buy it, each
+time you buy. A core of five on a champion holding a jungle pet does not fit in six slots, so
+its last step arrives as a swap: the plan says what it sells.
+
+The page reads the setting from `GET /api/preferences` and sets it with `POST /api/preferences`;
+moving it is a reason to re-plan, exactly like an enemy finishing an item, and the page says it
+is calculating again while that happens.
+
+The page is only ever shown a build that was thought through to the end of the ladder. A build
+half way up is never published, so it cannot flicker between rungs; while a new one is being
+worked out the last finished one stays up, and before there is one the page says it is
+calculating. That is `Display`, which is what the service publishes; `Compute` and `Current`
+still hand back the working plan for tests and tooling.
+
+### Enemy spikes
+
+Value over time is not the whole story: it does not care *when* you are weak. Saving for a big
+item leaves you holding boots and a component at the minute an enemy finishes theirs, and that
+is when you lose a duel you would otherwise win.
+
+From the enemy forecasts the planner knows the exact minute each enemy finishes each item —
+those are their spikes. For `spikeWindowSeconds` after each one (windows merge when they
+overlap), being strong counts for `1 + spikeWeight` times as much as it does the rest of the
+time. Nothing is subtracted and no build is forbidden: the same value integral is simply
+weighted toward the minutes when a fight is most likely to be lost. An item that lands before
+their spike collects that weight; one that lands after it does not.
+
+`spikeWeight` 0.5 means power during those windows is worth half as much again. Against the
+demo lobby it moves buying boots first from 17 points ahead of finishing an item first to 3
+points behind, and the planner's own opening flips from "Berserker's at 4m, first item at 12m"
+to "Hubris at 8m". At 1 the gap widens to 23 points. At 0 the term is off and the planner buys
+boots first on timing alone.
+
+The same spikes are simulated exactly for the explanation. `SpikesBetween` lists them, and
+`DuelAt` fights whatever you would be holding at that minute — finished items plus the
+components your gold buys by then — one against one against the enemy who just spiked, and
+reports how long each side needs to kill the other. Where that duel is lost, the plan says so:
+*"At ~7:42 Veigar finishes Luden's Echo; you are still on Boots + Long Sword and lose that duel
+(3.2s to kill you, 6.7s to kill them)."*
 
 Gold items pay for later ones. A stacking item whose gains are `gold` (The Collector's 25 per
 kill, Cull's 1 per minion) adds income from the moment the plan buys it, so every later item
@@ -790,9 +865,28 @@ jungle pet). Selling a finished item (2000 gold or more) has to beat keeping it 
 
 Every completed item is a candidate, off-meta ones included; the page flags those.
 
+Boots are required (`requireBoots`), and that is the only rule about them: where they belong in
+a build is decided by what they are worth, like any other item. A build that never bought them
+gets the pair that scores best appended at the end. Because a boots line scores low on its own
+at the first layer, the best `bootsLines` of them are kept in the beam rather than pruned, so
+"boots first, then the expensive item" can be compared properly against "expensive item first".
+
 ### Known gaps
 
 - Enemy kits are tags, not simulations, so enemy damage, healing and shields are estimates.
+- Kindred's marks are estimated at `initialStacksPerMinute` (0.35, about one every three
+  minutes). They matter more than a stack count usually does: each one adds 1% of the target's
+  current health to every wolf bite and 5% attack speed to Q, so guessing them high quietly
+  turns her into an ability champion and makes haste look better than attack speed.
+- Her Q costs less while she stands in W's zone, which would otherwise keep its attack speed
+  buff up permanently and make bought attack speed look redundant. `zoneUptime` (0.6) is the
+  share of the zone she actually spends inside it; the rest of the time Q is on its full
+  cooldown.
+- `OnUltimate` effects (Malignance) fire when a simulated kit's ultimate hits enemies. Kindred's
+  Lamb's Respite damages nobody, so such items are worth nothing to her, which is correct;
+  for a champion without a simulated kit they are worth nothing either, which is not.
+- Item passives that refund ability cooldowns (Axiom Arc) are not modelled, so such items are
+  valued on their stats alone and are under-credited.
 - Lamb's Respite also stops enemies inside from dying; that cost to your damage is not priced.
 
 The board's per-enemy kill times come from the same model (current items, healing, shields,

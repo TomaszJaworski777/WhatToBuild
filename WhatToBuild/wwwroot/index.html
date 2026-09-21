@@ -17,6 +17,11 @@
                 <span class="brand-name">WhatToBuild</span>
             </div>
             <div class="meta">
+                <label class="horizon" for="horizon" title="How big a core to build toward. The plan picks the best core of this many items plus shoes; once it stands, every later buy is simply the best item at that moment.">
+                    <span class="horizon-end">Core</span>
+                    <input type="range" id="horizon" min="1" max="5" step="1" value="3" />
+                    <span id="horizon-label" class="horizon-label">3 items + shoes</span>
+                </label>
                 <span id="patch" class="patch"></span>
                 <span id="status" class="status status-connecting">Connecting</span>
             </div>

@@ -16,7 +16,7 @@
     },
     "effects": [
         {
-            "trigger": "OnAbility",
+            "trigger": "OnUltimate",
             "kind": "MagicDamage",
             "amount": 180,
             "perAp": 0.15

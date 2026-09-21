@@ -217,6 +217,7 @@ public static class ItemDescriber
         EffectTrigger.Always => "Passive",
         EffectTrigger.OnAttack => "On attack",
         EffectTrigger.OnAbility => "On ability",
+        EffectTrigger.OnUltimate => "On your ultimate",
         EffectTrigger.InCombat => "In combat",
         EffectTrigger.WhenLow => "When low",
         EffectTrigger.OnTakedown => "On takedown",

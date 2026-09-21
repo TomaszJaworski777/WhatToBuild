@@ -8,6 +8,8 @@ public enum EffectTrigger
 
     OnAbility,
 
+    OnUltimate,
+
     InCombat,
 
     WhenLow,

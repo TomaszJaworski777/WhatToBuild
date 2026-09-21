@@ -235,6 +235,7 @@ public sealed class KaynKit : IChampionKit
         _exitAt = double.MaxValue;
         fight.Deal(UmbralTrespass, fight.Physical(RDamage(fight)).Ability());
         fight.Cast();
+        fight.Ultimate();
 
         if (Assassin)
         {

@@ -104,6 +104,7 @@ public sealed class CombatProfiler
             {
                 EffectTrigger.OnAttack => effect.EveryAttacks > 0 ? attacksPerSecond / effect.EveryAttacks : attacksPerSecond,
                 EffectTrigger.OnAbility => castsPerSecond,
+                EffectTrigger.OnUltimate => 1 / Math.Max(1, _settings.Fight.UltimateSeconds),
                 EffectTrigger.InCombat => effect.Cooldown > 0 ? 1 / effect.Cooldown : 1,
                 _ => 0,
             };

@@ -56,6 +56,9 @@ public sealed class BuildPlanner
     private readonly BuildContext _context;
     private readonly ModelSettings.PlannerSettings _settings;
     private readonly HashSet<Guid> _components;
+    private const double SpikeHorizonSeconds = 45 * 60;
+
+    private readonly Dictionary<int, IReadOnlyList<(double From, double To)>> _spikeWindows = new();
     private ModelSettings.PlanStage _stage = new();
     private IPlanControl? _control;
     private bool _cancelled;
@@ -78,9 +81,96 @@ public sealed class BuildPlanner
 
     private static bool IsBasicBoots(Item item) => item.Groups.Contains("Boots") && item.BuildPath.Count == 0;
 
+    private static bool IsAnyBoots(Item item) => item.Groups.Contains("Boots");
+
+    private List<Node> BestBoots(List<Node> nodes, double horizon) =>
+        nodes.Where(n => IsAnyBoots(n.Item!)).OrderByDescending(n => Value(n, horizon)).Take(_settings.BootsLines).ToList();
+
+    /// <summary>
+    /// Everyone buys boots. Their place in the build is left to what they are worth; the only
+    /// rule is that a build cannot end without them, so a build that never bought them gets
+    /// the pair that scores best appended.
+    /// </summary>
+    private Node WithBoots(Node best, double horizon)
+    {
+        if (!_settings.RequireBoots || best.Item is null || best.Inventory.Any(IsAnyBoots))
+        {
+            return best;
+        }
+
+        var options = CandidatePool()
+            .Where(IsAnyBoots)
+            .Select(item => Child(best, item, double.MaxValue))
+            .OfType<Node>()
+            .ToList();
+
+        foreach (var option in options)
+        {
+            Score(option);
+        }
+
+        return options.Count == 0 ? best : options.MaxBy(n => Value(n, Math.Max(horizon, n.Time + 1)))!;
+    }
+
     private bool IsUpgradedBoots(Item item) =>
         item.Groups.Contains("Boots")
         && item.BuildPath.Any(id => _context.Items.ById(id) is { } part && part.Groups.Contains("Boots") && part.BuildPath.Count > 0);
+
+    /// <param name="horizon">Score to this moment instead of the build's own end, so that two
+    /// sequences that finish at different times can be compared on the same footing.</param>
+    public BuildPlan Replay(IReadOnlyList<Item> sequence, ModelSettings.PlanStage? stage = null, double? horizon = null)
+    {
+        _stage = stage ?? _settings.Stages.FirstOrDefault() ?? new ModelSettings.PlanStage();
+        _control = null;
+        _cancelled = false;
+
+        var watch = Stopwatch.StartNew();
+        var now = _context.Now;
+        var forecaster = _context.Forecaster;
+        const double unbounded = double.MaxValue;
+
+        var node = new Node
+        {
+            Time = now,
+            Earned = forecaster.EarnedAt(_context.Me, now),
+            GoldLeft = _context.State.CurrentGold,
+            Inventory = _context.Owned.ToList(),
+            BoughtAt = new Dictionary<Guid, double>(),
+        };
+
+        var last = node;
+        foreach (var item in sequence)
+        {
+            if (ItemRules.Slots(node.Inventory) >= ItemRules.InventorySlots)
+            {
+                node.SellCandidate ??= LeastValuable(node);
+            }
+
+            if (Child(node, item, unbounded) is not { } child)
+            {
+                break;
+            }
+
+            Score(child);
+            node = child;
+            last = child;
+        }
+
+        return new BuildPlan
+        {
+            Steps = Steps(last),
+            Value = Value(last, horizon ?? last.Time + _settings.MinHorizonSeconds),
+            Horizon = last.Time,
+            Candidates = [],
+            Evaluations = _evaluator.EvaluationCount,
+            Milliseconds = watch.Elapsed.TotalMilliseconds,
+            TimedOut = false,
+            KeptPreviousTarget = true,
+            Stage = _stage.Name,
+            Mode = _stage.Mode,
+            Cancelled = false,
+        };
+    }
 
     public BuildPlan Plan(Item? previousTarget = null, ModelSettings.PlanStage? stage = null, IPlanControl? control = null)
     {
@@ -110,7 +200,8 @@ public sealed class BuildPlanner
         var timedOut = false;
         var screened = Prescreen(root, horizon, previousTarget, watch, budget, ref timedOut);
         var firstLayer = Score(screened.Take(_stage.ScreenCount)
-            .Concat(screened.Where(n => n.Item!.Id == previousTarget?.Id || IsBasicBoots(n.Item!)))
+            .Concat(screened.Where(n => n.Item!.Id == previousTarget?.Id))
+            .Concat(screened.Where(n => IsAnyBoots(n.Item!)).OrderByDescending(n => n.CheapValue).Take(_settings.BootsLines))
             .Distinct()
             .ToList(), watch, budget, ref timedOut);
 
@@ -128,9 +219,10 @@ public sealed class BuildPlanner
 
         var all = new List<Node>(firstLayer);
         var beam = Beam(firstLayer, horizon, previousTarget);
-        beam.AddRange(firstLayer.Where(n => IsBasicBoots(n.Item!) && !beam.Contains(n)));
+        // Boots are compulsory, so a boots line always stays in the beam to be compared on value.
+        beam.AddRange(BestBoots(firstLayer, horizon).Where(n => !beam.Contains(n)));
 
-        foreach (var boots in firstLayer.Where(n => IsBasicBoots(n.Item!)).Select(n => n.Item!))
+        foreach (var boots in BestBoots(firstLayer, horizon).Select(n => n.Item!))
         {
             if (branching.All(b => b.Id != boots.Id))
             {
@@ -164,6 +256,8 @@ public sealed class BuildPlanner
                 kept = true;
             }
         }
+
+        best = WithBoots(best, horizon);
 
         if (best != root && Value(best, horizon) <= 0)
         {
@@ -223,14 +317,19 @@ public sealed class BuildPlanner
         }
 
         var specs = CandidatePool().Select(item => Child(root, item, horizon)).OfType<Node>().ToList();
+        var done = 0;
 
         foreach (var spec in specs)
         {
-            if (Stop(watch, budget * _settings.PrescreenShare) && spec.Item!.Id != previousTarget?.Id)
+            if (done >= _settings.MinScreened
+                && Stop(watch, budget * _settings.PrescreenShare)
+                && spec.Item!.Id != previousTarget?.Id)
             {
                 timedOut = true;
                 continue;
             }
+
+            done++;
 
             var baseline = _evaluator.Evaluate(_context.Owned, spec.Time, null, EvaluationMode.Cheap);
             var after = _evaluator.Evaluate(spec.Inventory, spec.Time, StacksAt(spec.BoughtAt, spec.Time), EvaluationMode.Cheap);
@@ -244,14 +343,17 @@ public sealed class BuildPlanner
 
     private List<Node> Score(List<Node> specs, Stopwatch watch, double budget, ref bool timedOut)
     {
+        var done = 0;
+
         foreach (var spec in specs)
         {
-            if (Stop(watch, budget))
+            if (done >= _settings.MinScored && Stop(watch, budget))
             {
                 timedOut = true;
                 break;
             }
 
+            done++;
             Score(spec);
         }
 
@@ -268,6 +370,7 @@ public sealed class BuildPlanner
         {
             return null;
         }
+
 
         var after = purchase.InventoryAfter.ToList();
         Item? sold = null;
@@ -318,7 +421,7 @@ public sealed class BuildPlanner
             BonusGoldPerSecond = Math.Max(0, GoldIncome(after) - GoldIncome(_context.Owned)),
             Inventory = after,
             BoughtAt = boughtAt,
-            Depth = parent.Depth + (IsBasicBoots(item) ? 0 : 1),
+            Depth = parent.Depth + (IsAnyBoots(item) ? 0 : 1),
             Closed = parent.Closed + parent.Gain * Discount(parent.Time, time),
         };
     }
@@ -430,9 +533,59 @@ public sealed class BuildPlanner
 
     private double Discount(double from, double to)
     {
+        var plain = Plain(from, to);
+        if (_settings.SpikeWeight <= 0 || to <= from)
+        {
+            return plain;
+        }
+
+        var inSpikes = SpikeWindows(to).Sum(w => Plain(Math.Max(from, w.From), Math.Min(to, w.To)));
+
+        return plain + _settings.SpikeWeight * inSpikes;
+    }
+
+    private double Plain(double from, double to)
+    {
+        if (to <= from)
+        {
+            return 0;
+        }
+
         var tau = _settings.DiscountSeconds;
         var now = _context.Now;
         return tau * (Math.Exp(-(from - now) / tau) - Math.Exp(-(to - now) / tau));
+    }
+
+    /// <summary>
+    /// The minutes after an enemy finishes an item, merged. Being strong inside one of these is
+    /// what decides whether their spike is a fight you lose, so value there counts for more.
+    /// </summary>
+    private IReadOnlyList<(double From, double To)> SpikeWindows(double until)
+    {
+        var key = (int)Math.Round(Math.Min(until, _context.Now + SpikeHorizonSeconds) / 60);
+        if (_spikeWindows.TryGetValue(key, out var cached))
+        {
+            return cached;
+        }
+
+        var window = _settings.SpikeWindowSeconds;
+        var merged = new List<(double From, double To)>();
+
+        foreach (var spike in _evaluator.SpikesBetween(_context.Now, _context.Now + SpikeHorizonSeconds))
+        {
+            var next = (From: spike.Time, To: spike.Time + window);
+            if (merged.Count > 0 && next.From <= merged[^1].To)
+            {
+                merged[^1] = (merged[^1].From, Math.Max(merged[^1].To, next.To));
+            }
+            else
+            {
+                merged.Add(next);
+            }
+        }
+
+        _spikeWindows[key] = merged;
+        return merged;
     }
 
     private static Node First(Node node)

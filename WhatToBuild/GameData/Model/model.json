@@ -89,21 +89,21 @@
         "uptime": 0,
         "survival": 0,
         "clear": 1,
-        "movement": 0
+        "movement": 1
       },
       "Kayn": {
         "damage": 1,
         "uptime": 1,
         "survival": 0.3,
         "clear": 1,
-        "movement": 0
+        "movement": 1
       },
       "Kayn/Darkin": {
         "damage": 1,
         "uptime": 1,
         "survival": 0.3,
         "clear": 1,
-        "movement": 0
+        "movement": 1
       },
       "Kayn/ShadowAssassin": {
         "damage": 0.5,
@@ -111,7 +111,7 @@
         "uptime": 0,
         "survival": 0,
         "clear": 1,
-        "movement": 0
+        "movement": 1
       }
     }
   },
@@ -139,11 +139,12 @@
       {
         "name": "quick",
         "budgetMilliseconds": 700,
-        "screenCount": 10,
-        "beamWidth": 4,
-        "branching": 8,
-        "depth": 3,
-        "mode": "Screen"
+        "screenCount": 12,
+        "beamWidth": 3,
+        "branching": 6,
+        "depth": 2,
+        "mode": "Screen",
+        "horizonGold": 6000
       },
       {
         "name": "detailed",
@@ -151,8 +152,19 @@
         "screenCount": 30,
         "beamWidth": 8,
         "branching": 14,
-        "depth": 3,
-        "mode": "Full"
+        "depth": 4,
+        "mode": "Full",
+        "horizonGold": 12000
+      },
+      {
+        "name": "whole build",
+        "budgetMilliseconds": 12000,
+        "screenCount": 20,
+        "beamWidth": 6,
+        "branching": 10,
+        "depth": 6,
+        "mode": "Full",
+        "horizonGold": 20000
       }
     ],
     "prescreenShare": 0.4,
@@ -167,19 +179,43 @@
     "sellRefund": 0.7,
     "cheapTimeBucketSeconds": 60,
     "replaceFinishedMargin": 0.1,
-    "opening": {
-      "name": "opening",
-      "budgetMilliseconds": 8000,
-      "screenCount": 30,
-      "beamWidth": 6,
-      "branching": 12,
-      "depth": 6,
-      "mode": "Screen",
-      "horizonGold": 20000
-    },
     "openingSeconds": 90,
     "firstRecallSeconds": 210,
-    "recallIntervalSeconds": 240
+    "recallIntervalSeconds": 240,
+    "openingStages": [
+      {
+        "name": "opening sketch",
+        "budgetMilliseconds": 3000,
+        "screenCount": 20,
+        "beamWidth": 4,
+        "branching": 8,
+        "depth": 6,
+        "mode": "Screen",
+        "horizonGold": 20000
+      },
+      {
+        "name": "opening",
+        "budgetMilliseconds": 8000,
+        "screenCount": 30,
+        "beamWidth": 6,
+        "branching": 12,
+        "depth": 6,
+        "mode": "Screen",
+        "horizonGold": 20000
+      },
+      {
+        "name": "opening full",
+        "budgetMilliseconds": 15000,
+        "screenCount": 24,
+        "beamWidth": 6,
+        "branching": 10,
+        "depth": 6,
+        "mode": "Full",
+        "horizonGold": 20000
+      }
+    ],
+    "spikeWeight": 0.5,
+    "spikeChecks": 2
   },
   "income": {
     "startingGold": 500,

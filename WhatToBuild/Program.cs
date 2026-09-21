@@ -15,6 +15,7 @@ builder.Services.AddSingleton(ItemRepository.Load(dataRoot));
 builder.Services.AddSingleton(NeutralRepository.Load(dataRoot));
 builder.Services.AddSingleton(ChampionKits.Load(dataRoot));
 builder.Services.AddSingleton(ModelData.Load(dataRoot));
+builder.Services.AddSingleton<PlanPreferences>();
 builder.Services.AddSingleton<IRecommendationSource, BuildRecommendations>();
 
 string? replayFolder = null;
@@ -52,6 +53,17 @@ app.UseStaticFiles(new StaticFileOptions
 app.MapGet("/api/state", (GameStateService service) => service.Latest);
 app.MapGet("/api/recommendation", (GameStateService service) => service.LatestRecommendation);
 
+app.MapGet("/api/preferences", (PlanPreferences preferences) =>
+    new { coreItems = preferences.CoreItems, label = preferences.Label });
+
+app.MapPost("/api/preferences", (PlanPreferences preferences, PreferenceRequest request) =>
+{
+    preferences.CoreItems = request.CoreItems;
+    return Results.Ok(new { coreItems = preferences.CoreItems, label = preferences.Label });
+});
+
 app.MapHub<GameHub>("/hub");
 
 app.Run();
+
+record PreferenceRequest(int CoreItems);

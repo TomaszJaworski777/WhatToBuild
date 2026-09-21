@@ -35,6 +35,9 @@ public sealed class KindredKitData
         public double AttackSpeed { get; set; }
         public double AttackSpeedPerMark { get; set; }
         public double AttackSpeedDuration { get; set; }
+
+        /// <summary>Whether the bolts can critically strike.</summary>
+        public bool CanCrit { get; set; }
     }
 
     public sealed class WData
@@ -51,6 +54,9 @@ public sealed class KindredKitData
         public double WolfAttackSpeedPerLevel { get; set; }
         public double WolfShareOfBonusAttackSpeed { get; set; }
         public double MonsterBonusDamage { get; set; }
+
+        /// <summary>The share of the zone you actually spend standing in it.</summary>
+        public double ZoneUptime { get; set; } = 1;
     }
 
     public sealed class EData

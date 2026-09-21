@@ -109,11 +109,20 @@ public sealed class KindredKit : IChampionKit
         }
 
         var q = _data.Q;
-        fight.Deal(DanceOfArrows, fight.Physical(QDamage(fight)).Ability());
+        var damage = QDamage(fight);
+        var crit = q.CanCrit ? AttackerHits.CritChance(fight.Attacker) : 0;
+
+        fight.Deal(DanceOfArrows, fight.Physical(damage).Ability(), 1 - crit);
+        if (crit > 0)
+        {
+            fight.Deal(DanceOfArrows, fight.Physical(damage * AttackerHits.CritDamage(fight.Attacker)).Ability().Critical(), crit);
+        }
         fight.Cast();
         fight.AddAttackSpeed(q.AttackSpeed + q.AttackSpeedPerMark * fight.Stacks, q.AttackSpeedDuration);
 
-        var cooldown = InZone(fight) ? KindredKitData.AtRank(q.CooldownInW, rank) : q.Cooldown;
+        // Standing in the zone cuts the cooldown, but she is dashing and kiting, not parked in it.
+        var share = InZone(fight) ? _data.W.ZoneUptime : 0;
+        var cooldown = share * KindredKitData.AtRank(q.CooldownInW, rank) + (1 - share) * q.Cooldown;
         _qReadyAt = fight.Time + fight.Cooldown(cooldown);
     }
 
@@ -247,7 +256,13 @@ public sealed class KindredKit : IChampionKit
         return attacks * ExpectedAttackHit(fight) + counterProcs;
     }
 
-    private double QHit(Fight fight) => fight.Physical(QDamage(fight)).Ability().Run().HealthDamage;
+    private double QHit(Fight fight)
+    {
+        var hit = fight.Physical(QDamage(fight)).Ability().Run().HealthDamage;
+        var crit = _data.Q.CanCrit ? AttackerHits.CritChance(fight.Attacker) : 0;
+
+        return hit * (1 + crit * (AttackerHits.CritDamage(fight.Attacker) - 1));
+    }
 
     private double WolfBiteHit(Fight fight, double targetHealth) =>
         fight.Magic(WolfBiteDamage(fight, targetHealth)).Ability().Run().HealthDamage;

@@ -168,6 +168,18 @@ public sealed class Battlefield
 
 public sealed record TargetResult(CombatProfile Enemy, FightResult Fight, TargetSustain Sustain, double GrievousWounds, double ShieldReduction);
 
+/// <summary>An enemy finishing an item at a given moment.</summary>
+public sealed record Spike(double Time, CombatProfile Enemy, Item Item);
+
+/// <summary>Seconds each side needs to kill the other, one against one.</summary>
+public sealed record Duel(double OurKillSeconds, double TheirKillSeconds)
+{
+    /// <summary>Above 1 we win the duel; at 0.5 they kill us twice as fast as we kill them.</summary>
+    public double Edge => OurKillSeconds <= 0 ? 2 : TheirKillSeconds / OurKillSeconds;
+
+    public double Weakness => Math.Clamp(1 - Edge, 0, 1);
+}
+
 public sealed class Evaluation
 {
     public required double Time { get; init; }
@@ -237,6 +249,42 @@ public sealed class BuildEvaluator
         var snapped = _context.World.Snap(time);
         var key = (int)Math.Round((snapped - _context.Now) / _context.World.BucketSeconds);
         return _battlefields.GetOrAdd(key, _ => new Lazy<Battlefield>(() => BuildBattlefield(snapped))).Value;
+    }
+
+    /// <summary>
+    /// The moments an enemy finishes an item, from their forecast build. These are the minutes
+    /// they spike: what we hold then decides whether the spike is survivable.
+    /// </summary>
+    public IReadOnlyList<Spike> SpikesBetween(double from, double to)
+    {
+        if (to <= from)
+        {
+            return [];
+        }
+
+        return BattlefieldAt(to).Enemies
+            .SelectMany(enemy => enemy.Forecast.Build.Purchases
+                .Where(p => p.At > from && p.At <= to)
+                .Select(p => new Spike(p.At, enemy, p.Item)))
+            .OrderBy(s => s.Time)
+            .ToList();
+    }
+
+    /// <summary>One against one at a moment: how long each side needs to kill the other.</summary>
+    public Duel DuelAt(Evaluation evaluation, CombatProfile enemy)
+    {
+        var us = evaluation.Us;
+        var target = evaluation.Targets.FirstOrDefault(t => t.Enemy.Champion.Id == enemy.Champion.Id);
+        var ourKill = target?.Fight.TimeToKill ?? _context.Settings.Fight.MaxFightSeconds;
+
+        var theirDps = enemy.Streams.Sum(stream =>
+            Mitigation(enemy.Entity, us, stream) * (stream.RawPerSecond + stream.TargetMaxHealthPerSecond * us.MaxHealth));
+
+        var theirKill = theirDps <= evaluation.HealingPerSecond
+            ? _context.Settings.Fight.MaxFightSeconds
+            : Math.Min(_context.Settings.Fight.MaxFightSeconds, evaluation.HealthPool / (theirDps - evaluation.HealingPerSecond));
+
+        return new Duel(ourKill, theirKill);
     }
 
     public Evaluation Evaluate(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks = null, EvaluationMode mode = EvaluationMode.Screen, string? form = null)

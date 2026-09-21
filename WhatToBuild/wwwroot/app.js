@@ -529,7 +529,8 @@ function renderModel(rec) {
         <div class="model">
             <div class="model-head">
                 <span class="label">Forecast at ~${clock(m.at)}, when your next item lands</span>
-                <span class="muted small">weights: ${weights.join(" · ")} · ${esc(m.stage)} search: ${m.evaluations} builds scored in ${Math.round(m.planMilliseconds)} ms${m.timedOut ? " (time budget hit)" : ""}${m.refining ? ' · <span class="refining">refining in the background…</span>' : ""}</span>
+                <span class="muted small">weights: ${weights.join(" · ")} · ${esc(m.stage)} search (${m.stageIndex}/${m.stageCount}): ${m.evaluations} builds scored in ${Math.round(m.planMilliseconds)} ms${m.timedOut ? " (time budget hit)" : ""}${m.refining ? ' · <span class="refining">thinking deeper in the background…</span>' : ""}</span>
+                <span class="muted small">game state steady for ${Math.round(m.stableSeconds)}s · trends from ${m.trendSamples} reading${m.trendSamples === 1 ? "" : "s"}${m.trendConfidence < 1 ? ` · still leaning on the average game (${pct(m.trendConfidence)} observed)` : " · fully from this game"}</span>
             </div>
             <div class="model-you small">${you.join("")}</div>
             <table class="forecast">
@@ -538,6 +539,59 @@ function renderModel(rec) {
             </table>
             ${assumptions}
         </div>`;
+}
+
+let horizonSent = null;
+
+async function setHorizon(value) {
+    if (horizonSent === value) {
+        return;
+    }
+
+    horizonSent = value;
+
+    try {
+        const response = await fetch("/api/preferences", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ coreItems: value }),
+        });
+
+        if (response.ok) {
+            $("horizon-label").textContent = (await response.json()).label;
+        }
+    } catch {
+        $("horizon-label").textContent = "not saved";
+    }
+}
+
+function wireHorizon() {
+    const slider = $("horizon");
+
+    fetch("/api/preferences")
+        .then(response => response.json())
+        .then(preferences => {
+            slider.value = preferences.coreItems;
+            horizonSent = preferences.coreItems;
+            $("horizon-label").textContent = preferences.label;
+        })
+        .catch(() => { });
+
+    slider.addEventListener("input", () => {
+        const items = Number(slider.value);
+        $("horizon-label").textContent = `${items} item${items === 1 ? "" : "s"} + shoes`;
+    });
+    slider.addEventListener("change", () => setHorizon(Number(slider.value)));
+}
+
+function renderCore(m) {
+    const done = Math.min(m.builtItems, m.coreItems);
+    const complete = m.builtItems >= m.coreItems;
+    const text = complete
+        ? `Core done: ${m.coreItems} + shoes · now buying the best item each back`
+        : `Core ${done} of ${m.coreItems} built`;
+
+    return `<span class="core-state${complete ? " core-done" : ""}">${esc(text)}</span>`;
 }
 
 function renderBuild() {
@@ -558,6 +612,7 @@ function renderBuild() {
     const head = `
         <div class="build-head">
             <span class="build-title">Your build${rec?.isSample ? '<span class="sample">Sample</span>' : ""}</span>
+            ${rec?.model ? renderCore(rec.model) : ""}
             <span class="purse">
                 <span>Gold <b>${Math.floor(state.currentGold)}</b></span>
                 <span>Earned <b>${gold(state.goldEarned)}</b></span>
@@ -567,6 +622,15 @@ function renderBuild() {
 
     if (!rec) {
         el.innerHTML = `${head}<p class="muted small build-empty">No build recommendations yet.</p>`;
+        return;
+    }
+
+    if (rec.calculating) {
+        el.innerHTML = `${head}
+            <p class="muted small build-empty build-calculating">
+                <span class="waiting-ring waiting-ring-small"></span>
+                Calculating a build…
+            </p>`;
         return;
     }
 
@@ -639,5 +703,6 @@ async function connect() {
     }
 }
 
+wireHorizon();
 loadInitial();
 connect();

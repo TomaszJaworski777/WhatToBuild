@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using WhatToBuild.Data;
 using WhatToBuild.Dtos;
+using WhatToBuild.Forecasting;
 using WhatToBuild.Game;
 using WhatToBuild.Modeling;
 using WhatToBuild.Modeling.Simulation;
@@ -36,14 +37,20 @@ public sealed class BuildRecommendations : IRecommendationSource
     private readonly NeutralRepository _neutrals;
     private readonly ChampionKits _kits;
     private readonly ModelData _model;
+    private readonly PlanPreferences _preferences;
     private readonly string _patch;
     private readonly object _lock = new();
 
-    private string? _key;
+    private string? _signature;
     private double _plannedAt = double.NegativeInfinity;
+    private double _stableSince = double.NegativeInfinity;
     private Item? _target;
     private Planned? _planned;
-    private int _stageDone;
+    private int _rung;
+    private int _built;
+    private Planned? _shown;
+    private string? _preferenceKey;
+    private IReadOnlyList<ModelSettings.PlanStage> _ladder = [];
 
     private readonly AutoResetEvent _wake = new(false);
     private Thread? _worker;
@@ -52,18 +59,48 @@ public sealed class BuildRecommendations : IRecommendationSource
     private volatile RecommendationDto? _latest;
     private volatile string? _latestGame;
 
-    public BuildRecommendations(ItemRepository items, NeutralRepository neutrals, ChampionKits kits, ModelData model)
+    public BuildRecommendations(ItemRepository items, NeutralRepository neutrals, ChampionKits kits, ModelData model, PlanPreferences? preferences = null)
     {
         _items = items;
         _neutrals = neutrals;
         _kits = kits;
         _model = model;
         _patch = items.Patch;
+        _preferences = preferences ?? new PlanPreferences();
     }
 
     public event Action<RecommendationDto?>? Updated;
 
-    private IReadOnlyList<ModelSettings.PlanStage> Stages => _model.Settings.Planner.Stages;
+    private IReadOnlyList<ModelSettings.PlanStage> LadderFor(GameState state) =>
+        _model.Settings.Planner.Ladder(state.GameTime).Select(ForCore).ToList();
+
+    /// <summary>The stage, cut to the part of the core you have not built yet.</summary>
+    private ModelSettings.PlanStage ForCore(ModelSettings.PlanStage stage)
+    {
+        var depth = Math.Max(1, _preferences.CoreItems - _built);
+
+        return depth >= stage.Depth ? stage : new ModelSettings.PlanStage
+        {
+            Name = stage.Name,
+            BudgetMilliseconds = stage.BudgetMilliseconds,
+            ScreenCount = stage.ScreenCount,
+            BeamWidth = stage.BeamWidth,
+            Branching = stage.Branching,
+            Depth = depth,
+            Mode = stage.Mode,
+            HorizonGold = stage.HorizonGold,
+        };
+    }
+
+    /// <summary>Finished items you already own, not counting shoes or the jungle pet.</summary>
+    private int Built(GameState state) =>
+        state.ActivePlayer is not { } me
+            ? 0
+            : me.Items
+                .Select(owned => owned.Item)
+                .Where(i => i.Cost >= 900 && !IsComponent(i) && !i.Groups.Contains("Boots") && !i.Groups.Contains("HuntersTalismanGroup"))
+                .DistinctBy(i => i.Id)
+                .Count();
 
     public RecommendationDto? For(GameState state, GameStack stack)
     {
@@ -92,7 +129,7 @@ public sealed class BuildRecommendations : IRecommendationSource
     {
         while (true)
         {
-            var refine = _planned is not null && _stageDone + 1 < Stages.Count;
+            var refine = _planned is not null && _rung + 1 < _ladder.Count;
             var stale = _planned is not null && _current is { } latest
                         && latest.State.GameTime - _plannedAt >= _model.Settings.Planner.ReplanSeconds;
             _wake.WaitOne(refine || stale ? 0 : Timeout.Infinite);
@@ -102,12 +139,13 @@ public sealed class BuildRecommendations : IRecommendationSource
                 if (TakePending() is { } job)
                 {
                     _current = job;
-                    Publish(Compute(job.State, job.Stack), job.State);
+                    Compute(job.State, job.Stack);
+                    Publish(Display(job.State), job.State);
                 }
                 else if (_current is { } current
                          && (refine ? Refine(new WorkerControl(this)) : stale && Refresh(current.State, current.Stack, new WorkerControl(this))))
                 {
-                    Publish(Current(current.State), current.State);
+                    Publish(Display(current.State), current.State);
                 }
             }
             catch (Exception)
@@ -146,7 +184,7 @@ public sealed class BuildRecommendations : IRecommendationSource
         {
             lock (owner._wake)
             {
-                return owner._pending is { } pending && owner.NeedsReplan(pending.State);
+                return owner._pending is { } pending && owner.NeedsReplan(pending.State, pending.Stack);
             }
         }
 
@@ -158,10 +196,10 @@ public sealed class BuildRecommendations : IRecommendationSource
             }
 
             _lastTick = DateTime.UtcNow;
-            if (owner.TakePending() is { } job && owner._planned is { } planned)
+            if (owner.TakePending() is { } job)
             {
                 owner._current = job;
-                owner.Publish(owner.Render(planned, job.State), job.State);
+                owner.Publish(owner.Display(job.State), job.State);
             }
         }
     }
@@ -169,9 +207,9 @@ public sealed class BuildRecommendations : IRecommendationSource
     private static string GameKey(GameState state) =>
         string.Join(',', state.Players.Select(p => p.Champion.Name).Order());
 
-    private bool NeedsReplan(GameState state) =>
+    private bool NeedsReplan(GameState state, GameStack stack) =>
         _planned is null
-        || StateKey(state) != _key
+        || new GameTrends(state, stack, _model).Signature + "|" + _preferences.Key != _signature
         || state.GameTime < _plannedAt;
 
     public RecommendationDto? Compute(GameState state, GameStack stack)
@@ -183,50 +221,275 @@ public sealed class BuildRecommendations : IRecommendationSource
 
         lock (_lock)
         {
-            if (NeedsReplan(state))
+            var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
+            AdviseForm(evaluator, state);
+
+            if (_preferenceKey != _preferences.Key)
             {
-                if (_planned is not null && (state.GameTime < _plannedAt || GameKey(state) != GameKey(_planned.Context.State)))
-                {
-                    _target = null;
-                }
-
-                var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
-                var advice = AdviseForm(evaluator, state);
-                var opening = _model.Settings.Planner.Opening is { } whole
-                              && state.GameTime < _model.Settings.Planner.OpeningSeconds
-                              && (_planned is null || GameKey(state) != GameKey(_planned.Context.State) || state.GameTime < _plannedAt)
-                    ? whole
-                    : null;
-
-                _planned = Explain(evaluator, new BuildPlanner(evaluator).Plan(_target, opening ?? Stages[0]));
-                _stageDone = opening is not null ? Stages.Count - 1 : 0;
-                _key = StateKey(state);
-                _plannedAt = state.GameTime;
-                _target = _planned.Plan.Steps.FirstOrDefault()?.Item;
+                _preferenceKey = _preferences.Key;
+                _shown = null;
+                _target = null;
             }
 
+            _built = Built(state);
+            var ladder = LadderFor(state);
+            var signature = evaluator.Context.Forecaster.Trends.Signature + "|" + _preferences.Key;
+            var restart = _planned is null
+                          || state.GameTime < _plannedAt
+                          || GameKey(state) != GameKey(_planned.Context.State);
+
+            if (restart)
+            {
+                _target = null;
+                _rung = 0;
+                _ladder = ladder;
+                Adopt(evaluator, new BuildPlanner(evaluator).Plan(null, ladder[0]), keepTail: false);
+            }
+            else if (signature == _signature && SameLadder(ladder) && Retime(evaluator))
+            {
+                // The trends have not moved: the build stands, only its timing is refreshed.
+            }
+            else
+            {
+                _rung = 0;
+                _ladder = ladder;
+                Adopt(evaluator, new BuildPlanner(evaluator).Plan(_target, ladder[0]), keepTail: true);
+            }
+
+            if (signature != _signature || _stableSince > state.GameTime)
+            {
+                _stableSince = state.GameTime;
+            }
+
+            _signature = signature;
+            _plannedAt = state.GameTime;
+
+            Keep();
             return Render(_planned!, state);
         }
     }
+
+    private bool Retime(BuildEvaluator evaluator)
+    {
+        if (_planned is not { } planned || planned.Plan.Steps.Count == 0)
+        {
+            return false;
+        }
+
+        var sequence = planned.Plan.Steps.Select(s => s.Item).ToList();
+        var replayed = new BuildPlanner(evaluator).Replay(sequence, CurrentStage());
+
+        if (replayed.Steps.Count == 0)
+        {
+            return false;
+        }
+
+        _planned = Explain(evaluator, replayed);
+        _target = replayed.Steps[0].Item;
+        return true;
+    }
+
+    private bool SameLadder(IReadOnlyList<ModelSettings.PlanStage> ladder) =>
+        _ladder.Count == ladder.Count
+        && _ladder.Zip(ladder).All(pair => pair.First.Name == pair.Second.Name && pair.First.Depth == pair.Second.Depth);
+
+    private ModelSettings.PlanStage CurrentStage() =>
+        _ladder.Count == 0 ? _model.Settings.Planner.Stages[0] : _ladder[Math.Clamp(_rung, 0, _ladder.Count - 1)];
+
+    private void Adopt(BuildEvaluator evaluator, BuildPlan plan, bool keepTail)
+    {
+        if (plan.Steps.Count == 0 && _planned is not null && Retime(evaluator))
+        {
+            return;
+        }
+
+        var steps = plan.Steps.Select(s => s.Item).ToList();
+
+        // The item you are saving for only changes when keeping it is measurably worse: a cheap
+        // search never moves it, and a full one has to clear the keep margin. Otherwise it jitters.
+        if (keepTail && _target is { } target
+            && steps.Count > 0 && steps[0].Id != target.Id && StillWanted(evaluator, target))
+        {
+            var planner = new BuildPlanner(evaluator);
+            var stage = CurrentStage();
+            var horizon = Horizon(evaluator);
+            var held = planner.Replay([target, .. steps.Where(i => i.Id != target.Id)], stage, horizon);
+
+            // A search that ran to the end at full fidelity is the authority on what to buy
+            // next; a cheap or timed-out one may not move it.
+            if (held.Steps.Count > 0 && !Trusted(plan))
+            {
+                plan = Restat(held, plan);
+                steps = plan.Steps.Select(s => s.Item).ToList();
+            }
+        }
+
+        if (keepTail && _planned is { } previous)
+        {
+            var tail = previous.Plan.Steps
+                .Select(s => s.Item)
+                .Where(item => steps.All(s => s.Id != item.Id))
+                .ToList();
+
+            if (tail.Count > 0 && steps.Count > 0)
+            {
+                var merged = new BuildPlanner(evaluator).Replay([.. steps, .. tail], CurrentStage());
+                if (merged.Steps.Count > plan.Steps.Count)
+                {
+                    // The search stays the headline: only its tail comes from the build we already had.
+                    plan = Restat(merged, plan);
+                }
+            }
+        }
+
+        var core = Reorder(evaluator, Trim(plan.Steps.Select(s => s.Item).ToList()), keepTail && !Trusted(plan));
+        if (!core.Select(i => i.Id).SequenceEqual(plan.Steps.Select(s => s.Item.Id)))
+        {
+            // Only if it still walks: a replay that breaks early must not shorten the build.
+            var trimmed = new BuildPlanner(evaluator).Replay(core, CurrentStage());
+            if (trimmed.Steps.Count < core.Count)
+            {
+                trimmed = new BuildPlanner(evaluator).Replay(plan.Steps.Select(s => s.Item).ToList(), CurrentStage());
+            }
+            if (trimmed.Steps.Count > 0)
+            {
+                plan = Restat(trimmed, plan);
+            }
+        }
+
+        _planned = Explain(evaluator, plan);
+        _target = plan.Steps.FirstOrDefault()?.Item;
+    }
+
+    /// <summary>One moment to score every candidate build against, so lengths stay comparable.</summary>
+    private double Horizon(BuildEvaluator evaluator) =>
+        evaluator.Context.Now + _model.Settings.Planner.CompareSeconds;
+
+    private static bool Trusted(BuildPlan plan) => plan.Mode == EvaluationMode.Full && !plan.TimedOut;
+
+    /// <summary>
+    /// The order inside the core is worth as much as the items in it: a clear item earns its
+    /// keep first and falls off later, a late-game item is dead weight bought early. The search
+    /// weighs orderings already, but only along the lines its beam kept, so the build it settles
+    /// on is walked once more here, swapping neighbours while that buys anything.
+    /// </summary>
+    private List<Item> Reorder(BuildEvaluator evaluator, List<Item> steps, bool holdFirst)
+    {
+        if (steps.Count < 2)
+        {
+            return steps;
+        }
+
+        var planner = new BuildPlanner(evaluator);
+        var stage = CurrentStage();
+        var horizon = Horizon(evaluator);
+        var best = new List<Item>(steps);
+        var bestValue = planner.Replay(best, stage, horizon).Value;
+        var from = holdFirst ? 1 : 0;
+
+        for (var pass = 0; pass < _model.Settings.Planner.ReorderPasses; pass++)
+        {
+            var moved = false;
+
+            for (var i = from; i + 1 < best.Count; i++)
+            {
+                var swapped = new List<Item>(best);
+                (swapped[i], swapped[i + 1]) = (swapped[i + 1], swapped[i]);
+
+                var replayed = planner.Replay(swapped, stage, horizon);
+                if (replayed.Steps.Count == swapped.Count && replayed.Value > bestValue)
+                {
+                    best = swapped;
+                    bestValue = replayed.Value;
+                    moved = true;
+                }
+            }
+
+            if (!moved)
+            {
+                break;
+            }
+        }
+
+        return best;
+    }
+
+    /// <summary>
+    /// The build stops at the core you asked for. Shoes ride along and never use up one of its
+    /// places; once the core stands, the plan is the single best item for the moment.
+    /// </summary>
+    private List<Item> Trim(IReadOnlyList<Item> steps)
+    {
+        var room = Math.Max(1, _preferences.CoreItems - _built);
+        var kept = new List<Item>();
+        var items = 0;
+
+        foreach (var step in steps)
+        {
+            if (step.Groups.Contains("Boots"))
+            {
+                kept.Add(step);
+                continue;
+            }
+
+            if (items == room)
+            {
+                break;
+            }
+
+            items++;
+            kept.Add(step);
+        }
+
+        if (kept.Count < steps.Count && steps.FirstOrDefault(s => s.Groups.Contains("Boots")) is { } boots && !kept.Contains(boots))
+        {
+            kept.Add(boots);
+        }
+
+        return kept;
+    }
+
+    private bool StillWanted(BuildEvaluator evaluator, Item target) =>
+        !evaluator.Context.Owned.Any(i => i.Id == target.Id);
+
+    private bool Beats(BuildPlan proposed, BuildPlan held) =>
+        proposed.Steps.Count > 0
+        && proposed.Value > held.Value + Math.Abs(held.Value) * _model.Settings.Planner.KeepMargin;
+
+    private static BuildPlan Restat(BuildPlan steps, BuildPlan search) => new()
+    {
+        Steps = steps.Steps,
+        Value = steps.Value,
+        Horizon = steps.Horizon,
+        Candidates = search.Candidates,
+        Evaluations = search.Evaluations,
+        Milliseconds = search.Milliseconds,
+        TimedOut = search.TimedOut,
+        KeptPreviousTarget = search.KeptPreviousTarget,
+        Stage = search.Stage,
+        Mode = search.Mode,
+        Cancelled = false,
+    };
 
     public bool Refine(IPlanControl? control = null)
     {
         lock (_lock)
         {
-            if (_planned is not { } planned || _stageDone + 1 >= Stages.Count)
+            if (_planned is not { } planned || _rung + 1 >= _ladder.Count)
             {
                 return false;
             }
 
-            var plan = new BuildPlanner(planned.Evaluator).Plan(_target, Stages[_stageDone + 1], control);
+            // Climbing the ladder is not the place to be loyal to the cheap rung's pick: the
+            // deeper search starts clean, and only what it settles on reaches the page.
+            var plan = new BuildPlanner(planned.Evaluator).Plan(null, _ladder[_rung + 1], control);
             if (plan.Cancelled)
             {
                 return false;
             }
 
-            _planned = Explain(planned.Evaluator, plan);
-            _stageDone++;
-            _target = plan.Steps.FirstOrDefault()?.Item;
+            _rung++;
+            Adopt(planned.Evaluator, plan, keepTail: true);
             return true;
         }
     }
@@ -236,18 +499,20 @@ public sealed class BuildRecommendations : IRecommendationSource
         lock (_lock)
         {
             var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
-                var advice = AdviseForm(evaluator, state);
-            var plan = new BuildPlanner(evaluator).Plan(_target, Stages[^1], control);
+            AdviseForm(evaluator, state);
+
+            var ladder = LadderFor(state);
+            var plan = new BuildPlanner(evaluator).Plan(_target, ladder[^1], control);
             if (plan.Cancelled)
             {
                 return false;
             }
 
-            _planned = Explain(evaluator, plan);
-            _stageDone = Stages.Count - 1;
-            _key = StateKey(state);
+            _ladder = ladder;
+            _rung = ladder.Count - 1;
+            Adopt(evaluator, plan, keepTail: true);
+            _signature = evaluator.Context.Forecaster.Trends.Signature + "|" + _preferences.Key;
             _plannedAt = state.GameTime;
-            _target = plan.Steps.FirstOrDefault()?.Item;
             return true;
         }
     }
@@ -256,9 +521,42 @@ public sealed class BuildRecommendations : IRecommendationSource
     {
         lock (_lock)
         {
+            Keep();
             return _planned is null ? null : Render(_planned, state);
         }
     }
+
+    /// <summary>What the page is shown: the last build that was thought through to the end.</summary>
+    public RecommendationDto? Display(GameState state)
+    {
+        lock (_lock)
+        {
+            Keep();
+            return _shown is { } shown ? Render(shown, state) : Calculating(state);
+        }
+    }
+
+    private void Keep()
+    {
+        if (Finished)
+        {
+            _shown = _planned;
+        }
+    }
+
+    /// <summary>True once the plan in hand came from the last rung of the ladder.</summary>
+    private bool Finished => _planned is not null && _rung + 1 >= _ladder.Count;
+
+    private static RecommendationDto Calculating(GameState state) =>
+        new(IsSample: false,
+            state.CurrentGold,
+            state.GoldEarned,
+            null,
+            new PurchaseDto("", [], 0, state.CurrentGold, false, "Working out a build", []),
+            [],
+            [],
+            [],
+            Calculating: true);
 
     private sealed record Explained(PlanStep Step, Evaluation Before, Evaluation After, IReadOnlyList<string> Why);
 
@@ -376,7 +674,7 @@ public sealed class BuildRecommendations : IRecommendationSource
             steps,
             [],
             TeamNeeds(planned),
-            Model(planned),
+            Model(planned, state),
             Assumptions(planned),
             Matchups(planned, state),
             planned.Advice);
@@ -458,6 +756,30 @@ public sealed class BuildRecommendations : IRecommendationSource
         public double Score(IReadOnlyList<Item> inventory) => Math.Exp(evaluator.Evaluate(inventory, time).Score - _base);
     }
 
+    /// <summary>What the wait for this item looks like when an enemy finishes one first.</summary>
+    private IReadOnlyList<string> SpikeLines(BuildEvaluator evaluator, PlanStep step)
+    {
+        var from = evaluator.Context.Now;
+        var lines = new List<string>();
+
+        foreach (var spike in evaluator.SpikesBetween(from, step.At).Take(_model.Settings.Planner.SpikeChecks))
+        {
+            var holding = evaluator.Evaluate(step.Before, spike.Time, step.StacksBefore, EvaluationMode.Full, evaluator.Context.Form);
+            var duel = evaluator.DuelAt(holding, spike.Enemy);
+            if (duel.Weakness <= 0.05)
+            {
+                continue;
+            }
+
+            var have = step.Before.Where(i => i.Cost >= 300).Select(i => i.Name).ToList();
+            lines.Add($"At ~{Clock(spike.Time)} {spike.Enemy.Champion.Name} finishes {spike.Item.Name}; "
+                      + $"you are still on {(have.Count > 0 ? string.Join(" + ", have) : "your starting items")} and lose that duel "
+                      + $"({duel.TheirKillSeconds:0.0}s to kill you, {duel.OurKillSeconds:0.0}s to kill them)");
+        }
+
+        return lines;
+    }
+
     private IReadOnlyList<string> Why(BuildContext context, BuildEvaluator evaluator, BuildPlan plan, PlanStep step, Evaluation before, Evaluation after)
     {
         var item = step.Item;
@@ -471,6 +793,8 @@ public sealed class BuildRecommendations : IRecommendationSource
         {
             reasons.Add($"Survival: {before.TimeAlive:0.0}s → {after.TimeAlive:0.0}s alive under focus ({before.IncomingDps:0} damage/s on you)");
         }
+
+        reasons.AddRange(SpikeLines(evaluator, step));
 
         if (after.Clear is { } clearAfter && before.Clear is { } clearBefore && after.ClearWeight > 0.05
             && Math.Abs(clearBefore.KillSeconds - clearAfter.KillSeconds) >= 0.5)
@@ -687,9 +1011,10 @@ public sealed class BuildRecommendations : IRecommendationSource
             .ToList();
     }
 
-    private ModelDto Model(Planned planned)
+    private ModelDto Model(Planned planned, GameState state)
     {
         var context = planned.Context;
+        var trends = context.Forecaster.Trends;
         var eval = planned.Steps.FirstOrDefault()?.After ?? planned.Baseline;
         var field = planned.Evaluator.BattlefieldAt(eval.Time);
         var incoming = Math.Max(1e-9, eval.IncomingDps);
@@ -749,7 +1074,15 @@ public sealed class BuildRecommendations : IRecommendationSource
             planned.Plan.Candidates.Count,
             planned.Plan.TimedOut,
             planned.Plan.Stage,
-            _stageDone + 1 < Stages.Count);
+            _rung + 1 < _ladder.Count,
+            _rung + 1,
+            Math.Max(1, _ladder.Count),
+            Math.Max(0, state.GameTime - _stableSince),
+            trends.Samples,
+            trends.Confidence,
+            _preferences.CoreItems,
+            _preferences.Label,
+            _built);
     }
 
     private IReadOnlyList<string> Assumptions(Planned planned)
@@ -781,28 +1114,6 @@ public sealed class BuildRecommendations : IRecommendationSource
         }
 
         return list;
-    }
-
-    private static string StateKey(GameState state)
-    {
-        var key = new StringBuilder();
-        foreach (var p in state.Players.OrderBy(p => p.Champion.Name))
-        {
-            key.Append(p.Champion.Name).Append(':').Append(p.Level).Append(':').Append(p.Kills).Append('/').Append(p.Deaths).Append('/').Append(p.Assists).Append(':');
-            foreach (var item in p.Items.OrderBy(i => i.Item.RiotId))
-            {
-                key.Append(item.Item.RiotId).Append('x').Append(item.Count).Append(',');
-            }
-
-            key.Append('|');
-        }
-
-        foreach (var (team, objectives) in state.Objectives)
-        {
-            key.Append(team).Append(objectives.TotalDragons).Append(objectives.Elders).Append(objectives.Barons).Append(objectives.SoulType);
-        }
-
-        return key.ToString();
     }
 
     private bool IsComponent(Item item) => _items.All.Any(i => i.BuildPath.Contains(item.Id));
