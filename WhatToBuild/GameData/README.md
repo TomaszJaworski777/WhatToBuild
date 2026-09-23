@@ -464,7 +464,7 @@ they do not.
 ## Kits
 
 Champions whose abilities are simulated have a file in `Kits/`, read by their code in
-`SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`) and Kayn (`Kits/kayn.json`).
+`SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`), Kayn (`Kits/kayn.json`) and Vi (`Kits/vi.json`).
 
 ### Kayn
 
@@ -488,10 +488,11 @@ and 2 Darkin Slayer (Rhaast).
   damage for 3 seconds after entering combat, then not again for 8 seconds unless R resets it.
 - E (Shadow Step) moves through walls and does no damage, so fights leave it out.
 - `castTime` (Q 0.15s, W 0.55s / Shadow Assassin 0.6s, R) blocks basic attacks while casting.
-- `attackUptime` — Kayn is an ability champion: he spends much of a fight dashing, casting and
-  repositioning, so his basic attacks progress at this share (0.5) of his attack speed. On-hit
-  items (Kraken Slayer, Blade of the Ruined King) lose value accordingly. Champions without the
-  field attack at full uptime.
+- **Weaving**: Kayn fights spell, attack, spell, attack. Every ability resets the attack timer,
+  so an attack lands as soon as the cast ends, and the next spell waits for that attack. Two
+  spells never land in the same instant. Between spells, while everything is on cooldown, he
+  attacks at his attack speed. `attackUptime` is 1: the weave itself is the time he spends
+  casting, so there is no separate discount on his attacks any more.
 
 Development mode replays `Replays/kayn`: the Kindred demo game with the active player turned
 into a level 13 Kayn (Profane Hydra, Ionian Boots, Youmuu's Ghostblade, Long Sword, Scorchclaw
@@ -499,7 +500,7 @@ Pup, ranks Q5 W5 E1 R2, stats from the model). Set `GameSource:ReplayFolder` to 
 for the Kindred game.
 
 The form is decided once and kept. If the live data shows which form you are (its W is
- for Shadow Assassin), that wins outright. Otherwise both forms are fought on the
+`KaynAssW` for Shadow Assassin), that wins outright. Otherwise both forms are fought on the
 build you will be holding once the core stands — what you own now, filled up from the standard
 build — and the winner is locked for the game, because the build follows the form and swapping
 it later throws away everything planned behind it. A new lobby clears the lock.
@@ -515,6 +516,39 @@ has no ability of his own in the live data (only Shadow Assassin's `KaynAssW` sh
 told apart by elimination: from `forms.undetectedIsDefaultFromSeconds` (15:00) a Kayn without
 Shadow Assassin's W is Rhaast, and that overrides whatever form was locked before.
 
+### Vi
+
+Numbers from `vi.bin.json` (patch 16.18 client data, which is the 26.18 patch): spells `ViQ`,
+`ViW`, `ViE`, `ViR`, `ViPassive`. Per-rank lists keep index 0 unused, as for the others;
+percentages are fractions.
+
+- **Combo**: R, attack, E, attack, fully charged Q, attack, E, attack, and round again. Every
+  ability resets the attack timer, so the attack after it lands as soon as it ends, and the next
+  ability waits for that attack. A step whose ability is not ready is passed over for the next
+  one that is, in combo order, and the combo carries on from there.
+- `q` — Vault Breaker is charged in full (`chargeSeconds`, the spell's 1.25s charge) with no
+  attacks meanwhile, then deals `MinDamage` + 60% bonus AD times `MaxDamageMult` 2.5. The
+  cooldown starts when it is let go.
+- `w` — Denting Blows: every third attack on the target (`StacksBeforeEffect` 2) deals 4–8%
+  (+0.035% per bonus AD) of its max health, capped at 300 on monsters, shreds 20% armor and
+  gives 30–50% attack speed for 4 seconds. Only attacks count toward it here.
+- `e` — Relentless Force: two charges (`mMaxAmmo`), recharging in `mAmmoRechargeTime`, 1 second
+  apart. The attack after it deals `BaseDamage` + 110% AD + 100% AP instead of a plain attack
+  (the fight adds the difference on top of the attack); it counts toward Denting Blows.
+- `r` — Cease and Desist: `RBaseDamage` + 90% bonus AD after its 0.25s cast and `travelSeconds`
+  (0.5s, an estimate: the dash is 800 range at 800 speed) on the way in, champions only. It is
+  her engage, so it needs no earlier hit.
+- `passive` — Blast Shield: 12% max health (`TotalShield`), counted once a fight for survival;
+  its cooldown is 16s at level 1, 0.5s less each level.
+
+`objectives.champions.Vi` points her toward the bruiser build her meta build follows (Eclipse,
+Plated Steelcaps, Black Cleaver, Sterak's, Death's Dance, Guardian Angel) without copying it:
+damage 1, uptime 1, survival 0.5 like Rhaast, and burst 0.25 for her R into a charged Q. With the
+default weights (survival 0.25) she built pure on-hit. Her Focus can be changed on
+its own.
+
+### Kindred
+
 Every number is copied from the champion's CommunityDragon bins (`kindred.bin.json`
 and `kindredwolf.bin.json`), and what each number means comes from the game's own
 tooltip text in `lol.stringtable.json`. Per-rank lists are copied exactly as the game
@@ -523,7 +557,8 @@ stores them, so index 1 is rank 1 and index 0 is unused (E's cooldown is
 
 - `q` — `BaseDamage` plus 75% bonus AD (the ratio is in `mSpellCalculations`), attack
   speed `BaseBonusAS` + `ASPerMark` per mark for `BaseASDuration`, cooldown 9s or
-  `CDNewValue` when cast inside W.
+  `CDNewValue` when cast inside W. Q, attack, Q, attack: the dash resets her attack timer, so
+  an attack follows it at once, and the next Q waits for that attack. W and E do not reset it.
 - `w` — the wolf bites the target for `CloneDamageFlat` + 20% bonus AD + 20% AP plus
   `CloneBasePercentDamage` + `ClonePercentDamagePerBounty` per mark of **current**
   health, as magic damage, for `ZoneDuration`. The wolf attacks at its own speed from
@@ -627,13 +662,17 @@ earlier they are bought.
 - Stacks = `stacksPerMinute` × minutes owned × `rangedMultiplier` (for ranged
   champions), capped at `max`.
 - `gains` is what one stack gives, from the item's data values: `amount`, optionally
-  `perMaxHealth` (Heartsteel: 10% of its proc, 7 + 0.6% max health).
+  `perMaxHealth` (Heartsteel: 10% of its proc, 7 + 0.6% max health). A `perMaxHealth` health gain
+  compounds: each stack is worked out on the max health you have when it lands, earlier stacks
+  included, so n stacks from health H add (H + amount/perMaxHealth) × ((1 + perMaxHealth)^n − 1).
 - `stacksPerMinute` is game data only for Rod of Ages (one per minute). Every other rate
-  is an estimate (`rateSource: "estimate"`) meant to be tuned: Heartsteel 1, Hubris 0.4,
+  is an estimate meant to be tuned: Heartsteel 1.2 (about 20 stacks and 600 health by 30:00 when
+  finished around 13:00), Hubris 1 (18 stacks by 30:00 when finished around 12:00),
   Mejai's 0.5, Dark Seal 0.3, the omnivamp boots 0.5, Yun Tal 15 (half when ranged, max
   62.5 = 25% crit), The Collector 0.2 kills, Cull 7 minions.
-- A `per` of "champion kill" or "champion takedown" counts at your own kill or takedown rate
-  this game, once it is 5 minutes in; the estimate is only the prior before that.
+- Rates are presets, never this game's trend: a stacking item is bought for what it grows
+  into, so a few early takedowns or a dry spell do not decide it. A stacking item's takedown
+  buff (Hubris) is up as often as its preset rate says.
 - Hubris is a takedown buff, not a permanent stat: `OnTakedown` `StatBuff` 12 AD, `perStack` 3
   per takedown since you bought it, `duration` 90 seconds (game data: `BaseADBonus`,
   `ADPerStatue`, `BuffDuration`). Its value in a fight is weighted by how often it is up: carried
@@ -642,8 +681,9 @@ earlier they are bought.
   (λ × `teamfightIntervalSeconds`) leaves `1 − (1 − e^(−k))/k` of the fight on average.
 - Minutes owned come from when the app first saw the item on that player; an item that
   was already there when the app started counts from that moment.
-- In the build path, an item not bought yet is valued with the stacks it would have
-  `stackLookaheadSeconds` after its forecast purchase. Enemy items count stacks from their
+- In the build path, an item not bought yet has no stacks when it is bought and gains them from
+  then on (`stackLookaheadSeconds` 0): every later moment of the plan is scored with the stacks it
+  has by then, so there is no head start to add. Enemy items count stacks from their
   own forecast purchase times, so a Heartsteel bought later is weaker at your next item.
 - Your own champion's stats already include stacks through the Live Client API; the
   simulation adjusts to them instead of adding stacks on top.
@@ -853,8 +893,9 @@ Items that grow with time owned order themselves: stacks come from the minutes s
 buys them, so Hubris bought first carries four times the stacks of Hubris bought third by the
 time the build is done, and scores accordingly. Once the core stands there is nothing left to save toward, so the
 search is one item deep and the answer is simply the best item at the moment you buy it, each
-time you buy. A core of five on a champion holding a jungle pet does not fit in six slots, so
-its last step arrives as a swap: the plan says what it sells.
+time you buy. The jungle pet takes no slot in the plan: it leaves the inventory once grown, so a
+core of five plus shoes fits the six slots. A plan that must make room sells something you own
+now or bought along the way, but never a stacking item it bought itself (it has not stacked yet).
 
 **Focus**, next to the slider, edits the objective weights the plan scores builds with, for
 the entry of `objectives` it is reading now (`Kindred`, `Kayn/Darkin`, `Kayn/ShadowAssassin`):

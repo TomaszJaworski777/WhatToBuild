@@ -68,11 +68,17 @@ public static class ItemRules
         return true;
     }
 
+    /// <summary>
+    /// Inventory slots the items take. The jungle pet takes none: it leaves the inventory once it
+    /// has grown, so a build never has to make room for it.
+    /// </summary>
     public static int Slots(IEnumerable<Item> inventory)
     {
-        var list = inventory.ToList();
+        var list = inventory.Where(i => !IsJunglePet(i)).ToList();
         return list.Count(i => !IsStackable(i)) + list.Where(IsStackable).Select(i => i.Id).Distinct().Count();
     }
+
+    public static bool IsJunglePet(Item item) => item.Groups.Contains("HuntersTalismanGroup");
 
     public static bool IsStackable(Item item) => item.Groups.Contains("Potion") || item.Cost < 100;
 

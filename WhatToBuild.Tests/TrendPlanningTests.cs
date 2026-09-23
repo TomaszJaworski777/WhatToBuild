@@ -151,7 +151,7 @@ public class TrendPlanningTests
         var afterBuy = source.Compute(State(620, 200, enemyItem: 3068), new GameStack())!;
 
         Assert.AreEqual("quick", afterBuy.Model!.Stage, "A real change re-decides the next item straight away.");
-        Assert.IsGreaterThanOrEqualTo(deep.Count, Build(afterBuy).Count, "The build survives the change instead of collapsing to one item.");
+        Assert.IsGreaterThanOrEqualTo(deep.Count, Build(afterBuy).Count, $"The build survives the change instead of collapsing to one item. Before: {string.Join(" > ", deep)}. After: {string.Join(" > ", Build(afterBuy))}.");
         Assert.IsTrue(afterBuy.Model.Refining, "The deeper stages run again in the background.");
     }
 

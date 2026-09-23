@@ -156,71 +156,84 @@ img {
     outline-offset: 3px;
 }
 
-.focus {
-    position: relative;
+/* Build focus: always on screen. Beside the scoreboard and teams when the window has room,
+   under the teams when it does not. */
+#game[hidden] {
+    display: none;
 }
 
-.focus-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 10px;
-    border: 1px solid var(--edge);
-    border-radius: 999px;
-    background: rgba(9, 20, 40, 0.6);
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
+#game {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+        "board"
+        "teams"
+        "focus"
+        "build"
+        "unknown";
 }
 
-.focus-toggle:disabled {
-    cursor: default;
-    opacity: 0.55;
-}
+#game > .scoreboard { grid-area: board; }
+#game > .teams { grid-area: teams; }
+#game > .focus-panel { grid-area: focus; }
+#game > .build { grid-area: build; }
+#game > .unknown { grid-area: unknown; }
 
-.focus-toggle:focus-visible,
-.focus-reset:focus-visible,
-.focus-shape:focus-visible {
+.focus-reset:focus-visible {
     outline: 2px solid var(--gold);
     outline-offset: 3px;
 }
 
-.focus-mini {
-    width: 16px;
-    height: 15px;
-}
-
-.focus-mini polygon {
-    fill: none;
-    stroke: var(--gold-dark);
-    stroke-width: 14;
-}
-
-.focus-mini .focus-mini-shape {
-    stroke: none;
-    fill: var(--gold-bright);
-}
-
-.focus-label {
-    min-width: 0;
-}
-
 .focus-panel {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    z-index: 20;
-    width: 340px;
-    max-width: calc(100vw - 32px);
-    padding: 14px 16px;
+    margin-top: 10px;
+    padding: 10px 14px 12px;
     border: 1px solid var(--edge);
-    border-radius: 8px;
-    background: var(--bg);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+    border-top: 2px solid var(--gold-dark);
+    background: var(--panel);
     user-select: none;
     -webkit-user-select: none;
+}
+
+.focus-body {
+    display: grid;
+    grid-template-columns: minmax(220px, 300px) minmax(0, 440px);
+    gap: 18px;
+    align-items: center;
+}
+
+@media (max-width: 720px) {
+    .focus-body {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 4px;
+    }
+}
+
+@media (min-width: 1800px) {
+    .shell {
+        max-width: 1792px;
+    }
+
+    #game {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        column-gap: 12px;
+        grid-template-areas:
+            "board focus"
+            "teams focus"
+            "build focus"
+            "unknown focus";
+        align-items: start;
+    }
+
+    #game > .focus-panel {
+        position: sticky;
+        top: 10px;
+        margin-top: 0;
+    }
+
+    .focus-body {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 4px;
+    }
 }
 
 .focus-head {
@@ -305,18 +318,21 @@ img {
 
 .focus-inputs {
     display: grid;
-    gap: 8px;
+    gap: 10px;
     margin-top: 2px;
 }
 
 .focus-row {
     display: grid;
-    grid-template-columns: 1fr 110px 36px;
-    gap: 10px;
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 10px;
+    row-gap: 3px;
+    align-items: end;
 }
 
 .focus-row label {
+    grid-column: 1;
+    grid-row: 1;
     color: var(--text);
     font-size: 12px;
     line-height: 1.25;
@@ -329,6 +345,8 @@ img {
 }
 
 .focus-row output {
+    grid-column: 2;
+    grid-row: 1;
     color: var(--text);
     font-size: 12px;
     font-variant-numeric: tabular-nums;
@@ -336,6 +354,8 @@ img {
 }
 
 .focus-row input[type="range"] {
+    grid-column: 1 / -1;
+    grid-row: 2;
     width: 100%;
     height: 4px;
     appearance: none;

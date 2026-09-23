@@ -42,6 +42,10 @@ public static class FightSimulator
                 kit?.Update(fight);
 
                 attackProgress += fight.AttackSpeed * Fight.Step * (kit?.AttackUptime ?? 1);
+                if (fight.TakeAttackReset())
+                {
+                    attackProgress = Math.Max(attackProgress, 1);
+                }
                 if (fight.Time < fight.AttacksBlockedUntil)
                 {
                     attackProgress = Math.Min(attackProgress, 1);

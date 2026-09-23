@@ -72,6 +72,8 @@ public sealed class KindredKit : IChampionKit
 
     public void OnAttack(Fight fight)
     {
+        _qWeave = true;
+
         if (_eAttacksLeft <= 0 || fight.Time > _eExpiresAt)
         {
             return;
@@ -103,7 +105,7 @@ public sealed class KindredKit : IChampionKit
     private void CastQ(Fight fight)
     {
         var rank = fight.Ranks.Q;
-        if (rank <= 0 || fight.Time < _qReadyAt)
+        if (rank <= 0 || fight.Time < _qReadyAt || !_qWeave)
         {
             return;
         }
@@ -124,7 +126,14 @@ public sealed class KindredKit : IChampionKit
         var share = InZone(fight) ? _data.W.ZoneUptime : 0;
         var cooldown = share * KindredKitData.AtRank(q.CooldownInW, rank) + (1 - share) * q.Cooldown;
         _qReadyAt = fight.Time + fight.Cooldown(cooldown);
+
+        // Q, attack, Q, attack: the dash resets her attack timer, so an attack follows it at
+        // once, and the next Q waits for that attack. W and E do not reset it.
+        _qWeave = false;
+        fight.ResetAttack();
     }
+
+    private bool _qWeave = true;
 
     private void CastE(Fight fight)
     {

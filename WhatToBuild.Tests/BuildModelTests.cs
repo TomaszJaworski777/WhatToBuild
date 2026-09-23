@@ -639,7 +639,7 @@ public class BuildModelTests
     }
 
     [TestMethod]
-    public void HubrisGrowsWithYourTakedowns()
+    public void HubrisStacksAtItsPresetRateNotYourTakedowns()
     {
         var quiet = Evaluator(Game(NoSustain(), me: Kindred(6697, 3006, 1101)));
         var fed = Evaluator(Game(NoSustain(), me: new PlayerState
@@ -648,7 +648,8 @@ public class BuildModelTests
             Items = new[] { 6697, 3006, 1101 }.Select((id, slot) => new OwnedItem(Item(id), 1, slot)).ToList(),
         }));
 
-        Assert.IsGreaterThan(quiet.Us(quiet.Context.Owned, Now).Stats.AttackDamage, fed.Us(fed.Context.Owned, Now).Stats.AttackDamage);
+        // A stacking item is bought for what it grows into: a fed game does not change the plan's view of it.
+        Assert.AreEqual(quiet.Us(quiet.Context.Owned, Now).Stats.AttackDamage, fed.Us(fed.Context.Owned, Now).Stats.AttackDamage, 1e-9);
     }
 
     [TestMethod]
@@ -708,7 +709,7 @@ public class BuildModelTests
     }
 
     [TestMethod]
-    public void GoldPerKillFollowsYourKillRate()
+    public void GoldPerKillFollowsTheCollectorsPresetRate()
     {
         var quiet = Kindred();
         var fed = new PlayerState
@@ -721,8 +722,9 @@ public class BuildModelTests
         var quietIncome = new BuildPlanner(Evaluator(Game(NoSustain(), me: quiet))).GoldIncome([collector]);
         var fedIncome = new BuildPlanner(Evaluator(Game(NoSustain(), me: fed))).GoldIncome([collector]);
 
-        Assert.AreEqual(0, quietIncome, 1e-9, "No kills yet, no Collector gold.");
-        Assert.AreEqual(25 * 11 / 22.0 / 60, fedIncome, 1e-9, "25 gold per kill at 11 kills in 22 minutes.");
+        var rate = collector.Stacking!.StacksPerMinute;
+        Assert.AreEqual(25 * rate / 60, quietIncome, 1e-9, "25 gold per kill at the preset kill rate.");
+        Assert.AreEqual(quietIncome, fedIncome, 1e-9, "Not this game's kill count.");
     }
 
     [TestMethod]

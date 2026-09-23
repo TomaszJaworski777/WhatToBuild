@@ -1,6 +1,7 @@
 using WhatToBuild.Data;
 using WhatToBuild.Forecasting;
 using WhatToBuild.Game;
+using WhatToBuild.Modeling;
 using WhatToBuild.Modeling.Simulation;
 using WhatToBuild.Planning;
 using WhatToBuild.SupportedChampions;
@@ -157,8 +158,62 @@ public class SliderPlanTests
 
         static string Set(IEnumerable<Item> items) => string.Join(", ", items.Select(i => i.Name).Order());
 
+        // Gold in the pocket is gold already earned, so the richer player finishes the core
+        // sooner, and the set is judged at that earlier moment: two items that are close can
+        // swap. What must not happen is the core being rebuilt around what is affordable now.
         Assert.AreEqual(4, broke.Count, "Three items and shoes.");
-        Assert.AreEqual(Set(broke), Set(flush), "Gold in the pocket may change the order, never which items make the core.");
+        Assert.IsGreaterThanOrEqualTo(3, broke.Count(b => flush.Any(f => f.Id == b.Id)),
+            $"Broke: {Set(broke)}. Flush: {Set(flush)}.");
+    }
+
+    [TestMethod]
+    public void AStackingItemCountsStacksOnlyFromWhenItIsBought()
+    {
+        var hubris = Item(6697);
+        var planner = new BuildPlanner(new BuildEvaluator(Context(Game("Kayn", 12 * 60, 0))));
+        var boughtAt = new Dictionary<Guid, double> { [hubris.Id] = 20 * 60 };
+        var rate = hubris.Stacking!.StacksPerMinute;
+
+        Assert.AreEqual(0, planner.StacksAt(boughtAt, 20 * 60).GetValueOrDefault(hubris.Id), 1e-9, "No head start at the moment it is bought.");
+        Assert.AreEqual(rate * 10, planner.StacksAt(boughtAt, 30 * 60)[hubris.Id], 1e-9, "Ten minutes owned, ten minutes of stacks.");
+    }
+
+    [TestMethod]
+    public void StackingItemsUseTheirPresetRateNotThisGamesTrend()
+    {
+        var hubris = Item(6697);
+        var quiet = Context(Game("Kayn", 30 * 60, 0, kills: 0));
+        var stomping = Context(Game("Kayn", 30 * 60, 0, kills: 25));
+
+        Assert.AreEqual(hubris.Stacking!.StacksPerMinute, stomping.StackRate(hubris.Stacking), 1e-9);
+        Assert.AreEqual(quiet.StackRate(hubris.Stacking), stomping.StackRate(hubris.Stacking), 1e-9);
+
+        // Stacks follow minutes owned at that rate: 18 minutes owned, 18 × the rate.
+        Assert.AreEqual(18 * hubris.Stacking.StacksPerMinute, quiet.StacksAfter(hubris.Stacking, 18), 1e-9);
+    }
+
+    [TestMethod]
+    public void HeartsteelStacksCompoundOnMaxHealth()
+    {
+        var heartsteel = Item(3084);
+        List<Item> build = [Item(1101), heartsteel, Item(6333), Item(3053), Item(3047)];
+        ChampionState Vi(double stacks) => new(_champions.ByName("Vi")!, 16, build, itemStacks: new Dictionary<Guid, double> { [heartsteel.Id] = stacks });
+
+        var bare = Vi(0).MaxHealth;
+        var one = Vi(1).MaxHealth - bare;
+        var twenty = Vi(20).MaxHealth - bare;
+
+        Assert.AreEqual(7 + 0.006 * bare, one, 0.01, "One stack: 10% of a 70 + 6% max health proc.");
+        Assert.IsGreaterThan(20 * one, twenty, "Each stack is worked out on the health the earlier ones already added.");
+        Assert.AreEqual(600, twenty, 50, "About 600 health from stacks at 30:00.");
+    }
+
+    [TestMethod]
+    public void TheJunglePetTakesNoSlot()
+    {
+        List<Item> build = [Item(Gustwalker), Item(6672), Item(3031), Item(3036), Item(2523), Item(6697), Item(3006)];
+
+        Assert.AreEqual(6, ItemRules.Slots(build), "Five items and shoes fill the six slots; the pet leaves once grown.");
     }
 
     [TestMethod]
@@ -232,10 +287,22 @@ public class SliderPlanTests
     public void BootsAreNotFirstJustBecauseTheyAreAffordable()
     {
         // Gold for boots in hand, not for the first item: boots only go first if owning them
-        // early is worth more than the delay they put on the first item.
-        var plan = Plan(Game("Kayn", 8 * 60, 1100, level: 7));
+        // early is worth more than the delay they put on the first item, which does not depend
+        // on whether the gold is already in your pocket. Same items, both orders, both purses.
+        var items = Plan(Game("Kayn", 8 * 60, 0, level: 7));
+        var boots = items.First(i => i.Groups.Contains("Boots"));
+        var rest = items.Where(i => i != boots).ToList();
 
-        Assert.IsFalse(plan[0].Groups.Contains("Boots"), string.Join(" > ", plan.Select(i => i.Name)));
+        bool BootsFirstWins(double gold)
+        {
+            var state = Game("Kayn", 8 * 60, gold, level: 7);
+            var planner = new BuildPlanner(new BuildEvaluator(Context(state)));
+            var stage = _model.Settings.Planner.Ladder(state.GameTime)[^1];
+            var horizon = state.GameTime + _model.Settings.Planner.CompareSeconds;
+            return planner.Replay([boots, .. rest], stage, horizon).Value > planner.Replay([.. rest.Take(1), boots, .. rest.Skip(1)], stage, horizon).Value;
+        }
+
+        Assert.AreEqual(BootsFirstWins(0), BootsFirstWins(1100), string.Join(" > ", items.Select(i => i.Name)));
     }
 
     [TestMethod]

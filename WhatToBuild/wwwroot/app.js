@@ -752,7 +752,6 @@ function drawFocus() {
 
     $("focus-area").setAttribute("points", shapePoints(values));
     $("focus-default").setAttribute("points", shapePoints(defaultWeights()));
-    $("focus-mini-shape").setAttribute("points", shapePoints(values));
     $("focus-handles").innerHTML = focusWeights().map((w) => {
         const [x, y] = axisPoint(w.name, values[w.name]);
         return `<circle class="focus-handle${focusState.dragging === w.name ? " focus-handle-active" : ""}" data-weight="${w.name}" r="7" cx="${x}" cy="${y}" />`;
@@ -772,9 +771,8 @@ function drawFocus() {
     }
 
     const isDefault = sameWeights(values, defaultWeights());
-    $("focus-label").textContent = isDefault ? "champion default" : "custom";
     $("focus-reset").disabled = isDefault && !focusState.custom;
-    $("focus-champion").textContent = focusState.label ? `${focusState.label}${isDefault ? " · default" : ""}` : "";
+    $("focus-champion").textContent = focusState.label ? `${focusState.label} · ${isDefault ? "default" : "custom"}` : "waiting for a plan";
 }
 
 function syncFocus(weights) {
@@ -788,7 +786,6 @@ function syncFocus(weights) {
     focusState.max = weights.max;
     focusState.custom = weights.custom;
     focusState.weights = weights.weights;
-    $("focus-toggle").disabled = false;
 
     if (keyChanged) {
         drawFocusFrame();
@@ -817,32 +814,12 @@ async function sendFocus(values, reset = false) {
             body: JSON.stringify({ weights: { key: focusState.key, ...values, reset } }),
         });
     } catch {
-        $("focus-label").textContent = "not saved";
+        $("focus-champion").textContent = `${focusState.label} · not saved`;
     }
 }
 
 function wireFocus() {
-    const toggle = $("focus-toggle");
-    const panel = $("focus-panel");
     const svg = $("focus-shape");
-
-    const open = (show) => {
-        panel.hidden = !show;
-        toggle.setAttribute("aria-expanded", String(show));
-    };
-
-    toggle.addEventListener("click", () => open(panel.hidden));
-    document.addEventListener("click", (e) => {
-        if (!panel.hidden && !e.target.closest(".focus")) {
-            open(false);
-        }
-    });
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && !panel.hidden) {
-            open(false);
-            toggle.focus();
-        }
-    });
 
     const local = (e) => {
         const point = svg.createSVGPoint();

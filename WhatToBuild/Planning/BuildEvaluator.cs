@@ -121,17 +121,13 @@ public sealed class BuildContext
     public double? TakedownsPerMinute =>
         Now >= Settings.Income.BaselineOnlyUntilSeconds * 2.5 ? (Me.Kills + Me.Assists) / (Now / 60) : null;
 
-    public double? KillsPerMinute =>
-        Now >= Settings.Income.BaselineOnlyUntilSeconds * 2.5 ? Me.Kills / (Now / 60) : null;
-
-    public double StackRate(ItemStacking stacking)
-    {
-        var observed = stacking.Per.Contains("champion takedown", StringComparison.OrdinalIgnoreCase) ? TakedownsPerMinute
-            : stacking.Per.Contains("champion kill", StringComparison.OrdinalIgnoreCase) ? KillsPerMinute
-            : null;
-
-        return observed ?? stacking.StacksPerMinute * (Champion.IsRanged ? stacking.RangedMultiplier : 1);
-    }
+    /// <summary>
+    /// Stacks per minute owned: the item's own preset, never this game's trend. A stacking item
+    /// is bought for what it grows into, and a few early takedowns (or a dry spell) should not
+    /// decide that.
+    /// </summary>
+    public double StackRate(ItemStacking stacking) =>
+        stacking.StacksPerMinute * (Champion.IsRanged ? stacking.RangedMultiplier : 1);
 
     public double StacksAfter(ItemStacking stacking, double minutes)
     {
@@ -364,7 +360,8 @@ public sealed class BuildEvaluator
 
         foreach (var (item, effect) in buffs)
         {
-            var rate = _context.TakedownsPerMinute ?? item.Stacking?.StacksPerMinute ?? 0;
+            // A stacking item's buff follows its own preset takedown rate, like its stacks do.
+            var rate = item.Stacking is { } stacking ? _context.StackRate(stacking) : _context.TakedownsPerMinute ?? 0;
             var active = TakedownBuffUptime(rate, effect.Duration);
             StatCalculator.AddStat(sheet, effect.Stat!, active * (effect.Amount + effect.PerStack * stacks.GetValueOrDefault(item.Id)));
         }

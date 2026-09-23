@@ -3,6 +3,7 @@ using WhatToBuild.Modeling;
 using WhatToBuild.Modeling.Simulation;
 using WhatToBuild.SupportedChampions.Kayn;
 using WhatToBuild.SupportedChampions.Kindred;
+using WhatToBuild.SupportedChampions.Vi;
 
 namespace WhatToBuild.SupportedChampions;
 
@@ -62,6 +63,7 @@ public sealed class ChampionKits
         [
             new KindredChampion(KindredKitData.Load(Path.Combine(folder, KindredKitData.FileName))),
             new KaynChampion(KaynKitData.Load(Path.Combine(folder, KaynKitData.FileName))),
+            new ViChampion(ViKitData.Load(Path.Combine(folder, ViKitData.FileName))),
         ]);
     }
 

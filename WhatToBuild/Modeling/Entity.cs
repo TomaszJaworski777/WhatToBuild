@@ -118,9 +118,20 @@ public sealed class ChampionState : Entity
             .SelectMany(i => i.Stacking!.Gains.Where(g => g.Stat == stat).Select(g => GainValue(i, g)))
             .Sum();
 
+    /// <summary>
+    /// What the stacks add. A gain that scales with max health (Heartsteel) is worked out on the
+    /// max health you have when each stack lands, stacks before it included, so it compounds:
+    /// with a + p·health per stack, n stacks from health H add (H + a/p)·((1 + p)^n − 1).
+    /// </summary>
     public double GainValue(Item item, StackGain gain)
     {
-        return (gain.Amount + gain.PerMaxHealth * _healthBeforeStacks) * StacksOf(item);
+        var stacks = StacksOf(item);
+        if (gain.PerMaxHealth <= 0 || gain.Stat != Data.Stats.Health)
+        {
+            return (gain.Amount + gain.PerMaxHealth * _healthBeforeStacks) * stacks;
+        }
+
+        return (_healthBeforeStacks + gain.Amount / gain.PerMaxHealth) * (Math.Pow(1 + gain.PerMaxHealth, stacks) - 1);
     }
 
     public override string Name => Champion.Name;

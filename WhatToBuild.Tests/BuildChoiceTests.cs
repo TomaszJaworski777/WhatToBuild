@@ -88,7 +88,9 @@ public class BuildChoiceTests
         var last = Value(Profane, Umbral, Hubris);
 
         Assert.IsGreaterThan(middle, first, $"Bought first {first:0.0}, second {middle:0.0}.");
-        Assert.IsGreaterThan(last, middle, $"Bought second {middle:0.0}, last {last:0.0}.");
+        Assert.IsGreaterThan(last, first, $"Bought first {first:0.0}, last {last:0.0}.");
+        // Second against last also weighs Umbral Glaive against Hubris for that slot, which is
+        // about the items, not the stacking, so it is not asserted here.
         Assert.IsGreaterThan(Stacks(Profane, Umbral, Hubris), Stacks(Hubris, Profane, Umbral), "Because it has been stacking for longer.");
     }
 

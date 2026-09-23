@@ -261,6 +261,28 @@ public sealed class Fight
         _attackSpeedBuffs.Add((bonus, Time + duration));
     }
 
+    private bool _attackReset;
+    private double _armorShred;
+    private double _armorShredUntil = double.MinValue;
+
+    /// <summary>An ability that resets the basic attack timer: the next attack comes as soon as nothing blocks it.</summary>
+    public void ResetAttack() => _attackReset = true;
+
+    /// <summary>True once per <see cref="ResetAttack"/>; the simulator reads it after the kit's turn.</summary>
+    public bool TakeAttackReset()
+    {
+        var reset = _attackReset;
+        _attackReset = false;
+        return reset;
+    }
+
+    /// <summary>A kit's own armor shred for a while (Vi's Denting Blows); a new one replaces the old.</summary>
+    public void ShredArmor(double percent, double duration)
+    {
+        _armorShred = percent;
+        _armorShredUntil = Time + duration;
+    }
+
     public double Cooldown(double seconds) => seconds * 100 / (100 + Attacker.Stats.AbilityHaste);
 
     public DamageCalculator Physical(double amount) => AttackerHits.Physical(Attacker, Target, amount);
@@ -291,6 +313,11 @@ public sealed class Fight
         if (ExternalArmorShred > 0)
         {
             hit.ArmorShred(ExternalArmorShred);
+        }
+
+        if (Time < _armorShredUntil && _armorShred > 0)
+        {
+            hit.ArmorShred(_armorShred);
         }
 
         if (ExternalMagicResistShred > 0)

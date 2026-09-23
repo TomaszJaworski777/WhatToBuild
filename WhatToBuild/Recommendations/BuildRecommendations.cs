@@ -346,10 +346,16 @@ public sealed class BuildRecommendations : IRecommendationSource
 
         if (keepTail && _planned is { } previous)
         {
-            var tail = previous.Plan.Steps
-                .Select(s => s.Item)
-                .Where(item => steps.All(s => s.Id != item.Id))
-                .ToList();
+            // Items of the old build that clash with the new one (Mortal Reminder after a Lord
+            // Dominik's, a second pair of boots) are left out, not allowed to end the tail there.
+            var tail = new List<Item>();
+            foreach (var item in previous.Plan.Steps.Select(s => s.Item).Where(item => steps.All(s => s.Id != item.Id)))
+            {
+                if (ItemRules.IsLegal([.. evaluator.Context.Owned, .. steps, .. tail, item]))
+                {
+                    tail.Add(item);
+                }
+            }
 
             if (tail.Count > 0 && steps.Count > 0)
             {

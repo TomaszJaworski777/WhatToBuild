@@ -107,6 +107,14 @@
         "clear": 1,
         "movement": 1
       },
+      "Vi": {
+        "damage": 1,
+        "burst": 0.25,
+        "uptime": 1,
+        "survival": 0.5,
+        "clear": 1,
+        "movement": 1
+      },
       "Kayn/ShadowAssassin": {
         "damage": 1,
         "burst": 1,
@@ -173,7 +181,7 @@
     "horizonGold": 8000,
     "minHorizonSeconds": 480,
     "discountSeconds": 600,
-    "stackLookaheadSeconds": 300,
+    "stackLookaheadSeconds": 0,
     "replaceMargin": 0.03,
     "keepMargin": 0.08,
     "componentValueShare": 0.6,

@@ -132,6 +132,12 @@ public sealed class BuildPlanner
             return best;
         }
 
+        // A full inventory still gets its boots: they take the place of the least valuable item.
+        if (ItemRules.Slots(best.Inventory) >= ItemRules.InventorySlots)
+        {
+            best.SellCandidate ??= LeastValuable(best);
+        }
+
         var options = CandidatePool()
             .Where(IsAnyBoots)
             .Select(item => Child(best, item, double.MaxValue))
@@ -331,6 +337,9 @@ public sealed class BuildPlanner
 
     private const int ExhaustiveOrderItems = 4;
 
+    /// <summary>How many of the strongest sets are walked in order and judged again on the stacks they really get.</summary>
+    private const int SetShortlist = 4;
+
     private bool OwnsShoes => _context.Owned.Any(i => IsAnyBoots(i) && !IsBasicBoots(i));
 
     private bool NeedsShoes => _settings.RequireBoots && !OwnsShoes;
@@ -398,14 +407,14 @@ public sealed class BuildPlanner
         // that abandons an item you have started pays for it, at the set's own score per gold.
         var stranded = StrandedGold(_context.Owned);
 
-        double? Strength(IReadOnlyList<Item> set, EvaluationMode how)
+        double? Strength(IReadOnlyList<Item> set, EvaluationMode how, IReadOnlyDictionary<Guid, double>? stacks = null)
         {
             if (Holding(set) is not var (inventory, cost))
             {
                 return null;
             }
 
-            var gain = _evaluator.Evaluate(inventory, when, Stacks(inventory), how).Score - baseline;
+            var gain = _evaluator.Evaluate(inventory, when, stacks ?? Stacks(inventory), how).Score - baseline;
             var left = StrandedGold(inventory);
             if (stranded > 0 && left > 0 && gain > 0)
             {
@@ -503,31 +512,69 @@ public sealed class BuildPlanner
             return Empty(watch, timedOut, candidates, when);
         }
 
-        var best = finished.MaxBy(f => f.Value);
         var keptTarget = false;
         var margin = _settings.KeepMargin;
+        var horizon = now + _settings.CompareSeconds;
+
+        // The search judged stacking items as if bought halfway. The few strongest sets are now
+        // judged again on what they can really be when the core is done: stacking items bought
+        // first, as early as the gold allows, with the stacks that gives. That is a set's
+        // potential, whatever gold is in the pocket; the order is chosen after, on its own.
+        var shortlist = finished.OrderByDescending(f => f.Value).Take(SetShortlist).ToList();
+        if (previousTarget is not null && shortlist.All(s => s.Set.All(i => i.Id != previousTarget.Id))
+            && finished.Where(f => f.Set.Any(i => i.Id == previousTarget.Id)).OrderByDescending(f => f.Value).FirstOrDefault() is { Set: not null } loyalSet)
+        {
+            shortlist.Add(loyalSet);
+        }
+
+        var judged = new List<(List<Item> Set, List<(List<Item> Order, Node Last, double Value)> Orders, double Value)>();
+        foreach (var (set, searched) in shortlist)
+        {
+            var items = set.ToList();
+            if (shoes.Count > 0 && BestShoes(items, mode) is { } pair)
+            {
+                items.Add(pair);
+            }
+
+            var walked = Orders(items, horizon, watch, budget, ref timedOut);
+            if (_cancelled)
+            {
+                return Empty(watch, timedOut, candidates, when);
+            }
+
+            if (walked.Count == 0)
+            {
+                continue;
+            }
+
+            IReadOnlyDictionary<Guid, double>? stacks = null;
+            if (items.Any(i => i.Stacking is not null)
+                && Walk(items.OrderBy(i => i.Stacking is null).ToList()) is var (early, bought) && bought == items.Count)
+            {
+                stacks = StacksAt(early.BoughtAt, when);
+            }
+
+            var real = Strength(items, mode, stacks) ?? searched;
+            judged.Add((set, walked, real));
+        }
+
+        if (judged.Count == 0)
+        {
+            return Empty(watch, timedOut, candidates, when);
+        }
+
+        var best = judged.MaxBy(j => j.Value);
 
         // Loyalty to what you are saving for: a set without it has to be clearly stronger.
         if (previousTarget is not null && best.Set.All(i => i.Id != previousTarget.Id)
-            && finished.Where(f => f.Set.Any(i => i.Id == previousTarget.Id)).OrderByDescending(f => f.Value).FirstOrDefault() is { Set: not null } holding
+            && judged.Where(j => j.Set.Any(i => i.Id == previousTarget.Id)).OrderByDescending(j => j.Value).FirstOrDefault() is { Set: not null } holding
             && holding.Value >= best.Value - margin * Math.Abs(best.Value))
         {
             best = holding;
             keptTarget = true;
         }
 
-        var items = best.Set.ToList();
-        if (shoes.Count > 0 && BestShoes(items, mode) is { } pair)
-        {
-            items.Add(pair);
-        }
-
-        var horizon = now + _settings.CompareSeconds;
-        var orders = Orders(items, horizon, watch, budget, ref timedOut);
-        if (_cancelled || orders.Count == 0)
-        {
-            return Empty(watch, timedOut, candidates, when);
-        }
+        var orders = best.Orders;
 
         var first = orders.MaxBy(o => o.Value);
         if (previousTarget is not null && first.Order[0].Id != previousTarget.Id
@@ -848,25 +895,11 @@ public sealed class BuildPlanner
         return high;
     }
 
-    public double GoldIncome(IEnumerable<Item> inventory)
-    {
-        var me = _context.Me;
-        var minutes = Math.Max(1, _context.Now / 60);
-        var killsPerMinute = _context.Now >= 300 ? me.Kills / minutes : (double?)null;
-
-        return inventory
+    public double GoldIncome(IEnumerable<Item> inventory) =>
+        inventory
             .Where(i => i.Stacking is not null)
             .DistinctBy(i => i.Id)
-            .Sum(i =>
-            {
-                var stacking = i.Stacking!;
-                var perMinute = stacking.Per.Contains("champion kill", StringComparison.OrdinalIgnoreCase) && killsPerMinute is { } observed
-                    ? observed
-                    : stacking.StacksPerMinute * (_context.Champion.IsRanged ? stacking.RangedMultiplier : 1);
-
-                return stacking.Gains.Where(g => g.Stat == Data.Stats.Gold).Sum(g => g.Amount) * perMinute / 60;
-            });
-    }
+            .Sum(i => i.Stacking!.Gains.Where(g => g.Stat == Data.Stats.Gold).Sum(g => g.Amount) * _context.StackRate(i.Stacking!) / 60);
 
     private bool Stop(Stopwatch watch, double budget)
     {
@@ -917,8 +950,11 @@ public sealed class BuildPlanner
 
     private Item? LeastValuable(Node node)
     {
+        // A stacking item the plan itself buys is never the one sold to make room: it looks
+        // weakest only because it has not stacked yet, and its value is in the minutes ahead.
         var sellable = node.Inventory
             .Where(i => !i.Groups.Contains("HuntersTalismanGroup") && !i.Groups.Contains("Boots"))
+            .Where(i => i.Stacking is null || _context.Owned.Any(o => o.Id == i.Id))
             .DistinctBy(i => i.Id)
             .ToList();
 

@@ -32,7 +32,7 @@
                 "perMaxHealth": 0.006
             }
         ],
-        "stacksPerMinute": 1,
-        "rateSource": "estimate"
+        "stacksPerMinute": 1.2,
+        "rateSource": "preset: about 20 stacks, some 600 health, by 30:00 when finished around 13:00"
     }
 }

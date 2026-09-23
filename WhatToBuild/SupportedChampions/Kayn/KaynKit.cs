@@ -113,18 +113,27 @@ public sealed class KaynKit : IChampionKit
             ExitR(fight);
         }
 
-        if (fight.Time < fight.AttacksBlockedUntil)
+        if (fight.Time < fight.AttacksBlockedUntil || !_weave)
         {
             return;
         }
 
-        CastW(fight);
-        CastQ(fight);
-        CastR(fight);
+        // Spell, attack, spell, attack: each ability resets the attack timer, so one lands
+        // between every two casts, and never two casts in the same instant.
+        _ = CastW(fight) || CastQ(fight) || CastR(fight);
     }
 
     public void OnAttack(Fight fight)
     {
+        _weave = true;
+    }
+
+    private bool _weave = true;
+
+    private void Woven(Fight fight)
+    {
+        _weave = false;
+        fight.ResetAttack();
     }
 
     public double AttackUptime => _data.AttackUptime;
@@ -159,12 +168,12 @@ public sealed class KaynKit : IChampionKit
         _passiveReadyAt = fight.Time + _data.Passive.AssassinCooldown;
     }
 
-    private void CastQ(Fight fight)
+    private bool CastQ(Fight fight)
     {
         var rank = fight.Ranks.Q;
         if (rank <= 0 || fight.Time < _qReadyAt)
         {
-            return;
+            return false;
         }
 
         for (var hit = 0; hit < _data.Q.Hits; hit++)
@@ -175,6 +184,8 @@ public sealed class KaynKit : IChampionKit
         fight.Cast();
         Casting(fight, _data.Q.CastTime);
         _qReadyAt = fight.Time + fight.Cooldown(KaynKitData.AtRank(_data.Q.Cooldown, rank));
+        Woven(fight);
+        return true;
     }
 
     public double QHit(Fight fight, int rank)
@@ -200,12 +211,12 @@ public sealed class KaynKit : IChampionKit
         return damage;
     }
 
-    private void CastW(Fight fight)
+    private bool CastW(Fight fight)
     {
         var rank = fight.Ranks.W;
         if (rank <= 0 || fight.Time < _wReadyAt)
         {
-            return;
+            return false;
         }
 
         var w = _data.W;
@@ -214,24 +225,29 @@ public sealed class KaynKit : IChampionKit
         fight.Cast();
         Casting(fight, Assassin ? w.AssassinCastTime : w.CastTime);
         _wReadyAt = fight.Time + fight.Cooldown(KaynKitData.AtRank(w.Cooldown, rank));
+        Woven(fight);
+        return true;
     }
 
-    private void CastR(Fight fight)
+    private bool CastR(Fight fight)
     {
         var rank = fight.Ranks.R;
         if (rank <= 0 || fight.Time < _rReadyAt || fight.DamageDealt <= 0 || fight.Target is not ChampionState)
         {
-            return;
+            return false;
         }
 
         _exitAt = fight.Time + _data.R.CastTime + _data.R.MinimumInfest;
         Casting(fight, _data.R.CastTime + _data.R.MinimumInfest);
         _rReadyAt = fight.Time + fight.Cooldown(KaynKitData.AtRank(_data.R.Cooldown, rank));
+        _weave = false;
+        return true;
     }
 
     private void ExitR(Fight fight)
     {
         _exitAt = double.MaxValue;
+        fight.ResetAttack();
         fight.Deal(UmbralTrespass, fight.Physical(RDamage(fight)).Ability());
         fight.Cast();
         fight.Ultimate();

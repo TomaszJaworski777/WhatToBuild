@@ -75,7 +75,14 @@ public class ItemStackingTests
         var plain = new ChampionState(Darius, 11, [Heartsteel]);
         var stacked = new ChampionState(Darius, 11, [Heartsteel], itemStacks: Stacks(Heartsteel, 10));
 
-        Assert.AreEqual(10 * (7 + 0.006 * plain.Stats.Health), stacked.Stats.Health - plain.Stats.Health, 0.001);
+        // Each stack is 7 + 0.6% of the max health you have when it lands, earlier stacks included.
+        var health = plain.Stats.Health;
+        for (var i = 0; i < 10; i++)
+        {
+            health += 7 + 0.006 * health;
+        }
+
+        Assert.AreEqual(health - plain.Stats.Health, stacked.Stats.Health - plain.Stats.Health, 0.001);
         Assert.AreEqual(stacked.Stats.Health - plain.Stats.Health, stacked.BonusHealth - plain.BonusHealth, 0.001);
     }
 

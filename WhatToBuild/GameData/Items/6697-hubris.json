@@ -27,7 +27,7 @@
     "stacking": {
         "per": "champion takedown",
         "gains": [],
-        "stacksPerMinute": 0.4,
-        "rateSource": "estimate until 5 minutes in, then your own takedown rate"
+        "stacksPerMinute": 0.75,
+        "rateSource": "preset, not this game's trend: about 18 stacks by 30:00 when finished around 12:00"
     }
 }

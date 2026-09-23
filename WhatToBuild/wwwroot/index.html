@@ -22,35 +22,6 @@
                     <input type="range" id="horizon" min="1" max="5" step="1" value="3" />
                     <span id="horizon-label" class="horizon-label">3 items + shoes</span>
                 </label>
-                <div class="focus">
-                    <button type="button" id="focus-toggle" class="focus-toggle" aria-expanded="false" aria-controls="focus-panel" disabled
-                            title="The weights the plan scores builds with: constant damage, burst, uptime and survival.">
-                        <svg class="focus-mini" viewBox="0 0 200 200" aria-hidden="true">
-                            <polygon points="100,12 188,100 100,188 12,100" />
-                            <polygon id="focus-mini-shape" class="focus-mini-shape" points="100,100 100,100 100,100 100,100" />
-                        </svg>
-                        <span class="horizon-end">Focus</span>
-                        <span id="focus-label" class="horizon-label focus-label">waiting for a game</span>
-                    </button>
-                    <div id="focus-panel" class="focus-panel" hidden>
-                        <div class="focus-head">
-                            <span>Build focus</span>
-                            <span id="focus-champion" class="focus-champion"></span>
-                        </div>
-                        <svg id="focus-shape" class="focus-shape" viewBox="-54 -18 308 240" aria-hidden="true">
-                            <g id="focus-rings"></g>
-                            <polygon id="focus-default" class="focus-default" points="" />
-                            <polygon id="focus-area" class="focus-area" points="" />
-                            <g id="focus-handles"></g>
-                            <g id="focus-axes"></g>
-                        </svg>
-                        <div id="focus-inputs" class="focus-inputs"></div>
-                        <div class="focus-actions">
-                            <button type="button" id="focus-reset" class="focus-reset">Back to default</button>
-                            <span class="focus-hint">Only the balance between the four matters. Dashed: champion default.</span>
-                        </div>
-                    </div>
-                </div>
                 <span id="patch" class="patch"></span>
                 <span id="status" class="status status-connecting">Connecting</span>
             </div>
@@ -79,6 +50,29 @@
                 <article id="team-order" class="team team-order"></article>
                 <article id="team-chaos" class="team team-chaos"></article>
             </section>
+
+            <aside id="focus-panel" class="focus-panel" aria-label="Build focus">
+                <div class="focus-head">
+                    <span>Build focus</span>
+                    <span id="focus-champion" class="focus-champion">waiting for a plan</span>
+                </div>
+                <div class="focus-body">
+                    <svg id="focus-shape" class="focus-shape" viewBox="-54 -18 308 240" aria-hidden="true">
+                        <g id="focus-rings"></g>
+                        <polygon id="focus-default" class="focus-default" points="" />
+                        <polygon id="focus-area" class="focus-area" points="" />
+                        <g id="focus-handles"></g>
+                        <g id="focus-axes"></g>
+                    </svg>
+                    <div class="focus-controls">
+                        <div id="focus-inputs" class="focus-inputs"></div>
+                        <div class="focus-actions">
+                            <button type="button" id="focus-reset" class="focus-reset" disabled>Back to default</button>
+                            <span class="focus-hint">Only the balance between the four matters. Dashed: champion default.</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
 
             <section id="build" class="build" hidden></section>
 
