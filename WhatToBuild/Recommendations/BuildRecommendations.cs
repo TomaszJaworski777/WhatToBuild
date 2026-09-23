@@ -222,6 +222,16 @@ public sealed class BuildRecommendations : IRecommendationSource
         lock (_lock)
         {
             var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
+
+            if (_lockedGame != GameKey(state))
+            {
+                // A new lobby is a new game: nothing about the last one carries over.
+                _lockedGame = GameKey(state);
+                _lockedForm = null;
+                _lockedBecause = null;
+                _shown = null;
+            }
+
             AdviseForm(evaluator, state);
 
             if (_preferenceKey != _preferences.Key)
@@ -566,6 +576,9 @@ public sealed class BuildRecommendations : IRecommendationSource
     }
 
     private FormAdviceDto? _advice;
+    private string? _lockedForm;
+    private string? _lockedGame;
+    private string? _lockedBecause;
 
     private FormAdviceDto? AdviseForm(BuildEvaluator evaluator, GameState state)
     {
@@ -581,9 +594,18 @@ public sealed class BuildRecommendations : IRecommendationSource
         var enemies = evaluator.BattlefieldAt(time).Enemies;
         var carry = enemies.Where(e => e.Champion.IsRanged).MaxBy(e => e.Threat) ?? enemies.MaxBy(e => e.Threat);
 
+        if (context.DetectedForm is { } seen && _lockedForm != seen)
+        {
+            _lockedForm = seen;
+            _lockedBecause = "you are already transformed";
+        }
+
+        // Both forms are judged on the build you will be holding, not on the boots you have now.
+        var inventory = Core(context, state);
+
         var options = supported.Forms.Select(form =>
         {
-            var e = evaluator.Evaluate(context.Owned, time, null, EvaluationMode.Full, form);
+            var e = evaluator.Evaluate(inventory, time, null, EvaluationMode.Full, form);
             var onCarry = carry is null ? null : e.Targets.FirstOrDefault(t => t.Enemy == carry)?.Fight;
             return new FormOptionDto(form, supported.FormLabel(form), e.Dps * e.Uptime, e.Dps, e.TimeAlive, e.HealingPerSecond, carry?.Champion.Name,
                 onCarry?.TimeToKill, e.Burst, onCarry is null ? null : Math.Min(1, onCarry.EarlyDamage / Math.Max(1, onCarry.TargetHealth)));
@@ -593,6 +615,14 @@ public sealed class BuildRecommendations : IRecommendationSource
         var best = options.MaxBy(o => o.FightValue)!;
         var margin = _model.Settings.Forms.PreferDefaultMargin;
         var recommended = best.FightValue > standard.FightValue * (1 + margin) ? best : standard;
+
+        if (_lockedForm is null)
+        {
+            _lockedForm = recommended.Form;
+            _lockedBecause = $"picked on a {_preferences.CoreItems} item build and kept, because the build follows the form";
+        }
+
+        recommended = options.FirstOrDefault(o => o.Form == _lockedForm) ?? recommended;
 
         var melee = enemies.Count(e => !e.Champion.IsRanged);
         var ranged = enemies.Count - melee;
@@ -610,10 +640,37 @@ public sealed class BuildRecommendations : IRecommendationSource
             recommended.Label,
             options,
             $"Enemy team: {melee} melee (charge {supported.FormLabel(fallback)}), {ranged} ranged (charge the other form)",
-            why);
+            why,
+            _lockedForm is not null,
+            _lockedBecause);
 
-        context.Form = context.DetectedForm ?? recommended.Form;
+        context.Form = _lockedForm ?? recommended.Form;
         return _advice;
+    }
+
+    /// <summary>
+    /// What you will be holding once the core stands: what you own now, filled up from the
+    /// champion's standard build. Forms are compared on that, not on an empty inventory.
+    /// </summary>
+    private IReadOnlyList<Item> Core(BuildContext context, GameState state)
+    {
+        var inventory = context.Owned.ToList();
+        var wanted = _preferences.CoreItems + 1;
+
+        foreach (var item in _model.Meta.For(context.Champion))
+        {
+            if (inventory.Count(i => i.Cost >= 900 && !IsComponent(i)) >= wanted)
+            {
+                break;
+            }
+
+            if (inventory.All(i => i.Id != item.Id) && ItemRules.IsLegal([.. inventory, item]))
+            {
+                inventory.Add(item);
+            }
+        }
+
+        return inventory;
     }
 
     private Planned Explain(BuildEvaluator evaluator, BuildPlan plan)

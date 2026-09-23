@@ -103,6 +103,10 @@ CommunityDragon's `items.cdtb.bin.json` rather than written from memory.
   champions. `amount` and the scalings are the melee values, and ranged champions get
   them times this (Kraken 0.8, Ruined King 0.6667, Titanic 0.5). The numbers come from
   each item's bin data values (`RangedDamageMultiplier`, `RangedValue` / `MeleeValue`, ...).
+- `meleeMultiplier` — the same the other way, for effects a melee owner gets less of, or
+  none: Hexoptics' 10% damage amplifier is `0` here, so only ranged champions are credited
+  with it. Both multipliers apply wherever the effect is read — in a fight, in the stat sheet
+  and in the enemy damage estimate.
 - `stat` — for `StatBuff` and shreds, which stat. It is written as a name but parses
   into a `Stat` type, so an unknown name fails the load instead of reaching the
   simulation. Each type knows whether it is a fraction and whether it applies to the
@@ -492,13 +496,20 @@ into a level 13 Kayn (Profane Hydra, Ionian Boots, Youmuu's Ghostblade, Long Swo
 Pup, ranks Q5 W5 E1 R2, stats from the model). Set `GameSource:ReplayFolder` to `Replays/demo`
 for the Kindred game.
 
-Forms: before `forms.transformSeconds` (10:00) Kayn is planned in base form, after that in
-Rhaast unless Shadow Assassin is detected (its W is `KaynAssW` in the Live Client API). The
-page scores both forms against the current enemies on damage over a teamfight weighted by time
-alive, and recommends Rhaast unless Shadow Assassin beats it by `preferDefaultMargin` (10%).
-Objectives per form are in `objectives` as `Kayn/Darkin` (damage, time alive, some survival)
-and `Kayn/ShadowAssassin` (damage and burst: the share of each enemy's health removed in the
-first 3 seconds of a fight). Rhaast cannot be told apart from base form in the live data.
+The form is decided once and kept. If the live data shows which form you are (its W is
+ for Shadow Assassin), that wins outright. Otherwise both forms are fought on the
+build you will be holding once the core stands — what you own now, filled up from the standard
+build — and the winner is locked for the game, because the build follows the form and swapping
+it later throws away everything planned behind it. A new lobby clears the lock.
+
+Forms: before `forms.transformSeconds` (10:00) Kayn is planned in base form, after that in the
+locked form. Both are scored on damage over a teamfight weighted by time alive, and Rhaast is
+kept unless Shadow Assassin beats it by `preferDefaultMargin` (10%).
+Objectives per form are in `objectives`. `Kayn/ShadowAssassin` is pure damage — full damage
+weight, full burst (the share of each enemy's health removed in the first three seconds), and
+nothing at all for staying alive, so he never buys a survival item. `Kayn/Darkin` wants damage
+*and* to live through the fight, so Rhaast pays for time alive (0.5) and fight uptime. Rhaast
+cannot be told apart from base form in the live data.
 
 Every number is copied from the champion's CommunityDragon bins (`kindred.bin.json`
 and `kindredwolf.bin.json`), and what each number means comes from the game's own
@@ -743,8 +754,14 @@ their role. Item value only moves when someone recalls, so every other player's 
 pulled toward the lobby average by `trendWeight`. The first `baselineOnlyUntilSeconds` trust
 the baseline. Levels follow the baseline plus today's lead, fading over
 `levelReversionSeconds` (catch-up experience). Forecast times carry a spread of
-`rateUncertainty` × horizon. All of it lives in `GameTrends`, which the forecaster, the enemy
+`rateUncertainty` × horizon. Up to `baselineOnlyUntilSeconds` (8 minutes) the rate is entirely
+the average game, from `observedOnlyFromSeconds` (20 minutes) entirely this one, and between
+the two they are blended. All of it lives in `GameTrends`, which the forecaster, the enemy
 build projection and the planner's replanning all read (see Model → Planner).
+
+Enemies are simulated at a future minute holding what they own **now** plus the rest of their
+standard build filled in from there, so armour, magic resist and health they have already
+bought are in the fight: a team that has finished Zhonya's is a team you need penetration for.
 
 ### Planner and time budget
 
@@ -806,12 +823,20 @@ default, always plus shoes. Shoes never use up one of its places.
 
 The plan works toward that core as a package — the search is as deep as the part of it you have
 not built yet, so with three items it weighs three-item builds against each other rather than
-picking an item at a time. Order counts as much as choice, and it comes out of the same scoring:
+picking an item at a time. **Which** items is decided on what the finished build is worth: among
+the builds that reached full depth, the one whose inventory fights best, all measured at the
+same moment so none is flattered by finishing sooner. The way there is a separate question.
+
+Order counts as much as choice, and it comes out of the same scoring:
 every item is valued at the minute it would land, so a clear item earns its keep while clear
 still has weight and a late-game item is not bought early. The search compares orderings on its
 own, but only along the lines its beam kept, so the build it settles on is walked once more,
 swapping neighbours for as long as that buys anything (`reorderPasses`). While the next item is
-being held still for stability, the pass leaves the first place alone and sorts the rest. Once the core stands there is nothing left to save toward, so the
+being held still for stability, the pass leaves the first place alone and sorts the rest.
+
+Items that grow with time owned order themselves: stacks come from the minutes since the plan
+buys them, so Hubris bought first carries four times the stacks of Hubris bought third by the
+time the build is done, and scores accordingly. Once the core stands there is nothing left to save toward, so the
 search is one item deep and the answer is simply the best item at the moment you buy it, each
 time you buy. A core of five on a champion holding a jungle pet does not fit in six slots, so
 its last step arrives as a swap: the plan says what it sells.

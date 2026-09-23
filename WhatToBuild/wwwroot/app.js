@@ -462,7 +462,7 @@ function renderForm(rec) {
         const heal = o.healingPerSecond >= 1 ? `<div>Heals <b>${Math.round(o.healingPerSecond)}</b>/s in fights</div>` : "";
         return `
             <div class="form-card${picked ? " form-picked" : ""}">
-                <div class="form-name">${esc(o.label)}${picked ? '<span class="form-tag">Recommended</span>' : ""}</div>
+                <div class="form-name">${esc(o.label)}${picked ? (f.locked ? '<span class="form-tag">Locked in</span>' : '<span class="form-tag">Recommended</span>') : ""}</div>
                 <div><b>${Math.round(o.dps)}</b> DPS, <b>${o.timeAlive.toFixed(1)}s</b> alive</div>
                 <div>Damage over a fight: <b>${Math.round(o.fightValue)}</b></div>
                 ${burst}${heal}
@@ -472,7 +472,7 @@ function renderForm(rec) {
     return `
         <div class="form">
             <div class="model-head">
-                <span class="label">Form${f.detected ? ` · you are ${esc(f.detected)}` : ""}</span>
+                <span class="label">Form${f.detected ? ` · you are ${esc(f.detected)}` : ""}${f.locked && f.lockedBecause ? ` · ${esc(f.lockedBecause)}` : ""}</span>
                 <span class="muted small">${esc(f.chargeHint)}</span>
             </div>
             <div class="form-cards">${cards}</div>

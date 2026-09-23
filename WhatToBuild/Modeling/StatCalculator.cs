@@ -28,7 +28,7 @@ public static class StatCalculator
 
         var bonusAttackSpeed = p.AttackSpeed * growth
                                + itemList.Sum(i => i.Stats.AttackSpeedPercent)
-                               + itemList.SelectMany(i => i.Effects).Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.AttackSpeedPercent).Sum(e => e.Amount)
+                               + itemList.SelectMany(i => i.Effects).Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.AttackSpeedPercent).Sum(e => e.Amount * e.ShareFor(champion.IsRanged))
                                + modifierList.Where(m => m.Stat == Stats.AttackSpeedPercent).Sum(m => m.Flat);
 
         var sheet = new StatSheet
@@ -59,7 +59,11 @@ public static class StatCalculator
 
             foreach (var effect in item.Effects.Where(IsPermanentStatBuff))
             {
-                Add(sheet, effect.Stat!, BuffAmount(effect, b.AttackDamage + p.AttackDamage * growth, itemList.Sum(i => i.Stats.Health)));
+                var share = effect.ShareFor(champion.IsRanged);
+                if (share != 0)
+                {
+                    Add(sheet, effect.Stat!, share * BuffAmount(effect, b.AttackDamage + p.AttackDamage * growth, itemList.Sum(i => i.Stats.Health)));
+                }
             }
         }
 
@@ -77,7 +81,7 @@ public static class StatCalculator
         sheet.MoveSpeed = MoveSpeed(
             b.MoveSpeed + itemList.Sum(i => i.Stats.MoveSpeedFlat),
             itemList.Sum(i => i.Stats.MoveSpeedPercent)
-            + itemList.SelectMany(i => i.Effects).Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.MoveSpeedPercent).Sum(e => e.Amount)
+            + itemList.SelectMany(i => i.Effects).Where(e => IsPermanentStatBuff(e) && e.Stat == Stats.MoveSpeedPercent).Sum(e => e.Amount * e.ShareFor(champion.IsRanged))
             + modifierList.Where(m => m.Stat == Stats.MoveSpeedPercent).Sum(m => m.Flat));
 
         return sheet;

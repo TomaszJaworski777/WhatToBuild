@@ -110,6 +110,12 @@ public class Effect
 
     public double RangedMultiplier { get; set; } = 1;
 
+    /// <summary>What a melee owner gets of this, where an item treats the two differently.</summary>
+    public double MeleeMultiplier { get; set; } = 1;
+
+    /// <summary>The share of this effect its owner actually gets.</summary>
+    public double ShareFor(bool ranged) => ranged ? RangedMultiplier : MeleeMultiplier;
+
     public double PerLevel { get; set; }
 
     public int PerLevelFrom { get; set; } = 2;

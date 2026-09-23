@@ -119,7 +119,7 @@ public sealed class CombatProfiler
                 continue;
             }
 
-            var ranged = champion.IsRanged ? effect.RangedMultiplier : 1;
+            var ranged = effect.ShareFor(champion.IsRanged);
             var raw = AttackerHits.OwnerAmount(effect, entity) * ranged * (1 + effect.MissingHealthAmp * (1 - e.AverageTargetHealthPercent));
             var percent = (effect.PerTargetMaxHealth + effect.PerTargetCurrentHealth * e.AverageTargetHealthPercent) * ranged;
             var type = effect.Kind switch
@@ -194,7 +194,7 @@ public sealed class CombatProfiler
 
         foreach (var (item, effect) in effects.Where(x => x.Effect.Kind is EffectKind.Heal or EffectKind.Shield))
         {
-            var ranged = champion.IsRanged ? effect.RangedMultiplier : 1;
+            var ranged = effect.ShareFor(champion.IsRanged);
             var amount = AttackerHits.OwnerAmount(effect, entity) * ranged * healPower;
             if (amount <= 0)
             {
@@ -245,7 +245,7 @@ public sealed class CombatProfiler
             AllyShield = shieldSources.Sum(x => x.Amount) * allyShare,
             GrievousWounds = effects.Where(x => x.Effect.Kind == EffectKind.GrievousWounds).Select(x => x.Effect.Amount).DefaultIfEmpty(0).Max(),
             ShieldReduction = effects.Where(x => x.Effect.Kind == EffectKind.ShieldReduction)
-                .Select(x => x.Effect.Amount * (champion.IsRanged ? x.Effect.RangedMultiplier : 1)).DefaultIfEmpty(0).Max(),
+                .Select(x => x.Effect.Amount * x.Effect.ShareFor(champion.IsRanged)).DefaultIfEmpty(0).Max(),
             ArmorShred = effects.Where(x => x.Effect.Kind == EffectKind.ArmorShred).Select(x => x.Effect.Amount).DefaultIfEmpty(0).Max(),
             MagicResistShred = effects.Where(x => x.Effect.Kind == EffectKind.MagicResistShred).Select(x => x.Effect.Amount).DefaultIfEmpty(0).Max(),
             HealSources = heals,

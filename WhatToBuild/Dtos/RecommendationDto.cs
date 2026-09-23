@@ -21,7 +21,9 @@ public sealed record FormAdviceDto(
     string RecommendedLabel,
     IReadOnlyList<FormOptionDto> Options,
     string ChargeHint,
-    IReadOnlyList<string> Why);
+    IReadOnlyList<string> Why,
+    bool Locked = false,
+    string? LockedBecause = null);
 
 public sealed record FormOptionDto(
     string Form,

@@ -87,6 +87,37 @@ public sealed class BuildPlanner
         nodes.Where(n => IsAnyBoots(n.Item!)).OrderByDescending(n => Value(n, horizon)).Take(_settings.BootsLines).ToList();
 
     /// <summary>
+    /// Which items to own, decided on what the finished build is worth rather than on the way
+    /// there: among the builds that reached full depth, the one whose inventory fights best,
+    /// all measured at the same moment so none is flattered by finishing sooner. What order to
+    /// buy them in is a separate question, answered by what each is worth when it lands.
+    /// </summary>
+    private Node? BestSet(List<Node> all, double horizon)
+    {
+        if (all.Count == 0)
+        {
+            return null;
+        }
+
+        var byValue = all.MaxBy(n => Value(n, horizon))!;
+        if (_stage.Depth <= 1)
+        {
+            return byValue;
+        }
+
+        var deepest = all.Max(n => n.Depth);
+        var finished = all.Where(n => n.Depth == deepest && n.Scored).ToList();
+        if (finished.Count < 2)
+        {
+            return byValue;
+        }
+
+        var when = finished.Max(n => n.Time);
+
+        return finished.MaxBy(n => _evaluator.Evaluate(n.Inventory, when, StacksAt(n.BoughtAt, when), _stage.Mode, _context.Form).Score) ?? byValue;
+    }
+
+    /// <summary>
     /// Everyone buys boots. Their place in the build is left to what they are worth; the only
     /// rule is that a build cannot end without them, so a build that never bought them gets
     /// the pair that scores best appended.
@@ -243,7 +274,7 @@ public sealed class BuildPlanner
             beam = Beam(children, horizon, null);
         }
 
-        var best = all.Count > 0 ? all.MaxBy(n => Value(n, horizon))! : root;
+        var best = BestSet(all, horizon) ?? root;
         var kept = false;
 
         if (previousTarget is not null && best != root && First(best).Item!.Id != previousTarget.Id)

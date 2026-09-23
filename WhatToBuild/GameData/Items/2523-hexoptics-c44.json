@@ -19,7 +19,8 @@
                         "trigger":  "Always",
                         "kind":  "StatBuff",
                         "stat":  "damageAmp",
-                        "amount":  0.1
+                        "amount":  0.1,
+                        "meleeMultiplier":  0
                     }
                 ]
 }

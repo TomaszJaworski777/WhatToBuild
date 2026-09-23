@@ -101,12 +101,12 @@ public sealed class DamageCalculator
         {
             foreach (var effect in item.Effects.Where(e => ConditionsMet(e) && hit.Matches(e.Versus)))
             {
-                var amount = effect.Amount * Built(effect, hit);
+                var amount = effect.Amount * Built(effect, hit) * effect.ShareFor(_ranged);
 
                 switch (effect.Kind)
                 {
                     case EffectKind.ShieldReduction:
-                        shieldReduction = Stack(shieldReduction, amount * (_ranged ? effect.RangedMultiplier : 1));
+                        shieldReduction = Stack(shieldReduction, amount);
                         break;
                     case EffectKind.ArmorShred:
                         armorShred = Stack(armorShred, amount);
