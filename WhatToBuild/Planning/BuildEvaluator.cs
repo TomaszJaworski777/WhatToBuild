@@ -64,11 +64,34 @@ public sealed class BuildContext
 
     public WorldForecast World { get; }
 
-    public ModelSettings.ObjectiveWeights Objective => Settings.Objectives.For(Me.Champion, Form);
+    public ModelSettings.ObjectiveWeights Objective => ObjectiveFor(Form);
+
+    /// <summary>Objective weights you chose on the page, keyed like model.json's objectives; the rest play the model's.</summary>
+    public IReadOnlyDictionary<string, ModelSettings.ObjectiveWeights> ChosenWeights { get; init; } =
+        new Dictionary<string, ModelSettings.ObjectiveWeights>();
+
+    public ModelSettings.ObjectiveWeights ObjectiveFor(string? form)
+    {
+        var model = Settings.Objectives.For(Me.Champion, form);
+        return ChosenWeights.GetValueOrDefault(Settings.Objectives.KeyFor(Me.Champion, form)) is { } chosen
+            ? model.WithChampionWeights(chosen)
+            : model;
+    }
 
     public ISupportedChampion? Supported => Kits.For(Me.Champion);
 
-    public string? DetectedForm => Supported?.DetectForm(State.ActivePlayerAbilityIds);
+    public string? DetectedForm => Supported?.DetectForm(State.ActivePlayerAbilityIds) ?? InferredForm;
+
+    /// <summary>
+    /// The form the live data cannot show: only one of Kayn's forms changes an ability, so once
+    /// everyone has transformed, not seeing it means the other one (Rhaast).
+    /// </summary>
+    public string? InferredForm =>
+        Supported is { Forms.Count: > 0 } supported
+        && supported.DetectForm(State.ActivePlayerAbilityIds) is null
+        && Now >= Settings.Forms.UndetectedIsDefaultFromSeconds
+            ? supported.DefaultForm
+            : null;
 
     public string? Form { get; set; }
 
@@ -118,14 +141,10 @@ public sealed class BuildContext
 
     public double NextRecall(double time, double now)
     {
-        var planner = Settings.Planner;
-        var first = Math.Max(now, planner.FirstRecallSeconds);
-        if (time <= first)
-        {
-            return first;
-        }
-
-        return first + Math.Ceiling((time - first) / planner.RecallIntervalSeconds) * planner.RecallIntervalSeconds;
+        // You back once the gold for the item is in, never before the first recall. A fixed grid
+        // of recalls made anything cheap free whenever the big item would land on the same
+        // recall anyway, and one counted from now slid every tick and made times jump.
+        return Math.Max(time, Math.Max(now, Settings.Planner.FirstRecallSeconds));
     }
 
     public double ClearWeightAt(double time)
@@ -401,7 +420,7 @@ public sealed class BuildEvaluator
         var walkShare = settings.Movement.WalkShareFor(_context.Me.Position);
         var tempo = 1 / (walkShare * _context.Champion.Base.MoveSpeed / Math.Max(1, us.Stats.MoveSpeed) + 1 - walkShare);
 
-        var objective = _context.Settings.Objectives.For(_context.Champion, form);
+        var objective = _context.ObjectiveFor(form);
         var score = objective.Damage * Math.Log(Math.Max(MinimumValue, dps))
                     + objective.Uptime * Math.Log(Math.Max(MinimumValue, uptime))
                     + objective.Burst * Math.Log(Math.Max(MinimumValue, opening))

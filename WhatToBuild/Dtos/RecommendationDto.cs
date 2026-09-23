@@ -13,7 +13,21 @@ public sealed record RecommendationDto(
     IReadOnlyList<string>? Assumptions = null,
     IReadOnlyList<MatchupDto>? Matchups = null,
     FormAdviceDto? Form = null,
-    bool Calculating = false);
+    bool Calculating = false,
+    WeightsDto? Weights = null);
+
+/// <summary>
+/// The objective weights the plan scores builds with, for the entry in model.json it reads
+/// (<c>Kindred</c>, <c>Kayn/Darkin</c>): the model's own values and the ones in use now.
+/// </summary>
+public sealed record WeightsDto(
+    string Key,
+    string Label,
+    IReadOnlyList<WeightDto> Weights,
+    double Max,
+    bool Custom);
+
+public sealed record WeightDto(string Name, string Label, string Meaning, double Default, double Current);
 
 public sealed record FormAdviceDto(
     string? Detected,

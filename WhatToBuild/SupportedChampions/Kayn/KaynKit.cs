@@ -50,19 +50,18 @@ public sealed class KaynChampion : ISupportedChampion
 
     public IReadOnlyList<CastHint> Hints(FightSetup setup) => [];
 
+    public SurvivalAbility? Survival(AbilityRanks ranks) =>
+        ranks.R <= 0 ? null : new SurvivalAbility("Umbral Trespass", _data.R.InfestDuration, 1, 0, KaynKitData.AtRank(_data.R.Cooldown, ranks.R));
+
     public SurvivalAbility? Survival(AbilityRanks ranks, ChampionState us, string? form, double enemyHealth)
     {
-        if (ranks.R <= 0)
+        if (Survival(ranks) is not { } ability || form != KaynForm.Darkin)
         {
-            return null;
+            return Survival(ranks);
         }
 
         var r = _data.R;
-        var heal = form == KaynForm.Darkin
-            ? r.DarkinHeal * (r.DarkinMaxHealth + r.DarkinMaxHealthPerBonusAd * AttackerHits.BonusAttackDamage(us)) * enemyHealth
-            : 0;
-
-        return new SurvivalAbility("Umbral Trespass", r.InfestDuration, 1, heal, KaynKitData.AtRank(r.Cooldown, ranks.R));
+        return ability with { Heal = r.DarkinHeal * (r.DarkinMaxHealth + r.DarkinMaxHealthPerBonusAd * AttackerHits.BonusAttackDamage(us)) * enemyHealth };
     }
 
     public double DamageHealShare(ChampionState us, string? form) =>

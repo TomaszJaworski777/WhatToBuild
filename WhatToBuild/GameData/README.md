@@ -381,10 +381,12 @@ Champions that permanently gain a stat as the game goes on:
 "stacking": [ { "stat": "armor", "initialStacksPerMinute": 10, "max": 30 } ]
 ```
 
-`initialStacksPerMinute` is **only the prediction used at game start**, before there
-is anything to measure. Once the game is running, the current stack count comes from
-game state and the real rate is extrapolated from that, which replaces this number.
-It is a starting prior, not a fact, and the values here are estimates.
+`initialStacksPerMinute` is the standard pace, and the forecast mostly keeps it. The
+current stack count comes from game state; the pace from there on is the standard one,
+leaned toward your own measured pace only from `stacks.trendFromSeconds` (8:00), by at most
+`stacks.maxTrendWeight` (30%) reached at `stacks.trendFullSeconds` (25:00). Gold pace is not
+applied on top: the measured pace already carries it. `max` caps the forecast, not what you
+already have: Kindred's marks are forecast to at most 10, and 14 real marks stay 14.
 
 Thirteen champions stack. Six grow an ordinary stat — Veigar, Thresh, Swain, Garen,
 Senna, Bel'Veth — and three more grow max health: Cho'Gath, Sion and Swain again.
@@ -509,7 +511,9 @@ Objectives per form are in `objectives`. `Kayn/ShadowAssassin` is pure damage �
 weight, full burst (the share of each enemy's health removed in the first three seconds), and
 nothing at all for staying alive, so he never buys a survival item. `Kayn/Darkin` wants damage
 *and* to live through the fight, so Rhaast pays for time alive (0.5) and fight uptime. Rhaast
-cannot be told apart from base form in the live data.
+has no ability of his own in the live data (only Shadow Assassin's `KaynAssW` shows), so he is
+told apart by elimination: from `forms.undetectedIsDefaultFromSeconds` (15:00) a Kayn without
+Shadow Assassin's W is Rhaast, and that overrides whatever form was locked before.
 
 Every number is copied from the champion's CommunityDragon bins (`kindred.bin.json`
 and `kindredwolf.bin.json`), and what each number means comes from the game's own
@@ -755,7 +759,7 @@ pulled toward the lobby average by `trendWeight`. The first `baselineOnlyUntilSe
 the baseline. Levels follow the baseline plus today's lead, fading over
 `levelReversionSeconds` (catch-up experience). Forecast times carry a spread of
 `rateUncertainty` × horizon. Up to `baselineOnlyUntilSeconds` (8 minutes) the rate is entirely
-the average game, from `observedOnlyFromSeconds` (20 minutes) entirely this one, and between
+the average game, from `observedOnlyFromSeconds` (15 minutes) entirely this one, with no cap on how far, and between
 the two they are blended. All of it lives in `GameTrends`, which the forecaster, the enemy
 build projection and the planner's replanning all read (see Model → Planner).
 
@@ -798,41 +802,52 @@ Two rules keep what was already worked out:
   the rest of that build is replayed onto the end of it. Going from the loading screen into
   the game, or reacting to an enemy item, changes the next step without throwing away the
   five steps behind it.
-- **The next item only changes when keeping it is measurably worse.** A cheap rung, and any
-  rung that ran out of time budget, may re-order and re-time the build but never moves the item
-  you are saving for. A full-fidelity rung that finished has to beat keeping it by `keepMargin`,
-  both replayed the same way so the two numbers can be compared. Every `replanSeconds` the
-  deepest stage re-runs on fresh state under the same rule.
+- **The next item only changes when keeping it is measurably worse.** Every rung, the deepest
+  included, is told the item the page shows you saving for. A set without it has to be stronger
+  by `keepMargin`, and an order that does not start with it has to be worth `keepMargin` more.
+  A cheap or timed-out rung never moves it at all. Every `replanSeconds` the deepest stage
+  re-runs on fresh state under the same rule.
 
-Purchases happen at recalls: nothing is bought before `firstRecallSeconds`, and after that at
-the next recall (`recallIntervalSeconds` apart) once the gold is there. Cheap items therefore
-do not look like they arrive the moment you can afford them. Buy now spends your gold along
-the plan: after the first item's components, leftover gold goes to the next item's.
+Nothing is bought before `firstRecallSeconds`; after that an item is bought when its gold is
+in, as a jungler backs once he can afford what he is saving for. A fixed grid of recalls made
+anything cheap look free whenever the big item would land on the same recall anyway, and one
+counted from now slid with every tick. Buy now spends your gold along the plan: after the first
+item's components, leftover gold goes to the next item's.
 
 Components no item on the plan uses will be sold at 70% one day; that 30% loss is charged at
 the plan's own rate of score per gold, so finishing what you hold components for counts.
 
 A plan's value is its score gain over your current items, integrated over time until you
 have earned `horizonGold` more, discounted over `discountSeconds`. Buying something earlier
-makes it count for longer, so cheap high-impact items go first.
+makes it count for longer. Saving for an item is not sitting on gold: its components are bought
+on the way, so while you save its worth grows with the gold put in, up to
+`componentValueShare` (60%) of what the finished item adds. Without that, a cheap item bought
+whole always looked better first, only because it was the one thing that counted before a big
+one landed.
 
 ### The core
 
 The slider in the page header sets how big a core to aim at: one to five items, three by
 default, always plus shoes. Shoes never use up one of its places.
 
-The plan works toward that core as a package — the search is as deep as the part of it you have
-not built yet, so with three items it weighs three-item builds against each other rather than
-picking an item at a time. **Which** items is decided on what the finished build is worth: among
-the builds that reached full depth, the one whose inventory fights best, all measured at the
-same moment so none is flattered by finishing sooner. The way there is a separate question.
+The plan works toward that core as a package, as two separate questions.
 
-Order counts as much as choice, and it comes out of the same scoring:
-every item is valued at the minute it would land, so a clear item earns its keep while clear
-still has weight and a late-game item is not bought early. The search compares orderings on its
-own, but only along the lines its beam kept, so the build it settles on is walked once more,
-swapping neighbours for as long as that buys anything (`reorderPasses`). While the next item is
-being held still for stability, the pass leaves the first place alone and sorts the rest.
+**Which** items: sets of as many items as the part of the core you have not built yet, plus
+shoes, grown one item at a time with the strongest few of each size kept. Every set is judged
+on how well the finished inventory fights, all at one moment (when a core of that size is done),
+so no set is preferred for being cheap, for finishing sooner, or for having a piece you can
+afford right now. Gold in your pocket never changes which items make the core.
+
+**In which order**: every order of that set is walked (all of them up to four entries; beyond
+that, the best found by swapping neighbours and moving items to the front, `reorderPasses`),
+each item bought as soon as the gold allows, and the order worth most over the game wins. Only
+the order is about timing: a clear item earns its keep while clear still has weight, a
+late-game item is not bought early, and shoes go first only when owning them early is worth
+more than the delay they put on the first item.
+
+Shoes belong to the core: once its items are built and the shoes are not, the shoes are the plan.
+With a full inventory, where a purchase means selling, the older beam search over sequences
+still decides.
 
 Items that grow with time owned order themselves: stacks come from the minutes since the plan
 buys them, so Hubris bought first carries four times the stacks of Hubris bought third by the
@@ -840,6 +855,17 @@ time the build is done, and scores accordingly. Once the core stands there is no
 search is one item deep and the answer is simply the best item at the moment you buy it, each
 time you buy. A core of five on a champion holding a jungle pet does not fit in six slots, so
 its last step arrives as a swap: the plan says what it sells.
+
+**Focus**, next to the slider, edits the objective weights the plan scores builds with, for
+the entry of `objectives` it is reading now (`Kindred`, `Kayn/Darkin`, `Kayn/ShadowAssassin`):
+constant damage (`damage`), `burst`, `uptime` and `survival`. Those are the constant,
+champion-specific weights; `clear` and `movement` already change with game time and items, so
+they stay the model's. The shape starts at the model's own values, drawn dashed behind it;
+each corner runs from 0 to 3, and "Back to default" drops the override. Overrides are per entry,
+so changing Rhaast leaves Shadow Assassin alone, and they are sent as
+`POST /api/preferences` with `{ "weights": { "key", "damage", "burst", "uptime", "survival", "reset" } }`.
+A set that leaves components you already hold unused is charged their 30% sell loss, so a
+half-built item is only dropped for a build that is stronger even after paying for it.
 
 The page reads the setting from `GET /api/preferences` and sets it with `POST /api/preferences`;
 moving it is a reason to re-plan, exactly like an enemy finishing an item, and the page says it
@@ -899,8 +925,8 @@ at the first layer, the best `bootsLines` of them are kept in the beam rather th
 ### Known gaps
 
 - Enemy kits are tags, not simulations, so enemy damage, healing and shields are estimates.
-- Kindred's marks are estimated at `initialStacksPerMinute` (0.35, about one every three
-  minutes). They matter more than a stack count usually does: each one adds 1% of the target's
+- Kindred's marks are forecast at `initialStacksPerMinute` (0.35, about one every three
+  minutes), leaned toward her own pace by at most 30%, and never forecast past 10. They matter more than a stack count usually does: each one adds 1% of the target's
   current health to every wolf bite and 5% attack speed to Q, so guessing them high quietly
   turns her into an ability champion and makes haste look better than attack speed.
 - Her Q costs less while she stands in W's zone, which would otherwise keep its attack speed

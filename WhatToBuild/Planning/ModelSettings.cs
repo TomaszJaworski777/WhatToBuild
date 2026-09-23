@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using WhatToBuild.Data;
 using WhatToBuild.Forecasting;
@@ -21,11 +22,23 @@ public sealed class ModelSettings
     public IncomeSettings Income { get; set; } = new();
     public MovementSettings Movement { get; set; } = new();
     public FormSettings Forms { get; set; } = new();
+    public StackSettings Stacks { get; set; } = new();
 
     public sealed class FormSettings
     {
         public double TransformSeconds { get; set; } = 600;
         public double PreferDefaultMargin { get; set; } = 0.1;
+
+        /// <summary>Only one form shows in the live data; past this moment its absence means the other one.</summary>
+        public double UndetectedIsDefaultFromSeconds { get; set; } = 900;
+    }
+
+    /// <summary>How far a champion's own stacking pace may pull the forecast away from the standard pace.</summary>
+    public sealed class StackSettings
+    {
+        public double TrendFromSeconds { get; set; } = 480;
+        public double TrendFullSeconds { get; set; } = 1500;
+        public double MaxTrendWeight { get; set; } = 0.3;
     }
 
     public static ModelSettings Load(string dataRoot) =>
@@ -119,10 +132,16 @@ public sealed class ModelSettings
         public ObjectiveWeights Default { get; set; } = new();
         public Dictionary<string, ObjectiveWeights> Champions { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
+        public const string DefaultKey = "default";
+
         public ObjectiveWeights For(Champion champion, string? form = null) =>
-            (form is null ? null : Champions.GetValueOrDefault($"{champion.Name}/{form}"))
-            ?? Champions.GetValueOrDefault(champion.Name)
-            ?? Default;
+            KeyFor(champion, form) is var key && key == DefaultKey ? Default : Champions[key];
+
+        /// <summary>Which entry <see cref="For"/> reads: the form's, else the champion's, else <c>default</c>.</summary>
+        public string KeyFor(Champion champion, string? form = null) =>
+            form is not null && Champions.ContainsKey($"{champion.Name}/{form}") ? $"{champion.Name}/{form}"
+            : Champions.ContainsKey(champion.Name) ? champion.Name
+            : DefaultKey;
     }
 
     public sealed class ObjectiveWeights
@@ -134,6 +153,37 @@ public sealed class ModelSettings
         public double Movement { get; set; } = 1;
         public double Uptime { get; set; } = 1;
         public double Burst { get; set; }
+
+        /// <summary>The most any one weight can be set to from the page.</summary>
+        public const double MaxWeight = 3;
+
+        public ObjectiveWeights Clamped() => new()
+        {
+            Damage = Math.Clamp(Damage, 0, MaxWeight),
+            Survival = Math.Clamp(Survival, 0, MaxWeight),
+            Clear = Math.Clamp(Clear, 0, MaxWeight),
+            Movement = Math.Clamp(Movement, 0, MaxWeight),
+            Uptime = Math.Clamp(Uptime, 0, MaxWeight),
+            Burst = Math.Clamp(Burst, 0, MaxWeight),
+        };
+
+        public string Key => string.Create(CultureInfo.InvariantCulture,
+            $"{Damage:0.00}/{Burst:0.00}/{Uptime:0.00}/{Survival:0.00}");
+
+        /// <summary>
+        /// These weights with the constant, champion-specific ones (damage, burst, uptime,
+        /// survival) taken from <paramref name="chosen"/>. Clear and movement stay: they already
+        /// change with game time, so they are the model's to set, not a build preference.
+        /// </summary>
+        public ObjectiveWeights WithChampionWeights(ObjectiveWeights chosen) => new()
+        {
+            Damage = chosen.Damage,
+            Burst = chosen.Burst,
+            Uptime = chosen.Uptime,
+            Survival = chosen.Survival,
+            Clear = Clear,
+            Movement = Movement,
+        };
     }
 
     public sealed class MovementSettings
@@ -245,6 +295,7 @@ public sealed class ModelSettings
         public double ReplaceMargin { get; set; } = 0.03;
         public double ReplaceFinishedMargin { get; set; } = 0.1;
         public double KeepMargin { get; set; } = 0.02;
+        public double ComponentValueShare { get; set; } = 0.6;
         public double PrescreenShare { get; set; } = 0.4;
         public double SpikeWeight { get; set; } = 0.25;
         public int SpikeChecks { get; set; } = 2;
@@ -260,15 +311,12 @@ public sealed class ModelSettings
         public double ReplanSeconds { get; set; } = 30;
         public double SellRefund { get; set; } = 0.7;
         public double FirstRecallSeconds { get; set; } = 210;
-        public double RecallIntervalSeconds { get; set; } = 240;
     }
 
     public sealed class IncomeSettings
     {
         public double StartingGold { get; set; } = 500;
         public double RateUncertainty { get; set; } = 0.15;
-        public double MinPace { get; set; } = 0.5;
-        public double MaxPace { get; set; } = 2;
         public double PaceWindowSeconds { get; set; } = 300;
         public double MinRecentSpanSeconds { get; set; } = 120;
         public double RecentWeight { get; set; } = 0.3;

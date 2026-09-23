@@ -662,7 +662,274 @@ function onState(state) {
 
 function onRecommendation(recommendation) {
     lastRecommendation = recommendation;
+    syncFocus(recommendation?.weights);
     renderAll();
+}
+
+// Build focus: the champion's constant objective weights (constant damage, burst, uptime,
+// survival) as a four-cornered shape. Each corner slides along its own axis from 0 to the max.
+const FOCUS_CENTER = 100;
+const FOCUS_RADIUS = 80;
+// Constant damage (top) and burst (bottom) face each other, uptime and survival too; the long
+// label goes on the vertical axis, where it has room.
+const FOCUS_ANGLES = { damage: -90, uptime: 0, burst: 90, survival: 180 };
+// Corners are joined in this order, round the centre, so the shape never crosses itself.
+const FOCUS_ORDER = ["damage", "uptime", "burst", "survival"];
+const FOCUS_SHORT = {
+    damage: "DPS over the whole fight",
+    burst: "Health taken in the first 3 s",
+    uptime: "Damage while you stay alive",
+    survival: "Time alive under focus",
+};
+const focusState = { key: null, label: "", weights: [], max: 3, custom: false, values: null, dragging: null, pending: null };
+
+function focusWeights() {
+    return FOCUS_ORDER.map((name) => focusState.weights.find((w) => w.name === name)).filter(Boolean);
+}
+
+function axisPoint(name, value) {
+    const angle = (FOCUS_ANGLES[name] ?? 0) * Math.PI / 180;
+    const r = FOCUS_RADIUS * Math.min(1, Math.max(0, value / focusState.max));
+    return [FOCUS_CENTER + r * Math.cos(angle), FOCUS_CENTER + r * Math.sin(angle)];
+}
+
+function shapePoints(values) {
+    return focusWeights().map((w) => axisPoint(w.name, values[w.name]).join(",")).join(" ");
+}
+
+function snapWeight(value) {
+    return Math.round(Math.min(focusState.max, Math.max(0, value)) * 20) / 20;
+}
+
+function sameWeights(a, b) {
+    return !!a && !!b && focusState.weights.every((w) => Math.abs(a[w.name] - b[w.name]) < 0.001);
+}
+
+function defaultWeights() {
+    return Object.fromEntries(focusState.weights.map((w) => [w.name, w.default]));
+}
+
+function drawFocusFrame() {
+    const weights = focusWeights();
+    const rings = [0.25, 0.5, 0.75, 1].map((share) => {
+        const points = weights.map((w) => axisPoint(w.name, share * focusState.max).join(",")).join(" ");
+        return `<polygon class="focus-ring" points="${points}" />`;
+    });
+    const spokes = weights.map((w) => {
+        const [x, y] = axisPoint(w.name, focusState.max);
+        return `<line class="focus-spoke" x1="${FOCUS_CENTER}" y1="${FOCUS_CENTER}" x2="${x}" y2="${y}" />`;
+    });
+    $("focus-rings").innerHTML = rings.join("") + spokes.join("");
+
+    $("focus-inputs").innerHTML = focusState.weights.map((w) => `
+        <div class="focus-row" title="${esc(w.meaning)}">
+            <label for="focus-${w.name}">${esc(w.label)}<small>${esc(FOCUS_SHORT[w.name] ?? w.meaning)}</small></label>
+            <input type="range" id="focus-${w.name}" data-weight="${w.name}" min="0" max="${focusState.max}" step="0.05" />
+            <output id="focus-${w.name}-value" for="focus-${w.name}"></output>
+        </div>`).join("");
+}
+
+/** The corner labels sit past the end of each axis, with the value under the name. */
+function drawFocusLabels(values) {
+    $("focus-axes").innerHTML = focusWeights().map((w) => {
+        const angle = FOCUS_ANGLES[w.name];
+        const [x, y] = axisPoint(w.name, focusState.max);
+        const side = angle === 180 ? -1 : angle === 0 ? 1 : 0;
+        const lx = x + side * 14;
+        const ly = angle === -90 ? y - 22 : angle === 90 ? y + 18 : y - 3;
+        const anchor = side < 0 ? "end" : side > 0 ? "start" : "middle";
+        const changed = Math.abs(values[w.name] - w.default) >= 0.001;
+        return `<text class="focus-axis-label" x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(w.label)}`
+            + `<tspan class="focus-axis-value${changed ? " focus-axis-changed" : ""}" x="${lx}" dy="14">${values[w.name].toFixed(2)}</tspan></text>`;
+    }).join("");
+}
+
+function drawFocus() {
+    const values = focusState.values;
+    if (!values) {
+        return;
+    }
+
+    $("focus-area").setAttribute("points", shapePoints(values));
+    $("focus-default").setAttribute("points", shapePoints(defaultWeights()));
+    $("focus-mini-shape").setAttribute("points", shapePoints(values));
+    $("focus-handles").innerHTML = focusWeights().map((w) => {
+        const [x, y] = axisPoint(w.name, values[w.name]);
+        return `<circle class="focus-handle${focusState.dragging === w.name ? " focus-handle-active" : ""}" data-weight="${w.name}" r="7" cx="${x}" cy="${y}" />`;
+    }).join("");
+    drawFocusLabels(values);
+
+    for (const w of focusState.weights) {
+        const input = $(`focus-${w.name}`);
+        if (input && document.activeElement !== input) {
+            input.value = values[w.name];
+        }
+        const output = $(`focus-${w.name}-value`);
+        if (output) {
+            output.textContent = values[w.name].toFixed(2);
+            output.classList.toggle("focus-axis-changed", Math.abs(values[w.name] - w.default) >= 0.001);
+        }
+    }
+
+    const isDefault = sameWeights(values, defaultWeights());
+    $("focus-label").textContent = isDefault ? "champion default" : "custom";
+    $("focus-reset").disabled = isDefault && !focusState.custom;
+    $("focus-champion").textContent = focusState.label ? `${focusState.label}${isDefault ? " · default" : ""}` : "";
+}
+
+function syncFocus(weights) {
+    if (!weights) {
+        return;
+    }
+
+    const keyChanged = focusState.key !== weights.key;
+    focusState.key = weights.key;
+    focusState.label = weights.label;
+    focusState.max = weights.max;
+    focusState.custom = weights.custom;
+    focusState.weights = weights.weights;
+    $("focus-toggle").disabled = false;
+
+    if (keyChanged) {
+        drawFocusFrame();
+    }
+
+    const current = Object.fromEntries(weights.weights.map((w) => [w.name, w.current]));
+    // What we just sent wins over an older plan still computed on the previous weights.
+    if (!focusState.dragging && (keyChanged || !focusState.pending || sameWeights(current, focusState.pending))) {
+        focusState.values = current;
+        focusState.pending = null;
+    }
+
+    drawFocus();
+}
+
+async function sendFocus(values, reset = false) {
+    if (!focusState.key) {
+        return;
+    }
+
+    focusState.pending = reset ? defaultWeights() : { ...values };
+    try {
+        await fetch("/api/preferences", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ weights: { key: focusState.key, ...values, reset } }),
+        });
+    } catch {
+        $("focus-label").textContent = "not saved";
+    }
+}
+
+function wireFocus() {
+    const toggle = $("focus-toggle");
+    const panel = $("focus-panel");
+    const svg = $("focus-shape");
+
+    const open = (show) => {
+        panel.hidden = !show;
+        toggle.setAttribute("aria-expanded", String(show));
+    };
+
+    toggle.addEventListener("click", () => open(panel.hidden));
+    document.addEventListener("click", (e) => {
+        if (!panel.hidden && !e.target.closest(".focus")) {
+            open(false);
+        }
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !panel.hidden) {
+            open(false);
+            toggle.focus();
+        }
+    });
+
+    const local = (e) => {
+        const point = svg.createSVGPoint();
+        point.x = e.clientX;
+        point.y = e.clientY;
+        return point.matrixTransform(svg.getScreenCTM().inverse());
+    };
+
+    // The value along an axis is how far the pointer reaches along it.
+    const valueOn = (name, p) => {
+        const angle = FOCUS_ANGLES[name] * Math.PI / 180;
+        const along = (p.x - FOCUS_CENTER) * Math.cos(angle) + (p.y - FOCUS_CENTER) * Math.sin(angle);
+        return snapWeight(along / FOCUS_RADIUS * focusState.max);
+    };
+
+    // A press grabs the axis it is closest to in direction, so any point along an axis moves it.
+    const nearestAxis = (p) => {
+        const dx = p.x - FOCUS_CENTER;
+        const dy = p.y - FOCUS_CENTER;
+        if (Math.hypot(dx, dy) < 4) {
+            return null;
+        }
+
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        return focusWeights()
+            .map((w) => ({ name: w.name, gap: Math.abs(((angle - FOCUS_ANGLES[w.name] + 540) % 360) - 180) }))
+            .sort((a, b) => a.gap - b.gap)[0]?.name ?? null;
+    };
+
+    svg.addEventListener("pointerdown", (e) => {
+        if (!focusState.values) {
+            return;
+        }
+
+        const p = local(e);
+        const name = e.target.dataset?.weight ?? nearestAxis(p);
+        if (!name) {
+            return;
+        }
+
+        focusState.dragging = name;
+        svg.setPointerCapture(e.pointerId);
+        focusState.values = { ...focusState.values, [name]: valueOn(name, p) };
+        drawFocus();
+    });
+    svg.addEventListener("pointermove", (e) => {
+        if (focusState.dragging) {
+            focusState.values = { ...focusState.values, [focusState.dragging]: valueOn(focusState.dragging, local(e)) };
+            drawFocus();
+        }
+    });
+    const release = () => {
+        if (focusState.dragging) {
+            focusState.dragging = null;
+            drawFocus();
+            sendFocus(focusState.values);
+        }
+    };
+    svg.addEventListener("pointerup", release);
+    svg.addEventListener("pointercancel", release);
+
+    // Sliders move the shape live and re-plan once you let go.
+    const fromSlider = (e) => {
+        const name = e.target.dataset?.weight;
+        if (!name || !focusState.values) {
+            return null;
+        }
+
+        focusState.values = { ...focusState.values, [name]: snapWeight(Number(e.target.value) || 0) };
+        drawFocus();
+        return name;
+    };
+    $("focus-inputs").addEventListener("input", fromSlider);
+    $("focus-inputs").addEventListener("change", (e) => {
+        if (fromSlider(e)) {
+            sendFocus(focusState.values);
+        }
+    });
+
+    $("focus-reset").addEventListener("click", () => {
+        if (focusState.weights.length) {
+            focusState.values = defaultWeights();
+            focusState.custom = false;
+            drawFocus();
+            sendFocus(focusState.values, true);
+        }
+    });
 }
 
 async function loadInitial() {
@@ -704,5 +971,6 @@ async function connect() {
 }
 
 wireHorizon();
+wireFocus();
 loadInitial();
 connect();

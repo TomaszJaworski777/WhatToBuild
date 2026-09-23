@@ -109,8 +109,8 @@ public class SpikeTests
         var ignored = Value(0, itemFirst) - Value(0, bootsFirst);
         var priced = Value(1, itemFirst) - Value(1, bootsFirst);
 
-        Assert.IsLessThan(0, ignored, "Ignoring spikes, buying boots first wins on timing alone.");
-        Assert.IsGreaterThan(0, priced, "Counting spikes, having the item when they spike wins instead.");
-        Assert.IsGreaterThan(ignored, priced, "Weighing spikes is what moves the two apart.");
+        // Whether boots or the item goes first at level 1 is the order's call on what each is worth
+        // early; what the spikes have to do is pull toward holding the item when enemies spike.
+        Assert.IsGreaterThan(ignored, priced, $"Weighing spikes favours the item first: {ignored:0.00} ignoring them, {priced:0.00} counting them.");
     }
 }

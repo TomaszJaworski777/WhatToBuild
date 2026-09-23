@@ -6,16 +6,19 @@ public sealed class TrendBlend
 
     public double TrendOnlyFromSeconds { get; init; } = 1200;
 
+    /// <summary>The most the trend ever counts for, reached at <see cref="TrendOnlyFromSeconds"/>.</summary>
+    public double MaxTrendWeight { get; init; } = 1;
+
     public double TrendWeight(double gameTime)
     {
         var span = TrendOnlyFromSeconds - PredictionOnlyUntilSeconds;
 
         if (span <= 0)
         {
-            return gameTime >= TrendOnlyFromSeconds ? 1 : 0;
+            return gameTime >= TrendOnlyFromSeconds ? MaxTrendWeight : 0;
         }
 
-        return Math.Clamp((gameTime - PredictionOnlyUntilSeconds) / span, 0, 1);
+        return MaxTrendWeight * Math.Clamp((gameTime - PredictionOnlyUntilSeconds) / span, 0, 1);
     }
 
     public double Blend(double prediction, double? trend, double gameTime)

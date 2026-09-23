@@ -48,6 +48,7 @@ public sealed class BuildRecommendations : IRecommendationSource
     private Planned? _planned;
     private int _rung;
     private int _built;
+    private bool _hasShoes;
     private Planned? _shown;
     private string? _preferenceKey;
     private IReadOnlyList<ModelSettings.PlanStage> _ladder = [];
@@ -74,10 +75,14 @@ public sealed class BuildRecommendations : IRecommendationSource
     private IReadOnlyList<ModelSettings.PlanStage> LadderFor(GameState state) =>
         _model.Settings.Planner.Ladder(state.GameTime).Select(ForCore).ToList();
 
-    /// <summary>The stage, cut to the part of the core you have not built yet.</summary>
+    /// <summary>
+    /// The stage, cut to the part of the core you have not built yet. Shoes belong to the core:
+    /// with its items built and no shoes yet, the shoes are all that is left of it.
+    /// </summary>
     private ModelSettings.PlanStage ForCore(ModelSettings.PlanStage stage)
     {
-        var depth = Math.Max(1, _preferences.CoreItems - _built);
+        var left = _preferences.CoreItems - _built;
+        var depth = left > 0 ? left : _hasShoes ? 1 : 0;
 
         return depth >= stage.Depth ? stage : new ModelSettings.PlanStage
         {
@@ -101,6 +106,10 @@ public sealed class BuildRecommendations : IRecommendationSource
                 .Where(i => i.Cost >= 900 && !IsComponent(i) && !i.Groups.Contains("Boots") && !i.Groups.Contains("HuntersTalismanGroup"))
                 .DistinctBy(i => i.Id)
                 .Count();
+
+    /// <summary>Finished shoes, not the plain Boots they are built from.</summary>
+    private static bool HasShoes(GameState state) =>
+        state.ActivePlayer is { } me && me.Items.Any(i => i.Item.Groups.Contains("Boots") && i.Item.BuildPath.Count > 0);
 
     public RecommendationDto? For(GameState state, GameStack stack)
     {
@@ -221,7 +230,7 @@ public sealed class BuildRecommendations : IRecommendationSource
 
         lock (_lock)
         {
-            var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
+            var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model) { ChosenWeights = _preferences.Weights });
 
             if (_lockedGame != GameKey(state))
             {
@@ -242,6 +251,7 @@ public sealed class BuildRecommendations : IRecommendationSource
             }
 
             _built = Built(state);
+            _hasShoes = HasShoes(state);
             var ladder = LadderFor(state);
             var signature = evaluator.Context.Forecaster.Trends.Signature + "|" + _preferences.Key;
             var restart = _planned is null
@@ -263,7 +273,7 @@ public sealed class BuildRecommendations : IRecommendationSource
             {
                 _rung = 0;
                 _ladder = ladder;
-                Adopt(evaluator, new BuildPlanner(evaluator).Plan(_target, ladder[0]), keepTail: true);
+                Adopt(evaluator, new BuildPlanner(evaluator).Plan(Loyalty(evaluator), ladder[0]), keepTail: true);
             }
 
             if (signature != _signature || _stableSince > state.GameTime)
@@ -352,7 +362,8 @@ public sealed class BuildRecommendations : IRecommendationSource
             }
         }
 
-        var core = Reorder(evaluator, Trim(plan.Steps.Select(s => s.Item).ToList()), keepTail && !Trusted(plan));
+        var kept = Trim(plan.Steps.Select(s => s.Item).ToList());
+        var core = plan.Ordered ? kept : Reorder(evaluator, kept, keepTail && !Trusted(plan));
         if (!core.Select(i => i.Id).SequenceEqual(plan.Steps.Select(s => s.Item.Id)))
         {
             // Only if it still walks: a replay that breaks early must not shorten the build.
@@ -462,9 +473,9 @@ public sealed class BuildRecommendations : IRecommendationSource
     private bool StillWanted(BuildEvaluator evaluator, Item target) =>
         !evaluator.Context.Owned.Any(i => i.Id == target.Id);
 
-    private bool Beats(BuildPlan proposed, BuildPlan held) =>
-        proposed.Steps.Count > 0
-        && proposed.Value > held.Value + Math.Abs(held.Value) * _model.Settings.Planner.KeepMargin;
+    /// <summary>The item the page tells you to save for, while you still do not own it.</summary>
+    private Item? Loyalty(BuildEvaluator evaluator) =>
+        _shown?.Plan.Steps.FirstOrDefault()?.Item is { } target && StillWanted(evaluator, target) ? target : null;
 
     private static BuildPlan Restat(BuildPlan steps, BuildPlan search) => new()
     {
@@ -490,9 +501,9 @@ public sealed class BuildRecommendations : IRecommendationSource
                 return false;
             }
 
-            // Climbing the ladder is not the place to be loyal to the cheap rung's pick: the
-            // deeper search starts clean, and only what it settles on reaches the page.
-            var plan = new BuildPlanner(planned.Evaluator).Plan(null, _ladder[_rung + 1], control);
+            // Loyal to what the page shows, not to the cheap rung's pick: a deeper search may
+            // still move the item you are saving for, but only by clearing the keep margin.
+            var plan = new BuildPlanner(planned.Evaluator).Plan(Loyalty(planned.Evaluator), _ladder[_rung + 1], control);
             if (plan.Cancelled)
             {
                 return false;
@@ -508,11 +519,13 @@ public sealed class BuildRecommendations : IRecommendationSource
     {
         lock (_lock)
         {
-            var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model));
+            var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model) { ChosenWeights = _preferences.Weights });
             AdviseForm(evaluator, state);
 
+            _built = Built(state);
+            _hasShoes = HasShoes(state);
             var ladder = LadderFor(state);
-            var plan = new BuildPlanner(evaluator).Plan(_target, ladder[^1], control);
+            var plan = new BuildPlanner(evaluator).Plan(Loyalty(evaluator), ladder[^1], control);
             if (plan.Cancelled)
             {
                 return false;
@@ -597,7 +610,9 @@ public sealed class BuildRecommendations : IRecommendationSource
         if (context.DetectedForm is { } seen && _lockedForm != seen)
         {
             _lockedForm = seen;
-            _lockedBecause = "you are already transformed";
+            _lockedBecause = context.InferredForm is not null
+                ? $"no {string.Join(" or ", supported.Forms.Where(f => f != seen).Select(supported.FormLabel))} ability by {Clock(_model.Settings.Forms.UndetectedIsDefaultFromSeconds)}, so you are {supported.FormLabel(seen)}"
+                : "you are already transformed";
         }
 
         // Both forms are judged on the build you will be holding, not on the boots you have now.
@@ -734,7 +749,30 @@ public sealed class BuildRecommendations : IRecommendationSource
             Model(planned, state),
             Assumptions(planned),
             Matchups(planned, state),
-            planned.Advice);
+            planned.Advice,
+            Weights: WeightsOf(context));
+    }
+
+    private static WeightsDto WeightsOf(BuildContext context)
+    {
+        var objectives = context.Settings.Objectives;
+        var key = objectives.KeyFor(context.Champion, context.Form);
+        var standard = objectives.For(context.Champion, context.Form);
+        var current = context.ObjectiveFor(context.Form);
+        var label = context.Form is { } form && context.Supported is { } supported && key.Contains('/')
+            ? $"{context.Champion.Name} · {supported.FormLabel(form)}"
+            : context.Champion.Name;
+
+        WeightDto Weight(string name, string text, string meaning, Func<ModelSettings.ObjectiveWeights, double> read) =>
+            new(name, text, meaning, read(standard), read(current));
+
+        return new WeightsDto(key, label,
+        [
+            Weight("damage", "Constant damage", "Damage per second over a whole fight", w => w.Damage),
+            Weight("burst", "Burst", "Share of each enemy's health removed in the first three seconds", w => w.Burst),
+            Weight("uptime", "Uptime", "Damage times how much of the fight you are alive for", w => w.Uptime),
+            Weight("survival", "Survival", "Seconds you stay alive under focus", w => w.Survival),
+        ], ModelSettings.ObjectiveWeights.MaxWeight, context.ChosenWeights.ContainsKey(key));
     }
 
     private PurchaseDto BuyNow(Planned planned, GameState state)

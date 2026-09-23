@@ -176,6 +176,7 @@
     "stackLookaheadSeconds": 300,
     "replaceMargin": 0.03,
     "keepMargin": 0.08,
+    "componentValueShare": 0.6,
     "timeBucketSeconds": 15,
     "replanSeconds": 30,
     "sellRefund": 0.7,
@@ -183,7 +184,6 @@
     "replaceFinishedMargin": 0.1,
     "openingSeconds": 90,
     "firstRecallSeconds": 210,
-    "recallIntervalSeconds": 240,
     "openingStages": [
       {
         "name": "opening sketch",
@@ -222,14 +222,12 @@
   "income": {
     "startingGold": 500,
     "rateUncertainty": 0.15,
-    "minPace": 0.5,
-    "maxPace": 2,
     "paceWindowSeconds": 300,
     "minRecentSpanSeconds": 120,
     "recentWeight": 0.3,
     "trendWeight": 0.4,
     "baselineOnlyUntilSeconds": 480,
-    "observedOnlyFromSeconds": 1200,
+    "observedOnlyFromSeconds": 900,
     "levelReversionSeconds": 900
   },
   "movement": {
@@ -270,6 +268,12 @@
   },
   "forms": {
     "transformSeconds": 600,
-    "preferDefaultMargin": 0.1
+    "preferDefaultMargin": 0.1,
+    "undetectedIsDefaultFromSeconds": 900
+  },
+  "stacks": {
+    "trendFromSeconds": 480,
+    "trendFullSeconds": 1500,
+    "maxTrendWeight": 0.3
   }
 }

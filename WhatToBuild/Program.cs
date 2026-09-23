@@ -58,7 +58,22 @@ app.MapGet("/api/preferences", (PlanPreferences preferences) =>
 
 app.MapPost("/api/preferences", (PlanPreferences preferences, PreferenceRequest request) =>
 {
-    preferences.CoreItems = request.CoreItems;
+    if (request.CoreItems is { } coreItems)
+    {
+        preferences.CoreItems = coreItems;
+    }
+
+    if (request.Weights is { Key.Length: > 0 } weights)
+    {
+        preferences.SetWeights(weights.Key, weights.Reset ? null : new ModelSettings.ObjectiveWeights
+        {
+            Damage = weights.Damage,
+            Burst = weights.Burst,
+            Uptime = weights.Uptime,
+            Survival = weights.Survival,
+        });
+    }
+
     return Results.Ok(new { coreItems = preferences.CoreItems, label = preferences.Label });
 });
 
@@ -66,4 +81,7 @@ app.MapHub<GameHub>("/hub");
 
 app.Run();
 
-record PreferenceRequest(int CoreItems);
+record PreferenceRequest(int? CoreItems, WeightsRequest? Weights);
+
+/// <summary>Objective weights for one entry of model.json's objectives; <c>Reset</c> goes back to the model's own.</summary>
+record WeightsRequest(string Key, double Damage, double Burst, double Uptime, double Survival, bool Reset = false);

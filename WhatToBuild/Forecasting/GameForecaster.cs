@@ -21,7 +21,7 @@ public sealed class GameForecaster
     private readonly GameStack _stack;
     private readonly BaselineCurves _baseline;
     private readonly ModelSettings.IncomeSettings _income;
-    private readonly TrendBlend _blend = new();
+    private readonly TrendBlend _stackBlend;
     private readonly Dictionary<PlayerState, PlayerOutlook> _outlooks = new();
     private readonly Dictionary<PlayerState, double[]> _earnedTables = new();
     private readonly object _lock = new();
@@ -37,6 +37,12 @@ public sealed class GameForecaster
         _stack = stack;
         _baseline = model.Baseline;
         _income = model.Settings.Income;
+        _stackBlend = new TrendBlend
+        {
+            PredictionOnlyUntilSeconds = model.Settings.Stacks.TrendFromSeconds,
+            TrendOnlyFromSeconds = model.Settings.Stacks.TrendFullSeconds,
+            MaxTrendWeight = model.Settings.Stacks.MaxTrendWeight,
+        };
         Trends = trends;
     }
 
@@ -116,11 +122,15 @@ public sealed class GameForecaster
         var observed = player.EstimatedStacks.FirstOrDefault(s => s.Stat == stacking.Stat);
         var now = observed?.Stacks ?? stacking.InitialStacksPerMinute * Now / 60;
 
+        // Mostly the standard pace: your own pace so far only leans on it, and only once the game
+        // is long enough for it to mean something. Gold pace is not applied on top, since the
+        // measured pace already carries it.
         var measured = Now > 60 ? now / (Now / 60) : stacking.InitialStacksPerMinute;
-        var rate = _blend.Blend(stacking.InitialStacksPerMinute, measured, Now);
-        var stacks = now + rate * Outlook(player).Pace * Math.Max(0, time - Now) / 60;
+        var rate = _stackBlend.Blend(stacking.InitialStacksPerMinute, measured, Now);
+        var stacks = now + rate * Math.Max(0, time - Now) / 60;
 
-        return stacking.Max > 0 ? Math.Min(stacking.Max, stacks) : stacks;
+        // The cap stops the forecast, not what you already have.
+        return stacking.Max > 0 ? Math.Min(Math.Max(stacking.Max, now), stacks) : stacks;
     }
 
     public static double GoldOf(GameState state, PlayerState player) =>

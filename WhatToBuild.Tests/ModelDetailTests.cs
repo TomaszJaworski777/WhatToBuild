@@ -121,9 +121,9 @@ public class ModelDetailTests
 
         Assert.AreEqual(0, Confidence(8), 1e-9, "Up to 8 minutes it is the average game.");
         Assert.AreEqual(0, Confidence(4), 1e-9);
-        Assert.AreEqual(1, Confidence(20), 1e-9, "From 20 minutes it is entirely this game.");
+        Assert.AreEqual(1, Confidence(15), 1e-9, "From 15 minutes it is entirely this game.");
         Assert.AreEqual(1, Confidence(30), 1e-9);
-        Assert.AreEqual(0.5, Confidence(14), 0.02, "Half way between, it is half and half.");
+        Assert.AreEqual(0.5, Confidence(11.5), 0.02, "Half way between, it is half and half.");
     }
 
     [TestMethod]

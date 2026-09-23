@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace WhatToBuild.Planning;
 
 /// <summary>
@@ -12,6 +14,7 @@ public sealed class PlanPreferences
     public const int MaxItems = 5;
 
     private int _coreItems = 3;
+    private readonly ConcurrentDictionary<string, ModelSettings.ObjectiveWeights> _weights = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>Items in the core, not counting shoes. 1 to 5, three by default.</summary>
     public int CoreItems
@@ -20,7 +23,27 @@ public sealed class PlanPreferences
         set => _coreItems = Math.Clamp(value, MinItems, MaxItems);
     }
 
-    public string Key => CoreItems.ToString();
+    /// <summary>
+    /// Objective weights you chose, keyed like <c>objectives.champions</c> in model.json
+    /// (<c>Kindred</c>, <c>Kayn/Darkin</c>); an entry not here plays the model's own weights.
+    /// </summary>
+    public IReadOnlyDictionary<string, ModelSettings.ObjectiveWeights> Weights =>
+        new Dictionary<string, ModelSettings.ObjectiveWeights>(_weights, StringComparer.OrdinalIgnoreCase);
+
+    public void SetWeights(string key, ModelSettings.ObjectiveWeights? weights)
+    {
+        if (weights is null)
+        {
+            _weights.TryRemove(key, out _);
+        }
+        else
+        {
+            _weights[key] = weights.Clamped();
+        }
+    }
+
+    public string Key =>
+        CoreItems + string.Concat(_weights.OrderBy(w => w.Key, StringComparer.OrdinalIgnoreCase).Select(w => $"|{w.Key}:{w.Value.Key}"));
 
     public string Label => $"{CoreItems} item{(CoreItems == 1 ? "" : "s")} + shoes";
 }

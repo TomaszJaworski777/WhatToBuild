@@ -104,8 +104,6 @@ public sealed class GameTrends
             ? observedPace
             : (1 - _income.TrendWeight) * observedPace + _income.TrendWeight * LobbyPace;
 
-        pace = Math.Clamp(pace, _income.MinPace, _income.MaxPace);
-
         var minutes = Math.Max(1, Now / 60);
 
         return new PlayerTrend(
@@ -140,7 +138,7 @@ public sealed class GameTrends
 
         var observedPace = observed is { } rate && baselineRate > 0 ? rate / baselineRate : 1;
 
-        return Math.Clamp(1 + (observedPace - 1) * Confidence, _income.MinPace, _income.MaxPace);
+        return 1 + (observedPace - 1) * Confidence;
     }
 
     private double? RecentRate(PlayerState player)

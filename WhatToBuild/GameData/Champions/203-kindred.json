@@ -35,7 +35,8 @@
     "stacking": [
         {
             "stat": "abilityDamage",
-            "initialStacksPerMinute": 0.35
+            "initialStacksPerMinute": 0.35,
+            "max": 10
         }
     ],
     "stackReading": {
