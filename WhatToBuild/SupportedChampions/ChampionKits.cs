@@ -3,6 +3,7 @@ using WhatToBuild.Modeling;
 using WhatToBuild.Modeling.Simulation;
 using WhatToBuild.SupportedChampions.Kayn;
 using WhatToBuild.SupportedChampions.Kindred;
+using WhatToBuild.SupportedChampions.Nasus;
 using WhatToBuild.SupportedChampions.Vi;
 
 namespace WhatToBuild.SupportedChampions;
@@ -12,6 +13,9 @@ public sealed record CastAddition(string When, double Damage);
 public sealed record SurvivalAbility(string Name, double UndyingSeconds, double MinimumHealthPercent, double Heal, double Cooldown);
 
 public sealed record CastHint(string Ability, double CastAtHealth, double KillingHealth, IReadOnlyList<CastAddition> Additions);
+
+/// <summary>Stats an ability gives for fights it is up in (Nasus's R), and its cooldown.</summary>
+public sealed record FightStats(StatSheet Stats, double Cooldown);
 
 public interface ISupportedChampion
 {
@@ -40,6 +44,15 @@ public interface ISupportedChampion
     SurvivalAbility? Survival(AbilityRanks ranks, ChampionState us, string? form, double enemyHealth) => Survival(ranks);
 
     double DamageHealShare(ChampionState us, string? form) => 0;
+
+    /// <summary>Stats a cooldown gives in fights; counted for as many teamfights as its cooldown allows.</summary>
+    FightStats? Stats(AbilityRanks ranks) => null;
+
+    /// <summary>
+    /// The share of one enemy's attack damage an ability takes away over a fight of this length
+    /// (Nasus's Wither on whoever hits you hardest).
+    /// </summary>
+    double AttackCut(AbilityRanks ranks, ChampionState us, double fightSeconds) => 0;
 }
 
 public sealed class ChampionKits
@@ -64,6 +77,7 @@ public sealed class ChampionKits
             new KindredChampion(KindredKitData.Load(Path.Combine(folder, KindredKitData.FileName))),
             new KaynChampion(KaynKitData.Load(Path.Combine(folder, KaynKitData.FileName))),
             new ViChampion(ViKitData.Load(Path.Combine(folder, ViKitData.FileName))),
+            new NasusChampion(NasusKitData.Load(Path.Combine(folder, NasusKitData.FileName))),
         ]);
     }
 

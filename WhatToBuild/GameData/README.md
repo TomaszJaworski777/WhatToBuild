@@ -466,7 +466,8 @@ they do not.
 ## Kits
 
 Champions whose abilities are simulated have a file in `Kits/`, read by their code in
-`SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`), Kayn (`Kits/kayn.json`) and Vi (`Kits/vi.json`).
+`SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`), Kayn (`Kits/kayn.json`), Vi (`Kits/vi.json`) and
+Nasus (`Kits/nasus.json`).
 
 ### Kayn
 
@@ -548,6 +549,33 @@ Plated Steelcaps, Black Cleaver, Sterak's, Death's Dance, Guardian Angel) withou
 damage 1, uptime 1, survival 0.5 like Rhaast, and burst 0.25 for her R into a charged Q. With the
 default weights (survival 0.25) she built pure on-hit. Her Focus can be changed on
 its own.
+
+### Nasus
+
+Numbers from `nasus.bin.json` (patch 16.18 client data): spells `NasusQ`, `NasusW`, `NasusE`,
+`NasusR`, `NasusPassive`. Per-rank lists keep index 0 unused; percentages are fractions.
+
+- **Stacks**: Siphoning Strike stacks come at 20 a minute of game (`initialStacksPerMinute` in
+  his champion file), the same preset whether you are Nasus or facing him.
+- `q` — Siphoning Strike resets the attack timer and the attack after it adds `BonusDamage` plus
+  your stacks (the game's `TotalDamage`: `BonusDamage` + AD + stacks, the AD being the attack's
+  own). The cooldown starts when that attack lands.
+- `w` — Wither is not damage, so it lives in survival: it goes on whoever hits you hardest with
+  attacks and takes away `AttackSpeedSlowMult` (75%) of its slow, which ramps from `SlowBase` 35%
+  to the rank's maximum over `Duration` 5 s. The cooldown starts the moment it is cast, so a
+  10 s teamfight holds one cast, and a second only once haste brings it under the fight.
+- `e` — Spirit Fire: `InitialHitDamage` + 60% AP, then `DamagePerTick` + 12% AP every second for
+  5 s, and `ArmorShredPercent` for those 5 s.
+- `r` — Fury of the Sands is cast at the start of a fight against a champion. For its 15 s it
+  halves Q's cooldown (`QCDR`) and burns the target for `AOEDamagePercent` (+0.01% per AP) of its
+  max health each second, in 0.5 s ticks capped at 240 on monsters. Its `BonusHealth` and
+  `InitialResistGain` armor and magic resist count as stats in fights, for as many teamfights as
+  its cooldown allows (`teamfightIntervalSeconds` / cooldown).
+- `passive` — Soul Eater: 10% lifesteal, +5% at level 7 and 13, healing from his fight damage.
+
+`objectives.champions.Nasus` leans survival (1, twice Vi's): his meta build is Trinity Force into
+tank items. The fight model does not yet rate Sunfire, Thornmail or Frozen Heart as highly as
+the meta does, so the plan keeps some damage items where the meta goes tank.
 
 ### Kindred
 

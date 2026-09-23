@@ -1,0 +1,41 @@
+{
+  "champion": "Nasus",
+  "q": {
+    "cooldown": [8.5, 7.5, 6.5, 5.5, 4.5, 3.5, 2.5],
+    "damage": [20, 40, 60, 80, 100, 120, 140]
+  },
+  "w": {
+    "cooldown": [16, 15, 14, 13, 12, 11, 11],
+    "duration": 5,
+    "slowBase": 0.35,
+    "slowMax": [0.35, 0.47, 0.59, 0.71, 0.83, 0.95, 1.07],
+    "attackSpeedSlowRatio": 0.75
+  },
+  "e": {
+    "cooldown": 12,
+    "damage": [50, 50, 80, 110, 140, 170, 170],
+    "apRatio": 0.6,
+    "tickDamage": [10, 10, 16, 22, 28, 34, 34],
+    "tickApRatio": 0.12,
+    "duration": 5,
+    "armorShred": [0.3, 0.3, 0.35, 0.4, 0.45, 0.5, 0.5],
+    "castTime": 0.25
+  },
+  "r": {
+    "cooldown": [120, 120, 100, 80, 80, 80, 80],
+    "duration": 15,
+    "castTime": 0.25,
+    "bonusHealth": [150, 300, 450, 600, 750, 900, 1050],
+    "resists": [25, 40, 55, 70, 85, 100, 115],
+    "maxHealthPerSecond": [0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08],
+    "maxHealthPerSecondPerAp": 0.0001,
+    "tickSeconds": 0.5,
+    "monsterCap": 240,
+    "qCooldownReduction": 0.5
+  },
+  "passive": {
+    "lifesteal": 0.1,
+    "lifestealSteps": [[7, 0.05], [13, 0.05]]
+  },
+  "skillOrder": ["Q", "E", "W", "Q", "Q", "R", "Q", "E", "Q", "E", "R", "E", "E", "W", "W", "R", "W", "W"]
+}

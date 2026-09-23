@@ -115,6 +115,14 @@
         "clear": 1,
         "movement": 1
       },
+      "Nasus": {
+        "damage": 1,
+        "burst": 0,
+        "uptime": 1,
+        "survival": 1,
+        "clear": 1,
+        "movement": 1
+      },
       "Kayn/ShadowAssassin": {
         "damage": 1,
         "burst": 1,

@@ -37,7 +37,7 @@
     "stacking":  [
                      {
                          "stat":  "abilityDamage",
-                         "initialStacksPerMinute":  14
+                         "initialStacksPerMinute":  20
                      }
                  ],
     "metaBuild":  [

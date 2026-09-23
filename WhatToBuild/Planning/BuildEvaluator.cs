@@ -331,7 +331,7 @@ public sealed class BuildEvaluator
             }
         }
 
-        return new ChampionState(_context.Champion, field.OurLevel, inventory.Concat(_context.Trinkets), _context.TeamBuffs, WithTakedownBuffs(inventory, stacks), stacks);
+        return new ChampionState(_context.Champion, field.OurLevel, inventory.Concat(_context.Trinkets), _context.TeamBuffs, FightAdjustment(inventory, stacks, field.OurRanks), stacks);
     }
 
     public double TakedownBuffUptime(double takedownsPerMinute, double duration)
@@ -343,14 +343,20 @@ public sealed class BuildEvaluator
         return carried + (1 - carried) * inFight;
     }
 
-    private StatSheet? WithTakedownBuffs(IReadOnlyList<Item> inventory, IReadOnlyDictionary<Guid, double> stacks)
+    /// <summary>
+    /// What your stats are in a fight beyond items and level: the measured adjustment, takedown
+    /// buffs as often as they are up, and a cooldown's stats (Nasus's R) for as many teamfights as
+    /// its cooldown lets it be up for.
+    /// </summary>
+    private StatSheet? FightAdjustment(IReadOnlyList<Item> inventory, IReadOnlyDictionary<Guid, double> stacks, AbilityRanks ranks)
     {
         var buffs = inventory.DistinctBy(i => i.Id)
             .SelectMany(i => i.Effects.Where(e => e.Trigger == EffectTrigger.OnTakedown && e.Kind == EffectKind.StatBuff && e.Duration > 0 && e.Stat is not null)
                 .Select(e => (Item: i, Effect: e)))
             .ToList();
+        var ability = _context.Supported?.Stats(ranks);
 
-        if (buffs.Count == 0)
+        if (buffs.Count == 0 && ability is null)
         {
             return _context.Adjustment;
         }
@@ -364,6 +370,16 @@ public sealed class BuildEvaluator
             var rate = item.Stacking is { } stacking ? _context.StackRate(stacking) : _context.TakedownsPerMinute ?? 0;
             var active = TakedownBuffUptime(rate, effect.Duration);
             StatCalculator.AddStat(sheet, effect.Stat!, active * (effect.Amount + effect.PerStack * stacks.GetValueOrDefault(item.Id)));
+        }
+
+        if (ability is not null)
+        {
+            var haste = inventory.Sum(i => i.Stats.AbilityHaste);
+            var cooldown = ability.Cooldown * 100 / (100 + haste);
+            var up = Math.Clamp(_context.Settings.Fight.TeamfightIntervalSeconds / Math.Max(1, cooldown), 0, 1);
+            StatCalculator.AddStat(sheet, Stats.Health, up * ability.Stats.Health);
+            StatCalculator.AddStat(sheet, Stats.Armor, up * ability.Stats.Armor);
+            StatCalculator.AddStat(sheet, Stats.MagicResist, up * ability.Stats.MagicResist);
         }
 
         return sheet;
@@ -459,6 +475,7 @@ public sealed class BuildEvaluator
         var movement = settings.Movement;
         var enemySpeed = field.Enemies.Count > 0 ? field.Enemies.Average(e => e.Entity.Stats.MoveSpeed) : us.Stats.MoveSpeed;
         var evasion = Math.Pow(enemySpeed / Math.Max(1, us.Stats.MoveSpeed), movement.EvasionExponent);
+        var attacksBy = new Dictionary<CombatProfile, Dictionary<DamageType, double>>();
 
         foreach (var enemy in field.Enemies)
         {
@@ -482,6 +499,23 @@ public sealed class BuildEvaluator
                 incoming += perSecond;
                 burst += focus * mitigated * stream.Burst;
                 byType[stream.Type] += perSecond;
+
+                if (stream.Flags.HasFlag(HitFlags.Attack))
+                {
+                    var attacks = attacksBy.TryGetValue(enemy, out var known) ? known : attacksBy[enemy] = new Dictionary<DamageType, double>();
+                    attacks[stream.Type] = attacks.GetValueOrDefault(stream.Type) + perSecond;
+                }
+            }
+        }
+
+        // An ability that slows attacks (Nasus's Wither) goes on whoever hits you hardest with them.
+        var cut = _context.Supported?.AttackCut(field.OurRanks, us, settings.Fight.TeamfightSeconds) ?? 0;
+        if (cut > 0 && attacksBy.Count > 0)
+        {
+            foreach (var (type, perSecond) in attacksBy.Values.MaxBy(a => a.Values.Sum())!)
+            {
+                incoming -= cut * perSecond;
+                byType[type] -= cut * perSecond;
             }
         }
 

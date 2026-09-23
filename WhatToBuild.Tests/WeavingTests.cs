@@ -143,6 +143,75 @@ public class WeavingTests
         Assert.AreEqual(attacks / _vi.W.HitsToProc, procs);
     }
 
+    private static List<(double Time, string Source)> NasusFight(AbilityRanks ranks, double stacks, double seconds = 10)
+    {
+        var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3078)!]);
+        var recorder = new Recorder(_kits.NewFight(us.Champion)!);
+        FightSimulator.Run(new FightSetup(us, Target(), ranks, stacks, MaxSeconds: seconds, Sustained: true), recorder);
+        return recorder.Hits;
+    }
+
+    [TestMethod]
+    public void NasusQCarriesHisStacksAndResetsHisAttack()
+    {
+        var none = NasusFight(new AbilityRanks(5, 0, 0, 0), 0);
+        var stacked = NasusFight(new AbilityRanks(5, 0, 0, 0), 300);
+
+        var qs = none.Where(h => h.Source == SupportedChampions.Nasus.NasusKit.SiphoningStrike).ToList();
+        Assert.IsNotEmpty(qs);
+        Assert.IsTrue(qs.All(q => none.Any(h => h.Source == FightSimulator.Attacks && Math.Abs(h.Time - q.Time) < 1e-9)), "Q lands on an attack.");
+        Assert.AreEqual(0, qs[0].Time, 1e-9, "Q resets the attack timer: the first one lands at once.");
+
+        double PerQ(double stacks)
+        {
+            var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3078)!]);
+            var result = FightSimulator.Run(new FightSetup(us, Target(), new AbilityRanks(5, 0, 0, 0), stacks, MaxSeconds: 10, Sustained: true), _kits.NewFight(us.Champion));
+            var count = Math.Max(1, (stacks == 0 ? none : stacked).Count(h => h.Source == SupportedChampions.Nasus.NasusKit.SiphoningStrike));
+            return result.DamageBySource[SupportedChampions.Nasus.NasusKit.SiphoningStrike] / count;
+        }
+
+        Assert.IsGreaterThan(PerQ(0) * 2, PerQ(300), "Each Q carries the stacks.");
+    }
+
+    [TestMethod]
+    public void FuryOfTheSandsHalvesQsCooldownAndBurns()
+    {
+        var withoutR = NasusFight(new AbilityRanks(5, 0, 0, 0), 0).Count(h => h.Source == SupportedChampions.Nasus.NasusKit.SiphoningStrike);
+        var withR = NasusFight(new AbilityRanks(5, 0, 0, 1), 0);
+
+        Assert.IsGreaterThan(withoutR, withR.Count(h => h.Source == SupportedChampions.Nasus.NasusKit.SiphoningStrike), "More Qs while R halves the cooldown.");
+        Assert.IsNotEmpty(withR.Where(h => h.Source == SupportedChampions.Nasus.NasusKit.FuryOfTheSands), "R burns the target.");
+    }
+
+    [TestMethod]
+    public void NasusRGivesStatsAndWitherCutsAnAttacker()
+    {
+        var nasus = _kits.For(_champions.ByName("Nasus")!)!;
+        var us = new ChampionState(_champions.ByName("Nasus")!, 16, []);
+
+        var fury = nasus.Stats(new AbilityRanks(5, 5, 5, 3))!;
+        Assert.AreEqual(600, fury.Stats.Health, 1e-9);
+        Assert.AreEqual(70, fury.Stats.Armor, 1e-9);
+        Assert.AreEqual(70, fury.Stats.MagicResist, 1e-9);
+        Assert.IsNull(nasus.Stats(new AbilityRanks(5, 5, 5, 0)));
+
+        // Rank 5 Wither: 11 s cooldown from the cast, so one 5 s cast in a 10 s fight, the slow
+        // ramping 35% → 95% (65% on average), attack speed taking 75% of it.
+        Assert.AreEqual(0.5 * 0.75 * 0.65, nasus.AttackCut(new AbilityRanks(5, 5, 5, 3), us, 10), 1e-9);
+        Assert.AreEqual(0, nasus.AttackCut(new AbilityRanks(5, 0, 5, 3), us, 10), 1e-9);
+    }
+
+    [TestMethod]
+    public void SoulEaterLifestealGrowsAtSevenAndThirteen()
+    {
+        var nasus = _kits.For(_champions.ByName("Nasus")!)!;
+        double At(int level) => nasus.DamageHealShare(new ChampionState(_champions.ByName("Nasus")!, level, []), null);
+
+        Assert.AreEqual(0.10, At(6), 1e-9);
+        Assert.AreEqual(0.15, At(7), 1e-9);
+        Assert.AreEqual(0.20, At(13), 1e-9);
+    }
+
     [TestMethod]
     public void ViIsSupportedAndNamesHerShield()
     {

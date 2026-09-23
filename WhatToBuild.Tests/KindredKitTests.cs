@@ -38,7 +38,7 @@ public class KindredKitTests
     {
         Assert.IsNotNull(_kits.For(Kindred));
         Assert.IsNull(_kits.For(Garen));
-        CollectionAssert.AreEquivalent(new[] { "Kindred", "Kayn", "Vi" }, _kits.Supported.ToList());
+        CollectionAssert.AreEquivalent(new[] { "Kindred", "Kayn", "Vi", "Nasus" }, _kits.Supported.ToList());
     }
 
     [TestMethod]
