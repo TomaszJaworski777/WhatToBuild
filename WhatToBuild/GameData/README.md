@@ -126,7 +126,9 @@ CommunityDragon's `items.cdtb.bin.json` rather than written from memory.
   Kraken Slayer is `0.75` (`MaxAmpNumber` 1.75 in its bin data).
 - `stacksTo` — the effect builds up evenly over this many attacks in a fight instead of
   applying in full from the first hit. Black Cleaver is `5` (`MaxStacks`, 6% `ShredPerStack`);
-  Terminus's 30% penetration is `6`, 10% per hit alternating Light and Dark.
+  Terminus's 30% penetration is `6`, 10% per hit alternating Light and Dark. Every fight starts
+  it empty: your hits count the attacks landed so far, and an enemy's damage on you is averaged
+  over the attacks it lands in a teamfight (attack speed × `teamfightSeconds`), from the first.
   "Bonus" is the stat minus the champion's base at its level, so items, runes and
   dragons all count.
   `perLethality` scales with the lethality from items, `perCritChance` with crit

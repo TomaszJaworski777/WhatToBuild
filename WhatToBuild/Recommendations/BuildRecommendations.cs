@@ -756,10 +756,14 @@ public sealed class BuildRecommendations : IRecommendationSource
             Assumptions(planned),
             Matchups(planned, state),
             planned.Advice,
-            Weights: WeightsOf(context));
+            Weights: WeightsOf(context, planned.Steps.LastOrDefault()?.After ?? planned.Baseline));
     }
 
-    private static WeightsDto WeightsOf(BuildContext context)
+    /// <summary>
+    /// The weights, and what each one measures for the build the plan finishes: the numbers a
+    /// slider pushes up, so moving it says something.
+    /// </summary>
+    private static WeightsDto WeightsOf(BuildContext context, Evaluation finished)
     {
         var objectives = context.Settings.Objectives;
         var key = objectives.KeyFor(context.Champion, context.Form);
@@ -769,16 +773,16 @@ public sealed class BuildRecommendations : IRecommendationSource
             ? $"{context.Champion.Name} · {supported.FormLabel(form)}"
             : context.Champion.Name;
 
-        WeightDto Weight(string name, string text, string meaning, Func<ModelSettings.ObjectiveWeights, double> read) =>
-            new(name, text, meaning, read(standard), read(current));
+        WeightDto Weight(string name, string text, string meaning, Func<ModelSettings.ObjectiveWeights, double> read, double measure) =>
+            new(name, text, meaning, read(standard), read(current), measure);
 
         return new WeightsDto(key, label,
         [
-            Weight("damage", "Constant damage", "Damage per second over a whole fight", w => w.Damage),
-            Weight("burst", "Burst", "Share of each enemy's health removed in the first three seconds", w => w.Burst),
-            Weight("uptime", "Uptime", "Damage times how much of the fight you are alive for", w => w.Uptime),
-            Weight("survival", "Survival", "Seconds you stay alive under focus", w => w.Survival),
-        ], ModelSettings.ObjectiveWeights.MaxWeight, context.ChosenWeights.ContainsKey(key));
+            Weight("damage", "Constant damage", "Damage per second over a whole fight", w => w.Damage, finished.Dps),
+            Weight("burst", "Burst", "Share of the enemy team's health you take in the first three seconds", w => w.Burst, finished.Burst),
+            Weight("uptime", "Uptime", "Seconds of a teamfight you are still alive and hitting", w => w.Uptime, finished.Uptime),
+            Weight("survival", "Survival", "Seconds you last when the enemy team focuses you", w => w.Survival, finished.TimeAlive),
+        ], ModelSettings.ObjectiveWeights.MaxWeight, context.ChosenWeights.ContainsKey(key), finished.Time, context.Settings.Fight.TeamfightSeconds);
     }
 
     private PurchaseDto BuyNow(Planned planned, GameState state)

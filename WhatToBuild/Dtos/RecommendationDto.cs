@@ -25,9 +25,12 @@ public sealed record WeightsDto(
     string Label,
     IReadOnlyList<WeightDto> Weights,
     double Max,
-    bool Custom);
+    bool Custom,
+    double MeasuredAt,
+    double TeamfightSeconds);
 
-public sealed record WeightDto(string Name, string Label, string Meaning, double Default, double Current);
+/// <summary>A weight, and <c>Measure</c>: what it measures for the build the plan finishes.</summary>
+public sealed record WeightDto(string Name, string Label, string Meaning, double Default, double Current, double Measure);
 
 public sealed record FormAdviceDto(
     string? Detected,

@@ -412,6 +412,66 @@ img {
     cursor: default;
 }
 
+.focus-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 4px 0 10px;
+}
+
+.focus-preset {
+    padding: 2px 10px;
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    background: rgba(9, 20, 40, 0.6);
+    color: var(--muted);
+    font: inherit;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.focus-preset:hover {
+    border-color: var(--gold-dark);
+    color: var(--gold);
+}
+
+.focus-preset:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+.focus-preset-on {
+    border-color: var(--gold);
+    color: var(--gold-bright);
+}
+
+.focus-share {
+    margin-left: 4px;
+    color: var(--muted);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+}
+
+.focus-row small {
+    font-variant-numeric: tabular-nums;
+}
+
+.focus-up {
+    color: var(--ok);
+}
+
+.focus-down {
+    color: var(--chaos);
+}
+
+.focus-tradeoffs ul {
+    margin: 10px 0 0;
+    padding-left: 16px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.45;
+}
+
 .focus-hint {
     color: var(--faint);
     font-size: 10px;

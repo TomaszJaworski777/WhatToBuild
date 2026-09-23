@@ -209,6 +209,52 @@ public class SliderPlanTests
     }
 
     [TestMethod]
+    public void TerminusBuildsUpOverAFightInsteadOfStartingFull()
+    {
+        var terminus = Item(3302);
+        var kindred = new ChampionState(_champions.ByName("Kindred")!, 14, [Item(6672), terminus]);
+        var ornn = new ChampionState(_champions.ByName("Ornn")!, 14, [Item(3068), Item(3075)]);
+
+        double Hit(int landed) => Modeling.Simulation.AttackerHits.Physical(kindred, ornn, 1000).Attack().AttacksLanded(landed).Run().HealthDamage;
+
+        Assert.IsLessThan(Hit(4), Hit(1), "The first attacks have no penetration yet.");
+        Assert.IsLessThan(Hit(7), Hit(4), "It keeps building.");
+        Assert.AreEqual(Hit(7), Hit(12), 1e-9, "Full after its stacks.");
+    }
+
+    [TestMethod]
+    public void AnEnemysTerminusIsNotFullyStackedFromTheFirstHit()
+    {
+        var terminus = Item(3302);
+        var instant = System.Text.Json.JsonSerializer.Deserialize<Item>(System.Text.Json.JsonSerializer.Serialize(terminus))!;
+        instant.Effects.First(e => e.StacksTo > 0).StacksTo = 0;
+
+        double Incoming(Item held)
+        {
+            var state = Game("Kayn", 20 * 60, 0, level: 13);
+            state = new GameState
+            {
+                GameTime = state.GameTime,
+                CurrentGold = 0,
+                Objectives = state.Objectives,
+                Players =
+                [
+                    .. state.Players.Where(p => p.IsActivePlayer),
+                    new PlayerState
+                    {
+                        Champion = _champions.ByName("Caitlyn")!, Team = Team.Chaos, Position = "BOTTOM", Level = 13,
+                        Items = [new OwnedItem(Item(6672), 1, 0), new OwnedItem(held, 1, 1)],
+                    },
+                ],
+            };
+            var evaluator = new BuildEvaluator(Context(state));
+            return evaluator.Evaluate(evaluator.Context.Owned, state.GameTime, null, EvaluationMode.Full).IncomingByType[DamageType.Physical];
+        }
+
+        Assert.IsLessThan(Incoming(instant), Incoming(terminus));
+    }
+
+    [TestMethod]
     public void TheJunglePetTakesNoSlot()
     {
         List<Item> build = [Item(Gustwalker), Item(6672), Item(3031), Item(3036), Item(2523), Item(6697), Item(3006)];

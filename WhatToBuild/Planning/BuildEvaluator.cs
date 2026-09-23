@@ -580,7 +580,23 @@ public sealed class BuildEvaluator
         return Math.Clamp(attacks / total, 0, 1);
     }
 
-    private static double Mitigation(ChampionState attacker, ChampionState us, DamageStream stream)
+    /// <summary>
+    /// The share of an enemy's damage that reaches you. Item effects that build up over a fight
+    /// (Terminus's penetration, Black Cleaver's shred) start empty: they are averaged over the
+    /// attacks the enemy lands in a teamfight, from the first one, not taken fully stacked.
+    /// </summary>
+    private double Mitigation(ChampionState attacker, ChampionState us, DamageStream stream)
+    {
+        if (!attacker.Items.Any(i => i.Effects.Any(e => e.StacksTo > 0)))
+        {
+            return Mitigated(attacker, us, stream, null);
+        }
+
+        var attacks = Math.Max(1, (int)Math.Round(attacker.Stats.AttackSpeed * _context.Settings.Fight.TeamfightSeconds));
+        return Enumerable.Range(1, attacks).Average(landed => Mitigated(attacker, us, stream, landed));
+    }
+
+    private static double Mitigated(ChampionState attacker, ChampionState us, DamageStream stream, int? landed)
     {
         const double probe = 1000;
 
@@ -603,6 +619,11 @@ public sealed class BuildEvaluator
         if (stream.Flags.HasFlag(HitFlags.Ability))
         {
             hit.Ability();
+        }
+
+        if (landed is { } count)
+        {
+            hit.AttacksLanded(count);
         }
 
         return hit.Run().HealthDamage / probe;

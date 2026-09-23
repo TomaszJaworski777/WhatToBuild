@@ -668,6 +668,8 @@ function onRecommendation(recommendation) {
 
 // Build focus: the champion's constant objective weights (constant damage, burst, uptime,
 // survival) as a four-cornered shape. Each corner slides along its own axis from 0 to the max.
+// The score adds weight × ln(measure) per axis, so only the balance between weights matters:
+// a weight twice another means +1% of the first is worth +2% of the second.
 const FOCUS_CENTER = 100;
 const FOCUS_RADIUS = 80;
 // Constant damage (top) and burst (bottom) face each other, uptime and survival too; the long
@@ -675,13 +677,38 @@ const FOCUS_RADIUS = 80;
 const FOCUS_ANGLES = { damage: -90, uptime: 0, burst: 90, survival: 180 };
 // Corners are joined in this order, round the centre, so the shape never crosses itself.
 const FOCUS_ORDER = ["damage", "uptime", "burst", "survival"];
-const FOCUS_SHORT = {
-    damage: "DPS over the whole fight",
-    burst: "Health taken in the first 3 s",
-    uptime: "Damage while you stay alive",
-    survival: "Time alive under focus",
+/** What each axis measures, written out for the finished core. */
+const FOCUS_MEASURE = {
+    damage: (v) => `${Math.round(v)} DPS`,
+    burst: (v) => `${Math.round(v * 100)}% of an enemy's health in 3 s`,
+    uptime: (v, fight) => `alive ${v.toFixed(1)} of ${fight} s of a teamfight`,
+    survival: (v) => `${v.toFixed(1)} s alive when focused`,
 };
-const focusState = { key: null, label: "", weights: [], max: 3, custom: false, values: null, dragging: null, pending: null };
+/** Just the number, for the value before a change. */
+const FOCUS_VALUE = {
+    damage: (v) => `${Math.round(v)}`,
+    burst: (v) => `${Math.round(v * 100)}%`,
+    uptime: (v) => `${v.toFixed(1)} s`,
+    survival: (v) => `${v.toFixed(1)} s`,
+};
+/** The same, as a noun for the trade-off sentences. */
+const FOCUS_NOUN = {
+    damage: "damage",
+    burst: "burst",
+    uptime: "teamfight time alive",
+    survival: "time alive when focused",
+};
+/** Starting points, built only from these four weights; scaled to the champion's own total. */
+const FOCUS_PRESETS = [
+    { name: "Damage", hint: "Sustained damage only", weights: { damage: 1, burst: 0, uptime: 0, survival: 0 } },
+    { name: "One-shot", hint: "Take as much as possible in the first 3 seconds", weights: { damage: 0, burst: 1, uptime: 0, survival: 0 } },
+    { name: "Bruiser", hint: "Damage, and live long enough to deal it", weights: { damage: 1, burst: 0.25, uptime: 1, survival: 0.5 } },
+    { name: "Tank", hint: "Stay alive first", weights: { damage: 0.5, burst: 0, uptime: 1, survival: 1.5 } },
+];
+const focusState = {
+    key: null, label: "", weights: [], max: 3, custom: false, values: null, dragging: null, pending: null,
+    measures: null, before: null, fight: 10, at: null,
+};
 
 function focusWeights() {
     return FOCUS_ORDER.map((name) => focusState.weights.find((w) => w.name === name)).filter(Boolean);
@@ -709,6 +736,13 @@ function defaultWeights() {
     return Object.fromEntries(focusState.weights.map((w) => [w.name, w.default]));
 }
 
+function presetWeights(preset) {
+    // Scaled so the four add up to the champion's own total: clear and movement keep their pull.
+    const total = focusState.weights.reduce((sum, w) => sum + w.default, 0) || 1;
+    const presetTotal = Object.values(preset.weights).reduce((sum, v) => sum + v, 0) || 1;
+    return Object.fromEntries(focusState.weights.map((w) => [w.name, snapWeight((preset.weights[w.name] ?? 0) * total / presetTotal)]));
+}
+
 function drawFocusFrame() {
     const weights = focusWeights();
     const rings = [0.25, 0.5, 0.75, 1].map((share) => {
@@ -721,9 +755,14 @@ function drawFocusFrame() {
     });
     $("focus-rings").innerHTML = rings.join("") + spokes.join("");
 
+    $("focus-presets").innerHTML = FOCUS_PRESETS
+        .map((p, i) => `<button type="button" class="focus-preset" data-preset="${i}" title="${esc(p.hint)}">${esc(p.name)}</button>`)
+        .join("");
+
     $("focus-inputs").innerHTML = focusState.weights.map((w) => `
         <div class="focus-row" title="${esc(w.meaning)}">
-            <label for="focus-${w.name}">${esc(w.label)}<small>${esc(FOCUS_SHORT[w.name] ?? w.meaning)}</small></label>
+            <label for="focus-${w.name}">${esc(w.label)} <span id="focus-${w.name}-share" class="focus-share"></span>
+                <small id="focus-${w.name}-measure"></small></label>
             <input type="range" id="focus-${w.name}" data-weight="${w.name}" min="0" max="${focusState.max}" step="0.05" />
             <output id="focus-${w.name}-value" for="focus-${w.name}"></output>
         </div>`).join("");
@@ -744,6 +783,48 @@ function drawFocusLabels(values) {
     }).join("");
 }
 
+/** What a measure is now, and what it was before the last change, when that moved it. */
+function measureText(name) {
+    const now = focusState.measures?.[name];
+    if (now == null) {
+        return "";
+    }
+
+    const format = FOCUS_MEASURE[name];
+    const text = format(now, focusState.fight);
+    const was = focusState.before?.[name];
+    if (was == null || Math.abs(now - was) <= Math.max(1e-6, Math.abs(was) * 0.01)) {
+        return `now ${text}`;
+    }
+
+    const up = now > was;
+    return `now ${text} <span class="${up ? "focus-up" : "focus-down"}">(was ${esc(FOCUS_VALUE[name](was))})</span>`;
+}
+
+/**
+ * The weights as trade-offs: the score adds weight × ln(measure), so a weight twice another
+ * means +10% of the first is worth +20% of the second. Written against constant damage when it
+ * counts, otherwise against the heaviest axis.
+ */
+function tradeoffText(values) {
+    const weights = focusState.weights.map((w) => ({ name: w.name, value: values[w.name] }));
+    const counted = weights.filter((w) => w.value > 0);
+    if (counted.length === 0) {
+        return "Nothing counts: every weight is 0.";
+    }
+
+    const reference = counted.find((w) => w.name === "damage") ?? counted.reduce((a, b) => (b.value > a.value ? b : a));
+    const lines = counted
+        .filter((w) => w !== reference)
+        .map((w) => `+10% ${FOCUS_NOUN[w.name]} is worth +${(10 * w.value / reference.value).toFixed(1)}% ${FOCUS_NOUN[reference.name]}`);
+    const ignored = weights.filter((w) => w.value <= 0).map((w) => FOCUS_NOUN[w.name]);
+    if (ignored.length) {
+        lines.push(`ignored: ${ignored.join(", ")}`);
+    }
+
+    return lines.length ? lines.map((l) => `<li>${esc(l)}</li>`).join("") : `<li>Only ${esc(FOCUS_NOUN[reference.name])} counts.</li>`;
+}
+
 function drawFocus() {
     const values = focusState.values;
     if (!values) {
@@ -758,6 +839,7 @@ function drawFocus() {
     }).join("");
     drawFocusLabels(values);
 
+    const total = focusState.weights.reduce((sum, w) => sum + values[w.name], 0);
     for (const w of focusState.weights) {
         const input = $(`focus-${w.name}`);
         if (input && document.activeElement !== input) {
@@ -768,7 +850,22 @@ function drawFocus() {
             output.textContent = values[w.name].toFixed(2);
             output.classList.toggle("focus-axis-changed", Math.abs(values[w.name] - w.default) >= 0.001);
         }
+        const share = $(`focus-${w.name}-share`);
+        if (share) {
+            share.textContent = total > 0 ? `${Math.round(100 * values[w.name] / total)}%` : "0%";
+        }
+        const measure = $(`focus-${w.name}-measure`);
+        if (measure) {
+            measure.innerHTML = measureText(w.name);
+        }
     }
+
+    for (const button of document.querySelectorAll(".focus-preset")) {
+        button.classList.toggle("focus-preset-on", sameWeights(values, presetWeights(FOCUS_PRESETS[Number(button.dataset.preset)])));
+    }
+
+    $("focus-tradeoffs").innerHTML = `<ul>${tradeoffText(values)}</ul>`;
+    $("focus-when").textContent = focusState.at != null ? `at ~${clock(focusState.at)}` : "";
 
     const isDefault = sameWeights(values, defaultWeights());
     $("focus-reset").disabled = isDefault && !focusState.custom;
@@ -786,16 +883,21 @@ function syncFocus(weights) {
     focusState.max = weights.max;
     focusState.custom = weights.custom;
     focusState.weights = weights.weights;
+    focusState.fight = weights.teamfightSeconds;
+    focusState.at = weights.measuredAt;
 
     if (keyChanged) {
+        focusState.before = null;
         drawFocusFrame();
     }
 
     const current = Object.fromEntries(weights.weights.map((w) => [w.name, w.current]));
-    // What we just sent wins over an older plan still computed on the previous weights.
+    // What we just sent wins over an older plan still computed on the previous weights, and the
+    // numbers stay those of the plan the page shows until the new one arrives.
     if (!focusState.dragging && (keyChanged || !focusState.pending || sameWeights(current, focusState.pending))) {
         focusState.values = current;
         focusState.pending = null;
+        focusState.measures = Object.fromEntries(weights.weights.map((w) => [w.name, w.measure]));
     }
 
     drawFocus();
@@ -806,6 +908,8 @@ async function sendFocus(values, reset = false) {
         return;
     }
 
+    // Remember what the build did before, so the new plan can show what the change bought.
+    focusState.before = focusState.measures ? { ...focusState.measures } : null;
     focusState.pending = reset ? defaultWeights() : { ...values };
     try {
         await fetch("/api/preferences", {
@@ -897,6 +1001,17 @@ function wireFocus() {
         if (fromSlider(e)) {
             sendFocus(focusState.values);
         }
+    });
+
+    $("focus-presets").addEventListener("click", (e) => {
+        const button = e.target.closest?.(".focus-preset");
+        if (!button || !focusState.weights.length) {
+            return;
+        }
+
+        focusState.values = presetWeights(FOCUS_PRESETS[Number(button.dataset.preset)]);
+        drawFocus();
+        sendFocus(focusState.values);
     });
 
     $("focus-reset").addEventListener("click", () => {
