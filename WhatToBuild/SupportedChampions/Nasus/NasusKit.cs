@@ -22,7 +22,7 @@ public sealed class NasusChampion : ISupportedChampion
     public IReadOnlyList<CastHint> Hints(FightSetup setup) => [];
 
     /// <summary>Soul Eater: lifesteal that grows at levels 7 and 13.</summary>
-    public double DamageHealShare(ChampionState us, string? form) =>
+    public double LifeSteal(ChampionState us, string? form) =>
         _data.Passive.Lifesteal + _data.Passive.LifestealSteps.Where(s => s.Count >= 2 && us.Level >= s[0]).Sum(s => s[1]);
 
     /// <summary>Fury of the Sands: bonus health, armor and magic resist while it is up.</summary>
@@ -98,15 +98,12 @@ public sealed class NasusKit : IChampionKit
         _data = data;
     }
 
-    private static void Casting(Fight fight, double seconds) =>
-        fight.AttacksBlockedUntil = Math.Max(fight.AttacksBlockedUntil, fight.Time + seconds);
-
     public void Update(Fight fight)
     {
         Burn(fight);
         Fury(fight);
 
-        if (fight.Time < fight.AttacksBlockedUntil)
+        if (!fight.CanCastInstant)
         {
             return;
         }
@@ -134,7 +131,7 @@ public sealed class NasusKit : IChampionKit
 
     private void CastQ(Fight fight)
     {
-        if (fight.Ranks.Q <= 0 || _empowered || fight.Time < _qReadyAt)
+        if (fight.Ranks.Q <= 0 || _empowered || fight.Time < _qReadyAt || !fight.CanCastInstant)
         {
             return;
         }
@@ -147,7 +144,7 @@ public sealed class NasusKit : IChampionKit
     private void CastE(Fight fight)
     {
         var rank = fight.Ranks.E;
-        if (rank <= 0 || fight.Time < _eReadyAt)
+        if (rank <= 0 || fight.Time < _eReadyAt || !fight.CanCast)
         {
             return;
         }
@@ -158,7 +155,7 @@ public sealed class NasusKit : IChampionKit
         fight.Cast();
         _burnUntil = fight.Time + e.Duration;
         _nextBurn = fight.Time + 1;
-        Casting(fight, e.CastTime);
+        fight.Casting(e.CastTime);
         _eReadyAt = fight.Time + fight.Cooldown(e.Cooldown);
     }
 
@@ -177,7 +174,7 @@ public sealed class NasusKit : IChampionKit
     private void CastR(Fight fight)
     {
         var rank = fight.Ranks.R;
-        if (rank <= 0 || fight.Time < _rReadyAt || fight.Target is not ChampionState)
+        if (rank <= 0 || fight.Time < _rReadyAt || fight.Target is not ChampionState || !fight.CanCast)
         {
             return;
         }
@@ -186,7 +183,7 @@ public sealed class NasusKit : IChampionKit
         _rUntil = fight.Time + r.Duration;
         _nextFury = fight.Time + r.TickSeconds;
         _rReadyAt = fight.Time + fight.Cooldown(NasusKitData.AtRank(r.Cooldown, rank));
-        Casting(fight, r.CastTime);
+        fight.Casting(r.CastTime);
         fight.Cast();
         fight.Ultimate();
     }

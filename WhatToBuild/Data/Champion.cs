@@ -79,6 +79,13 @@ public class Champion
 
     public double AttackSpeedRatio { get; set; }
 
+    /// <summary>
+    /// Share of an attack's time spent winding it up before it lands, from the champion's
+    /// <c>mAttackCastTime / mAttackTotalTime</c>, or <c>0.3 + mAttackDelayCastOffsetPercent</c>
+    /// (CommunityDragon). 0.3 is the game's base when a champion has neither.
+    /// </summary>
+    public double AttackWindup { get; set; } = 0.3;
+
     public StatSheet Base { get; set; } = new();
 
     public StatSheet PerLevel { get; set; } = new();

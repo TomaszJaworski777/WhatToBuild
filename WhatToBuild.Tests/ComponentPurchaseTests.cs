@@ -38,13 +38,14 @@ public class ComponentPurchaseTests
     }
 
     [TestMethod]
-    public void WithoutAScorerBasicComponentsWin()
+    public void WithoutAScorerTheGoldIsSpent()
     {
-        var plan = ComponentPurchase.Plan(Ldr, [], 2750, _items);
+        var liandry = _items.ByRiotId(6653)!;
+        var plan = ComponentPurchase.Plan(liandry, [], 2900, _items);
 
         Assert.IsFalse(plan.CompletesTarget);
-        Assert.IsNotEmpty(plan.Buy);
-        Assert.IsTrue(plan.Buy.All(i => i.BuildPath.Count == 0), string.Join(", ", plan.Buy.Select(i => i.Name)));
+        Assert.AreEqual(liandry.BuildPath.Sum(id => _items.ById(id)!.Cost), plan.Cost,
+            $"Both of its components, not only the basics under them: {string.Join(", ", plan.Buy.Select(i => i.Name))}");
     }
 
     [TestMethod]

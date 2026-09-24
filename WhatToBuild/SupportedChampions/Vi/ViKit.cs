@@ -34,8 +34,8 @@ public sealed class ViChampion : ISupportedChampion
 }
 
 /// <summary>
-/// Vi weaves her combo with an attack after each ability: R, E, fully charged Q, E. Each
-/// ability resets the attack timer, so an attack lands between every two casts. Q is charged in
+/// Vi weaves her combo with an attack after each ability: R, E, fully charged Q, E. Only E
+/// resets the attack timer; after Q and R the attack waits for it. Q is charged in
 /// full before it is let go, E empowers the attack that follows it, and every third attack on the
 /// target procs Denting Blows (W): a slice of its max health, armor shred and attack speed.
 /// </summary>
@@ -78,16 +78,22 @@ public sealed class ViKit : IChampionKit
             LandR(fight);
         }
 
-        if (fight.Time < fight.AttacksBlockedUntil || !_weave)
+        if (!fight.CanCastInstant || !_weave)
         {
             return;
         }
 
         // The combo, an attack after each: R, E, fully charged Q, E. A step that is not ready
         // is passed over for the next one that is, and the combo carries on after whatever was cast.
+        // A step whose animation would hold up a ready attack waits for that attack instead.
         for (var k = 0; k < Combo.Length; k++)
         {
             var step = (_step + k) % Combo.Length;
+            if (Waits(fight, Combo[step]))
+            {
+                return;
+            }
+
             if (Cast(fight, Combo[step]))
             {
                 _step = (step + 1) % Combo.Length;
@@ -99,6 +105,17 @@ public sealed class ViKit : IChampionKit
     private static readonly char[] Combo = ['R', 'E', 'Q', 'E'];
 
     private int _step;
+
+    /// <summary>
+    /// E has no animation: it only empowers the coming attack. R opens the fight from range, so
+    /// nothing is waited for before the first hit. Anything else goes between attacks.
+    /// </summary>
+    private static bool Waits(Fight fight, char ability) => ability switch
+    {
+        'E' => false,
+        'R' when fight.DamageDealt <= 0 => false,
+        _ => !fight.CanCast,
+    };
 
     private bool Cast(Fight fight, char ability) => ability switch
     {
@@ -126,13 +143,14 @@ public sealed class ViKit : IChampionKit
         ProcDentingBlows(fight);
     }
 
-    private static void Casting(Fight fight, double seconds) =>
-        fight.AttacksBlockedUntil = Math.Max(fight.AttacksBlockedUntil, fight.Time + seconds);
-
-    private void Woven(Fight fight)
+    /// <summary>A spell went out: the next one waits for an attack. Only E resets her attack timer.</summary>
+    private void Woven(Fight fight, bool resetsAttack = false)
     {
         _weave = false;
-        fight.ResetAttack();
+        if (resetsAttack)
+        {
+            fight.ResetAttack();
+        }
     }
 
     private bool CastQ(Fight fight)
@@ -143,9 +161,10 @@ public sealed class ViKit : IChampionKit
             return false;
         }
 
-        // Charging: no attacks until it is let go, and nothing else is cast meanwhile.
-        _qReleaseAt = fight.Time + _data.Q.ChargeSeconds;
-        Casting(fight, _data.Q.ChargeSeconds);
+        // Charging, then the dash: no attacks until she lands, and nothing else is cast meanwhile.
+        var seconds = _data.Q.ChargeSeconds + _data.Q.ReleaseSeconds;
+        _qReleaseAt = fight.Time + seconds;
+        fight.Casting(seconds);
         _weave = false;
         return true;
     }
@@ -173,7 +192,7 @@ public sealed class ViKit : IChampionKit
         }
 
         _rHitAt = fight.Time + _data.R.CastTime + _data.R.TravelSeconds;
-        Casting(fight, _data.R.CastTime + _data.R.TravelSeconds);
+        fight.Casting(_data.R.CastTime + _data.R.TravelSeconds);
         _rReadyAt = fight.Time + fight.Cooldown(ViKitData.AtRank(_data.R.Cooldown, rank));
         _weave = false;
         return true;
@@ -225,7 +244,7 @@ public sealed class ViKit : IChampionKit
         _eReadyAt = fight.Time + _data.E.StaticCooldown;
         _empowered = true;
         fight.Cast();
-        Woven(fight);
+        Woven(fight, resetsAttack: true);
         return true;
     }
 

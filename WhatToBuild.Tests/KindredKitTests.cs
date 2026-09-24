@@ -79,8 +79,8 @@ public class KindredKitTests
     [TestMethod]
     public void QAttackSpeedMeansMoreAttacks()
     {
-        var withoutQ = Fight(AbilityRanks.None, maxSeconds: 4);
-        var withQ = Fight(new AbilityRanks(1, 0, 0, 0), maxSeconds: 4);
+        var withoutQ = Fight(AbilityRanks.None, maxSeconds: 6);
+        var withQ = Fight(new AbilityRanks(1, 0, 0, 0), maxSeconds: 6);
 
         Assert.IsGreaterThan(withoutQ.Attacks, withQ.Attacks);
     }

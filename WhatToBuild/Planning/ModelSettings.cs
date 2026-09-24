@@ -326,6 +326,9 @@ public sealed class ModelSettings
         public double LevelReversionSeconds { get; set; } = 900;
         public double PaceBucket { get; set; } = 0.1;
         public double TakedownBucket { get; set; } = 2;
+
+        /// <summary>An enemy this close to affording their next item is forecast to have it.</summary>
+        public double EnemyGoldGrace { get; set; } = 300;
     }
 }
 

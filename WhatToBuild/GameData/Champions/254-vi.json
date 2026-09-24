@@ -5,6 +5,7 @@
     "name":  "Vi",
     "icon":  "Vi.png",
     "attackSpeedRatio":  0.644,
+    "attackWindup":  0.225,
     "base":  {
                  "health":  655,
                  "mana":  295,

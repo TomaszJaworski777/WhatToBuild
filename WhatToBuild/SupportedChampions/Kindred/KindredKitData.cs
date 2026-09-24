@@ -38,6 +38,8 @@ public sealed class KindredKitData
 
         /// <summary>Whether the bolts can critically strike.</summary>
         public bool CanCrit { get; set; }
+
+        public double CastTime { get; set; }
     }
 
     public sealed class WData
@@ -57,6 +59,8 @@ public sealed class KindredKitData
 
         /// <summary>The share of the zone you actually spend standing in it.</summary>
         public double ZoneUptime { get; set; } = 1;
+
+        public double CastTime { get; set; }
     }
 
     public sealed class EData
@@ -70,6 +74,8 @@ public sealed class KindredKitData
         public double MissingHealthPerMark { get; set; }
         public double CritChanceRatio { get; set; }
         public double MonsterCap { get; set; } = double.PositiveInfinity;
+
+        public double CastTime { get; set; }
     }
 
     public sealed class RData

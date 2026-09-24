@@ -28,7 +28,9 @@ public sealed record FightSetup(
     double MaxSeconds = 30,
     double AttackPhase = 0,
     TargetSustain? Sustain = null,
-    bool Sustained = false);
+    bool Sustained = false,
+    double LifeSteal = 0,
+    double Omnivamp = 0);
 
 public sealed class Fight
 {
@@ -68,6 +70,11 @@ public sealed class Fight
         ExecuteHealth = setup.Target is ChampionState
             ? attackerEffects.Where(e => e.Kind == EffectKind.Execute).Select(e => e.Amount).DefaultIfEmpty(0).Max() * setup.Target.MaxHealth
             : 0;
+
+        LifeSteal = setup.Attacker.Items.Sum(i => i.Stats.LifeStealPercent) + setup.LifeSteal;
+        Omnivamp = setup.Attacker.Items.Sum(i => i.Stats.OmnivampPercent)
+                   + attackerEffects.Where(e => StatCalculator.IsPermanentStatBuff(e) && e.Stat == Stats.OmnivampPercent).Sum(e => e.Amount)
+                   + setup.Omnivamp;
 
         _sustainShields = sustain.Shields.Where(s => s.Amount > 0).ToList();
         FillShields();
@@ -112,6 +119,16 @@ public sealed class Fight
     public double ShieldTotal { get; }
 
     public double Healed { get; private set; }
+
+    public double LifeSteal { get; }
+
+    public double Omnivamp { get; }
+
+    /// <summary>
+    /// What the attacker's life steal and omnivamp healed them for, hit by hit: life steal off
+    /// attacks and on-hits, omnivamp off everything, both only on damage that landed.
+    /// </summary>
+    public double SelfHealed { get; private set; }
 
     public double ShieldLeft => _shields.Sum(s => s.Amount);
 
@@ -163,6 +180,33 @@ public sealed class Fight
     public IChampionKit? Kit { get; init; }
 
     public double AttacksBlockedUntil { get; set; }
+
+    /// <summary>An attack is off cooldown and nothing stops it: it goes out before any spell.</summary>
+    public bool AttackReady { get; internal set; }
+
+    /// <summary>The attack being wound up lands then; nothing is cast until it does.</summary>
+    public double WindupUntil { get; internal set; } = double.MinValue;
+
+    /// <summary>The attack's windup at the current attack speed.</summary>
+    public double AttackWindup => Attacker.Champion.AttackWindup / Math.Max(0.01, AttackSpeed);
+
+    /// <summary>
+    /// A spell fits now: between attacks, never over an attack's windup or another spell's
+    /// animation, and never ahead of an attack that is ready. So spells weave into the gaps
+    /// the attack timer leaves, and none of them resets it unless it says so.
+    /// </summary>
+    public bool CanCast => CanCastInstant && !AttackReady;
+
+    /// <summary>
+    /// A spell with no animation fits now, even ahead of a ready attack, since it costs the attack
+    /// no time (Nasus's Q, Vi's E: they empower the attack that is coming anyway). Still never
+    /// over a windup or another spell's animation.
+    /// </summary>
+    public bool CanCastInstant => !TargetDead && Time >= WindupUntil && Time >= AttacksBlockedUntil;
+
+    /// <summary>A spell's animation: no attacks and no other spells until it ends. The attack timer keeps running.</summary>
+    public void Casting(double seconds) =>
+        AttacksBlockedUntil = Math.Max(AttacksBlockedUntil, Time + seconds);
 
     public const double BurstSeconds = 3;
 
@@ -336,6 +380,12 @@ public sealed class Fight
             _batchDamage = 0;
         }
 
+        var vamp = Omnivamp + (result.Hit.IsAttack ? LifeSteal : 0);
+        if (vamp > 0)
+        {
+            SelfHealed += vamp * Math.Min(damage, Math.Max(0, Target.CurrentHealth) + ShieldLeft);
+        }
+
         var toHealth = damage;
         foreach (var shield in _shields)
         {
@@ -400,7 +450,8 @@ public sealed record FightResult(
     double Shielded = 0,
     bool Sustained = false,
     double Kills = 0,
-    double EarlyDamage = 0)
+    double EarlyDamage = 0,
+    double SelfHealed = 0)
 {
     public const double MinimumKillTime = 0.1;
 
@@ -429,6 +480,7 @@ public sealed record FightResult(
             Shielded: results.Average(r => r.Shielded),
             Sustained: results[0].Sustained,
             Kills: results.Average(r => r.Kills),
-            EarlyDamage: results.Average(r => r.EarlyDamage));
+            EarlyDamage: results.Average(r => r.EarlyDamage),
+            SelfHealed: results.Average(r => r.SelfHealed));
     }
 }

@@ -17,11 +17,17 @@ public sealed class BuildProjector
 
     private readonly ItemRepository _items;
     private readonly MetaBuilds _meta;
+    private readonly double _goldGrace;
 
-    public BuildProjector(ItemRepository items, MetaBuilds meta)
+    /// <param name="goldGrace">
+    /// How short of an item an enemy can be and still be forecast to have it: the forecast is
+    /// not that exact, and a finished item is closer to the truth than a pile of components.
+    /// </param>
+    public BuildProjector(ItemRepository items, MetaBuilds meta, double goldGrace = 0)
     {
         _items = items;
         _meta = meta;
+        _goldGrace = goldGrace;
     }
 
     public IReadOnlyList<Item> BuildOf(Champion champion) => _meta.For(champion);
@@ -47,7 +53,11 @@ public sealed class BuildProjector
 
             MakeRoom(inventory);
 
-            var plan = ComponentPurchase.Plan(target, inventory, gold - spent, _items);
+            var plan = ComponentPurchase.Plan(target, inventory, gold - spent + _goldGrace, _items);
+            if (!plan.CompletesTarget)
+            {
+                plan = ComponentPurchase.Plan(target, inventory, gold - spent, _items);
+            }
             if (plan.Buy.Count == 0 || !ItemRules.IsLegal(plan.InventoryAfter) || ItemRules.Slots(plan.InventoryAfter) > ItemRules.InventorySlots)
             {
                 break;

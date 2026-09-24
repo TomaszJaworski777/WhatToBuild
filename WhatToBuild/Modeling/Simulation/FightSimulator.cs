@@ -30,33 +30,64 @@ public static class FightSimulator
             var fight = new Fight(setup) { Kit = kit };
             var onHits = OnHitEffects(setup.Attacker);
             var attackProgress = 1 - setup.AttackPhase;
+            double? landsAt = null;
 
             while (fight.Time < setup.MaxSeconds && (setup.Sustained || !fight.TargetDead))
             {
                 if (fight.TargetDead)
                 {
+                    // The next target is a new attack: whatever was winding up is lost.
                     fight.Respawn();
+                    landsAt = null;
+                    fight.WindupUntil = double.MinValue;
                 }
 
                 fight.Regenerate(Fight.Step);
-                kit?.Update(fight);
 
+                if (landsAt is { } at && fight.Time >= at)
+                {
+                    landsAt = null;
+                    Land(fight, onHits, kit);
+                }
+
+                // The attack timer runs through windups and spell animations alike; an attack
+                // that comes off cooldown during a cast waits for the cast to end.
                 attackProgress += fight.AttackSpeed * Fight.Step * (kit?.AttackUptime ?? 1);
                 if (fight.TakeAttackReset())
                 {
                     attackProgress = Math.Max(attackProgress, 1);
                 }
+
                 if (fight.Time < fight.AttacksBlockedUntil)
                 {
                     attackProgress = Math.Min(attackProgress, 1);
                 }
-                else if (attackProgress >= 1 && !fight.TargetDead)
+
+                fight.AttackReady = CanAttack(fight, landsAt, attackProgress);
+                kit?.Update(fight);
+
+                // Only a true reset (Vi's E, Nasus's Q, Kindred's Q) brings the next attack forward.
+                if (fight.TakeAttackReset())
                 {
-                    attackProgress -= 1;
-                    Attack(fight, onHits);
-                    kit?.OnAttack(fight);
+                    attackProgress = Math.Max(attackProgress, 1);
                 }
 
+                if (CanAttack(fight, landsAt, attackProgress))
+                {
+                    attackProgress -= 1;
+                    var windup = fight.AttackWindup;
+                    fight.WindupUntil = fight.Time + windup;
+                    if (windup < Fight.Step)
+                    {
+                        Land(fight, onHits, kit);
+                    }
+                    else
+                    {
+                        landsAt = fight.Time + windup;
+                    }
+                }
+
+                fight.AttackReady = false;
                 fight.Time += Fight.Step;
             }
 
@@ -75,7 +106,8 @@ public static class FightSimulator
                     fight.ShieldTotal,
                     Sustained: true,
                     Kills: fight.Kills + (fight.TargetDead ? 1 : 0),
-                    EarlyDamage: fight.EarlyDamage);
+                    EarlyDamage: fight.EarlyDamage,
+                    SelfHealed: fight.SelfHealed);
             }
 
             return new FightResult(
@@ -88,12 +120,27 @@ public static class FightSimulator
                 fight.KillingBlow,
                 fight.InitialPool - fight.Pool,
                 fight.Healed,
-                fight.ShieldTotal);
+                fight.ShieldTotal,
+                SelfHealed: fight.SelfHealed);
         }
         finally
         {
             target.CurrentHealth = healthBefore;
         }
+    }
+
+    private static bool CanAttack(Fight fight, double? landsAt, double attackProgress) =>
+        landsAt is null && attackProgress >= 1 && fight.Time >= fight.AttacksBlockedUntil && !fight.TargetDead;
+
+    private static void Land(Fight fight, List<OnHit> onHits, IChampionKit? kit)
+    {
+        if (fight.TargetDead)
+        {
+            return;
+        }
+
+        Attack(fight, onHits);
+        kit?.OnAttack(fight);
     }
 
     private static void Attack(Fight fight, List<OnHit> onHits)

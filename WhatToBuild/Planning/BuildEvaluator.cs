@@ -29,7 +29,7 @@ public sealed class BuildContext
         Model = model;
         Settings = model.Settings;
         Forecaster = new GameForecaster(state, stack, model);
-        Projector = new BuildProjector(items, model.Meta);
+        Projector = new BuildProjector(items, model.Meta, Settings.Income.EnemyGoldGrace);
         World = new WorldForecast(Forecaster, Projector, neutrals, Settings.Planner.TimeBucketSeconds);
         Owned = Me.Items.Where(i => i.Slot != 6).SelectMany(i => Enumerable.Repeat(i.Item, i.Count)).ToList();
         Trinkets = Me.Items.Where(i => i.Slot == 6).Select(i => i.Item).ToList();
@@ -401,6 +401,8 @@ public sealed class BuildEvaluator
             ? field.Enemies.OrderByDescending(e => e.Threat).Take(settings.Fight.CheapTargets).ToList()
             : field.Enemies;
 
+        var lifeSteal = _context.Supported?.LifeSteal(us, form) ?? 0;
+        var omnivamp = _context.Supported?.Omnivamp(us, form) ?? 0;
         var targets = new List<TargetResult>();
         foreach (var enemy in opponents)
         {
@@ -408,7 +410,8 @@ public sealed class BuildEvaluator
             var target = enemy.Forecast.NewEntity();
             var results = phases
                 .Select(phase => FightSimulator.Run(
-                    new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true),
+                    new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true,
+                        LifeSteal: lifeSteal, Omnivamp: omnivamp),
                     _context.Kits.NewFight(_context.Champion, form)))
                 .ToList();
 
@@ -418,7 +421,7 @@ public sealed class BuildEvaluator
 
         var dps = targets.Sum(t => t.Enemy.Threat * t.Fight.EffectiveDps);
         var opening = targets.Sum(t => t.Enemy.Threat * Math.Min(1, t.Fight.EarlyDamage / Math.Max(1, t.Fight.TargetHealth)));
-        var survival = Survival(us, field, targets, dps, form);
+        var survival = Survival(us, field, targets, form);
         var fightSeconds = settings.Fight.TeamfightSeconds;
         var caught = settings.Fight.CaughtShare;
         var uptime = fightSeconds * ((1 - caught) + caught * (1 - Math.Exp(-survival.TimeAlive / fightSeconds)));
@@ -466,7 +469,7 @@ public sealed class BuildEvaluator
     }
 
     private (double TimeAlive, double WithoutAbility, double Incoming, double Burst, double Pool, double Healing, Dictionary<DamageType, double> ByType) Survival(
-        ChampionState us, Battlefield field, List<TargetResult> targets, double dps, string? form)
+        ChampionState us, Battlefield field, List<TargetResult> targets, string? form)
     {
         var settings = _context.Settings;
         var byType = new Dictionary<DamageType, double> { [DamageType.Physical] = 0, [DamageType.Magic] = 0, [DamageType.True] = 0 };
@@ -525,7 +528,6 @@ public sealed class BuildEvaluator
 
         var pool = us.MaxHealth;
         double revive = 0, healing = 0;
-        var attackShare = AttackShare(targets, us);
         var effects = us.Items.SelectMany(i => i.Effects).ToList();
 
         foreach (var effect in effects)
@@ -561,11 +563,8 @@ public sealed class BuildEvaluator
             }
         }
 
-        var lifeSteal = us.Items.Sum(i => i.Stats.LifeStealPercent);
-        var omnivamp = us.Items.Sum(i => i.Stats.OmnivampPercent)
-                       + effects.Where(e => StatCalculator.IsPermanentStatBuff(e) && e.Stat == Stats.OmnivampPercent).Sum(e => e.Amount);
-        healing += (lifeSteal * attackShare + omnivamp) * dps * healPower;
-        healing += (_context.Supported?.DamageHealShare(us, form) ?? 0) * dps * healPower;
+        // Life steal and omnivamp as the fights simulated them, hit by hit, weighed like the damage.
+        healing += targets.Sum(t => t.Enemy.Threat * t.Fight.SelfHealed / Math.Max(0.1, t.Fight.Seconds)) * healPower;
 
         var enemyGrievous = field.Enemies.Select(e => e.GrievousWounds).DefaultIfEmpty(0).Max() * settings.Sustain.EnemyGrievousCoverage;
         healing *= 1 - enemyGrievous;
@@ -594,24 +593,6 @@ public sealed class BuildEvaluator
 
         var cap = settings.Fight.MaxTimeAliveSeconds;
         return (Math.Clamp(alive, 0.25, cap), Math.Clamp(withoutAbility, 0.25, cap), incoming, burst, pool, healing, byType);
-    }
-
-    private static double AttackShare(List<TargetResult> targets, ChampionState us)
-    {
-        var total = targets.Sum(t => t.Fight.Damage);
-        if (total <= 0)
-        {
-            return 1;
-        }
-
-        var onHit = us.Items
-            .Where(i => i.Effects.Any(e => e.Trigger == EffectTrigger.OnAttack))
-            .Select(i => i.Name)
-            .Append(FightSimulator.Attacks)
-            .ToHashSet();
-
-        var attacks = targets.Sum(t => t.Fight.DamageBySource.Where(d => onHit.Contains(d.Key)).Sum(d => d.Value));
-        return Math.Clamp(attacks / total, 0, 1);
     }
 
     /// <summary>

@@ -92,16 +92,16 @@
         "movement": 1
       },
       "Kayn": {
-        "damage": 1,
-        "burst": 0,
+        "damage": 0,
+        "burst": 1,
         "uptime": 1,
         "survival": 0.5,
         "clear": 1,
         "movement": 1
       },
       "Kayn/Darkin": {
-        "damage": 1,
-        "burst": 0,
+        "damage": 0,
+        "burst": 1,
         "uptime": 1,
         "survival": 0.5,
         "clear": 1,
@@ -124,8 +124,8 @@
         "movement": 1
       },
       "Kayn/ShadowAssassin": {
-        "damage": 1,
-        "burst": 1,
+        "damage": 0,
+        "burst": 2,
         "uptime": 0,
         "survival": 0,
         "clear": 1,
@@ -244,7 +244,8 @@
     "trendWeight": 0.4,
     "baselineOnlyUntilSeconds": 480,
     "observedOnlyFromSeconds": 900,
-    "levelReversionSeconds": 900
+    "levelReversionSeconds": 900,
+    "enemyGoldGrace": 300
   },
   "movement": {
     "walkShare": {

@@ -75,10 +75,32 @@ public class WeavingTests
         var hits = Fight("Kayn", KaynForm.Darkin, new AbilityRanks(5, 3, 1, 2));
         var order = Sequence(hits);
 
-        Assert.AreEqual("spell", order[0], "He opens with a spell.");
         for (var i = 1; i < order.Count; i++)
         {
             Assert.IsFalse(order[i] == "spell" && order[i - 1] == "spell", $"Two spells in a row at step {i}: {string.Join(", ", order)}");
+        }
+
+        // Attack, Q, attack, W, attack: the attack is ready at the start, so it goes first.
+        var opening = hits.Where(h => IsSpell(h.Source) || h.Source == FightSimulator.Attacks)
+            .Select(h => h.Source == FightSimulator.Attacks ? "AA" : h.Source[..1])
+            .Aggregate(new List<string>(), (list, s) =>
+            {
+                if (list.Count == 0 || list[^1] != s || s == "AA")
+                {
+                    list.Add(s);
+                }
+
+                return list;
+            })
+            .Take(5);
+        Assert.AreEqual("AA Q AA W AA", string.Join(" ", opening));
+
+        // No ability resets his attack: attacks are never closer than his attack timer allows.
+        var attacks = hits.Where(h => h.Source == FightSimulator.Attacks).Select(h => h.Time).Distinct().ToList();
+        var us = new ChampionState(_champions.ByName("Kayn")!, 13, [_items.ByRiotId(3071)!]);
+        for (var i = 1; i < attacks.Count; i++)
+        {
+            Assert.IsGreaterThanOrEqualTo(1 / us.Stats.AttackSpeed - 2 * Modeling.Simulation.Fight.Step, attacks[i] - attacks[i - 1], $"Attacks {i - 1} and {i}.");
         }
 
         var first = hits.Where(h => IsSpell(h.Source)).Select(h => h.Time).Distinct().Take(3).ToList();
@@ -107,7 +129,8 @@ public class WeavingTests
 
         var q = hits.First(h => h.Source == ViKit.VaultBreaker);
         var before = hits.Last(h => h.Source == FightSimulator.Attacks && h.Time < q.Time);
-        Assert.AreEqual(_vi.Q.ChargeSeconds, q.Time - before.Time, 0.05, "Q is charged in full after the attack before it.");
+        Assert.AreEqual(_vi.Q.ChargeSeconds + _vi.Q.ReleaseSeconds, q.Time - before.Time, 0.05,
+            "Q is charged in full after the attack before it, then she dashes.");
 
         var empowered = hits.Where(h => h.Source == ViKit.RelentlessForce).ToList();
         Assert.IsNotEmpty(empowered, "E's attack lands.");
@@ -129,7 +152,9 @@ public class WeavingTests
         }
 
         var firstAttack = hits.First(h => h.Source == FightSimulator.Attacks).Time;
-        Assert.IsLessThan(0.1, firstAttack - qs[0], "Q resets her attack timer, so an attack follows it at once.");
+        var kindred = new ChampionState(_champions.ByName("Kindred")!, 13, [_items.ByRiotId(3071)!]);
+        Assert.IsLessThan(kindred.Champion.AttackWindup / kindred.Stats.AttackSpeed + 0.1, firstAttack - qs[0],
+            "Q resets her attack timer, so an attack starts right after it and lands after its windup.");
     }
 
     [TestMethod]
@@ -160,7 +185,9 @@ public class WeavingTests
         var qs = none.Where(h => h.Source == SupportedChampions.Nasus.NasusKit.SiphoningStrike).ToList();
         Assert.IsNotEmpty(qs);
         Assert.IsTrue(qs.All(q => none.Any(h => h.Source == FightSimulator.Attacks && Math.Abs(h.Time - q.Time) < 1e-9)), "Q lands on an attack.");
-        Assert.AreEqual(0, qs[0].Time, 1e-9, "Q resets the attack timer: the first one lands at once.");
+        var nasus = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3078)!]);
+        Assert.AreEqual(nasus.Champion.AttackWindup / nasus.Stats.AttackSpeed, qs[0].Time, 2 * Modeling.Simulation.Fight.Step,
+            "Q has no animation: it goes out at once and the first attack carries it, landing after the windup.");
 
         double PerQ(double stacks)
         {
@@ -205,7 +232,7 @@ public class WeavingTests
     public void SoulEaterLifestealGrowsAtSevenAndThirteen()
     {
         var nasus = _kits.For(_champions.ByName("Nasus")!)!;
-        double At(int level) => nasus.DamageHealShare(new ChampionState(_champions.ByName("Nasus")!, level, []), null);
+        double At(int level) => nasus.LifeSteal(new ChampionState(_champions.ByName("Nasus")!, level, []), null);
 
         Assert.AreEqual(0.10, At(6), 1e-9);
         Assert.AreEqual(0.15, At(7), 1e-9);

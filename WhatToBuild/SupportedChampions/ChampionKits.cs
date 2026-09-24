@@ -43,7 +43,11 @@ public interface ISupportedChampion
 
     SurvivalAbility? Survival(AbilityRanks ranks, ChampionState us, string? form, double enemyHealth) => Survival(ranks);
 
-    double DamageHealShare(ChampionState us, string? form) => 0;
+    /// <summary>Life steal from the kit (Nasus's Soul Eater): heals off basic attacks and on-hits only.</summary>
+    double LifeSteal(ChampionState us, string? form) => 0;
+
+    /// <summary>Omnivamp from the kit (Rhaast's passive): heals off all damage dealt.</summary>
+    double Omnivamp(ChampionState us, string? form) => 0;
 
     /// <summary>Stats a cooldown gives in fights; counted for as many teamfights as its cooldown allows.</summary>
     FightStats? Stats(AbilityRanks ranks) => null;

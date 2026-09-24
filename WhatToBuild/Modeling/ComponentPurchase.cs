@@ -109,7 +109,9 @@ public static class ComponentPurchase
     private static double Value(IPurchaseScorer? scorer, IReadOnlyList<Item> inventory, IEnumerable<Node> bought)
     {
         var basicGold = bought.Where(n => n.Item.BuildPath.Count == 0).Sum(n => n.Item.Cost);
-        var score = scorer?.Score(inventory) ?? 1;
+        // Without a scorer (an enemy's forecast), stats go with gold: spend as much of it as
+        // the item allows, and the basic bonus only breaks near-ties.
+        var score = scorer?.Score(inventory) ?? inventory.Sum(i => i.Cost);
 
         return score * (1 + BasicComponentWeight * basicGold / 1000);
     }

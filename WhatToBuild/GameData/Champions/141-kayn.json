@@ -5,6 +5,7 @@
     "name":  "Kayn",
     "icon":  "Kayn.png",
     "attackSpeedRatio":  0.669,
+    "attackWindup":  0.1873,
     "base":  {
                  "health":  655,
                  "mana":  410,

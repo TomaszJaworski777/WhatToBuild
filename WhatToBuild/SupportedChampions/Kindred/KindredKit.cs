@@ -91,13 +91,14 @@ public sealed class KindredKit : IChampionKit
     private void CastW(Fight fight)
     {
         var rank = fight.Ranks.W;
-        if (rank <= 0 || fight.Time < _wReadyAt)
+        if (rank <= 0 || fight.Time < _wReadyAt || !fight.CanCast)
         {
             return;
         }
 
         _zoneUntil = fight.Time + _data.W.ZoneDuration;
         fight.Cast();
+        fight.Casting(_data.W.CastTime);
         _nextBite = fight.Time;
         _wReadyAt = fight.Time + fight.Cooldown(KindredKitData.AtRank(_data.W.Cooldown, rank));
     }
@@ -105,7 +106,7 @@ public sealed class KindredKit : IChampionKit
     private void CastQ(Fight fight)
     {
         var rank = fight.Ranks.Q;
-        if (rank <= 0 || fight.Time < _qReadyAt || !_qWeave)
+        if (rank <= 0 || fight.Time < _qReadyAt || !_qWeave || !fight.CanCastInstant)
         {
             return;
         }
@@ -120,6 +121,7 @@ public sealed class KindredKit : IChampionKit
             fight.Deal(DanceOfArrows, fight.Physical(damage * AttackerHits.CritDamage(fight.Attacker)).Ability().Critical(), crit);
         }
         fight.Cast();
+        fight.Casting(q.CastTime);
         fight.AddAttackSpeed(q.AttackSpeed + q.AttackSpeedPerMark * fight.Stacks, q.AttackSpeedDuration);
 
         // Standing in the zone cuts the cooldown, but she is dashing and kiting, not parked in it.
@@ -138,13 +140,14 @@ public sealed class KindredKit : IChampionKit
     private void CastE(Fight fight)
     {
         var rank = fight.Ranks.E;
-        if (rank <= 0 || fight.Time < _eReadyAt || !WorthCastingE(fight, rank))
+        if (rank <= 0 || fight.Time < _eReadyAt || !fight.CanCast || !WorthCastingE(fight, rank))
         {
             return;
         }
 
         _eAttacksLeft = _data.E.AttacksAfterCast;
         fight.Cast();
+        fight.Casting(_data.E.CastTime);
         _eExpiresAt = fight.Time + _data.E.Window;
         _eReadyAt = fight.Time + fight.Cooldown(KindredKitData.AtRank(_data.E.Cooldown, rank));
     }

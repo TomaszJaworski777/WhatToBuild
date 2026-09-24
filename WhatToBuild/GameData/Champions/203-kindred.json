@@ -5,6 +5,7 @@
     "name": "Kindred",
     "icon": "Kindred.png",
     "attackSpeedRatio": 0.625,
+    "attackWindup": 0.1754,
     "base": {
         "health": 595,
         "mana": 300,

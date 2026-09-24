@@ -425,7 +425,7 @@ public class BuildModelTests
     }
 
     [TestMethod]
-    public void OneBootsPointIsWorthAboutTwelveGoldOfStats()
+    public void OneBootsPointIsWorthAboutFiveGoldOfStats()
     {
         var model = DefaultWeights();
         var evaluator = Evaluator(Game(NoSustain()), model);
@@ -438,7 +438,7 @@ public class BuildModelTests
         var boots = evaluator.Evaluate([.. owned, Item(1001)], time, null, EvaluationMode.Full);
         var tempoOnly = model.Settings.Movement.TempoWeightAt(time) * Math.Log(boots.Tempo / baseline.Tempo);
 
-        Assert.AreEqual(300, tempoOnly / perGold, 150, $"Tempo prices Boots at {tempoOnly / perGold:0} gold.");
+        Assert.AreEqual(125, tempoOnly / perGold, 60, $"Tempo prices Boots at {tempoOnly / perGold:0} gold.");
     }
 
     [TestMethod]
@@ -478,6 +478,18 @@ public class BuildModelTests
 
         Assert.Contains(Item(3047), build.Items, "What they own stays.");
         Assert.AreEqual(standard.First(i => i.RiotId != 3047).Id, build.Purchases.First().Item.Id, "Next is the first standard item they lack.");
+    }
+
+    [TestMethod]
+    public void EnemiesSlightlyShortOfAnItemAreForecastToHaveIt()
+    {
+        var rumble = Player("Rumble", Team.Chaos, "TOP", 8);
+        var first = _model.Meta.For(rumble.Champion)[0];
+        var grace = _model.Settings.Income.EnemyGoldGrace;
+        var projector = new BuildProjector(_items, _model.Meta, grace);
+
+        Assert.AreEqual(first.Id, projector.Project(rumble, first.Cost - grace / 2, _ => Now).Purchases.Single().Item.Id);
+        Assert.IsEmpty(projector.Project(rumble, first.Cost - grace * 2, _ => Now).Purchases, "Well short still buys components only.");
     }
 
     [TestMethod]

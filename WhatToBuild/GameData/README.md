@@ -348,6 +348,7 @@ One file per champion, in `Champions/`, named `<riotId>-<internalName>.json`.
   "name": "Kindred",
   "icon": "Kindred.png",
   "attackSpeedRatio": 0.625,
+  "attackWindup": 0.1754,
   "base":     { "health": 595, "attackDamage": 65, "armor": 29, "attackSpeed": 0.625 },
   "perLevel": { "health": 104, "attackDamage": 3.25, "armor": 4.7, "attackSpeed": 0.035 },
   "tags": { "adDamageDealer": 0.9, "ranged": 1.0, "healing": 0.4 },
@@ -374,6 +375,12 @@ Two traps, both of which silently produce wrong damage:
 `attackSpeedRatio` sits outside the sheets because it does not grow. Bonus attack
 speed scales off it rather than off base attack speed, and Data Dragon does not
 publish it at all. Jhin is the exception with no ratio: his attack speed is fixed.
+
+`attackWindup` is the share of each attack spent winding it up before it lands, so the windup
+takes `attackWindup / attackSpeed` seconds. It comes from the champion's bin in CommunityDragon:
+`mAttackCastTime / mAttackTotalTime` under `basicAttack` when both are there (Kayn 0.28 / 1.495,
+Vi 0.36 / 1.6), otherwise `0.3 + mAttackDelayCastOffsetPercent` (Kindred −0.1246, Nasus
+−0.0986). A champion without it gets the game's base, 0.3. Only simulated champions need it.
 
 ### Stacking
 
@@ -469,6 +476,21 @@ Champions whose abilities are simulated have a file in `Kits/`, read by their co
 `SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`), Kayn (`Kits/kayn.json`), Vi (`Kits/vi.json`) and
 Nasus (`Kits/nasus.json`).
 
+**Fight timing, for every champion.** Attacks and spells both have animations, and the fight
+plays them out:
+
+- An attack winds up for `attackWindup / attackSpeed` seconds (see Champions) and lands at the
+  end of it. Nothing is cast during a windup.
+- A spell's `castTime` is its animation: no attacks and no other spells until it ends. Values
+  are the spell's `mCastTime` in the champion's bin; a spell without one gets the game's 0.25s.
+- The attack timer keeps running through windups and casts. An attack that comes off cooldown
+  during a cast waits for the cast to end.
+- A ready attack goes out before any spell with an animation, so spells fill the gaps the attack
+  timer leaves: attack, spell, attack, spell. A spell with no animation (Nasus's Q, Vi's E,
+  Kindred's Q) can go out ahead of a ready attack, since it costs the attack no time.
+- Only real resets bring the next attack forward: Vi's E, Nasus's Q and Kindred's Q. Every
+  other spell leaves the attack timer alone.
+
 ### Kayn
 
 Numbers from `kayn.bin.json` (spells `KaynQ`, `KaynW`, `KaynAssW`, `KaynE`, `KaynR`, `KaynPassive`),
@@ -491,11 +513,11 @@ and 2 Darkin Slayer (Rhaast).
   damage for 3 seconds after entering combat, then not again for 8 seconds unless R resets it.
 - E (Shadow Step) moves through walls and does no damage, so fights leave it out.
 - `castTime` (Q 0.15s, W 0.55s / Shadow Assassin 0.6s, R) blocks basic attacks while casting.
-- **Weaving**: Kayn fights spell, attack, spell, attack. Every ability resets the attack timer,
-  so an attack lands as soon as the cast ends, and the next spell waits for that attack. Two
-  spells never land in the same instant. Between spells, while everything is on cooldown, he
-  attacks at his attack speed. `attackUptime` is 1: the weave itself is the time he spends
-  casting, so there is no separate discount on his attacks any more.
+- **Weaving**: attack, Q, attack, W, attack, one spell in each gap between attacks, Q before W.
+  None of his abilities resets the attack timer, so after a spell the next attack still waits
+  for the timer (and for the spell's animation, if that runs longer). While everything is on
+  cooldown he attacks at his attack speed. `attackUptime` is 1: the windups and casts are the
+  time he is not attacking, so there is no separate discount.
 
 Development mode replays `Replays/kayn`: the Kindred demo game with the active player turned
 into a level 13 Kayn (Profane Hydra, Ionian Boots, Youmuu's Ghostblade, Long Sword, Scorchclaw
@@ -511,9 +533,10 @@ it later throws away everything planned behind it. A new lobby clears the lock.
 Forms: before `forms.transformSeconds` (10:00) Kayn is planned in base form, after that in the
 locked form. Both are scored on damage over a teamfight weighted by time alive, and Rhaast is
 kept unless Shadow Assassin beats it by `preferDefaultMargin` (10%).
-Objectives per form are in `objectives`. `Kayn/ShadowAssassin` is pure damage — full damage
-weight, full burst (the share of each enemy's health removed in the first three seconds), and
-nothing at all for staying alive, so he never buys a survival item. `Kayn/Darkin` wants damage
+Objectives per form are in `objectives`. Every Kayn entry scores burst (the share of each
+enemy's health removed in the first three seconds) instead of damage over the whole fight:
+`damage` is 0 and its weight moved into `burst`. `Kayn/ShadowAssassin` is pure burst (2) and
+nothing at all for staying alive, so he never buys a survival item. `Kayn/Darkin` wants burst
 *and* to live through the fight, so Rhaast pays for time alive (0.5) and fight uptime. Rhaast
 has no ability of his own in the live data (only Shadow Assassin's `KaynAssW` shows), so he is
 told apart by elimination: from `forms.undetectedIsDefaultFromSeconds` (15:00) a Kayn without
@@ -525,13 +548,15 @@ Numbers from `vi.bin.json` (patch 16.18 client data, which is the 26.18 patch): 
 `ViW`, `ViE`, `ViR`, `ViPassive`. Per-rank lists keep index 0 unused, as for the others;
 percentages are fractions.
 
-- **Combo**: R, attack, E, attack, fully charged Q, attack, E, attack, and round again. Every
-  ability resets the attack timer, so the attack after it lands as soon as it ends, and the next
-  ability waits for that attack. A step whose ability is not ready is passed over for the next
-  one that is, in combo order, and the combo carries on from there.
+- **Combo**: R, attack, E, attack, fully charged Q, attack, E, attack, and round again. Only E
+  resets the attack timer; after Q and R the attack waits for it. The next ability waits for an
+  attack. A step whose ability is not ready is passed over for the next one that is, in combo
+  order, and the combo carries on from there. A step that would hold up a ready attack waits for
+  it instead, except R at the start of a fight: it is her engage, cast from range.
 - `q` — Vault Breaker is charged in full (`chargeSeconds`, the spell's 1.25s charge) with no
-  attacks meanwhile, then deals `MinDamage` + 60% bonus AD times `MaxDamageMult` 2.5. The
-  cooldown starts when it is let go.
+  attacks meanwhile. She then dashes for `releaseSeconds` (0.48s, `ViQMissile`'s `mCastTime`),
+  and it deals `MinDamage` + 60% bonus AD times `MaxDamageMult` 2.5 when she lands. The
+  cooldown starts then.
 - `w` — Denting Blows: every third attack on the target (`StacksBeforeEffect` 2) deals 4–8%
   (+0.035% per bonus AD) of its max health, capped at 300 on monsters, shreds 20% armor and
   gives 30–50% attack speed for 4 seconds. Only attacks count toward it here.
@@ -588,7 +613,9 @@ stores them, so index 1 is rank 1 and index 0 is unused (E's cooldown is
 - `q` — `BaseDamage` plus 75% bonus AD (the ratio is in `mSpellCalculations`), attack
   speed `BaseBonusAS` + `ASPerMark` per mark for `BaseASDuration`, cooldown 9s or
   `CDNewValue` when cast inside W. Q, attack, Q, attack: the dash resets her attack timer, so
-  an attack follows it at once, and the next Q waits for that attack. W and E do not reset it.
+  an attack starts right after it, and the next Q waits for that attack. W and E do not reset it.
+  `castTime`: Q 0.01s (`KindredQ`'s `mCastTime`, effectively instant); W and E have no
+  `mCastTime` in the bin, so they take the game's 0.25s.
 - `w` — the wolf bites the target for `CloneDamageFlat` + 20% bonus AD + 20% AP plus
   `CloneBasePercentDamage` + `ClonePercentDamagePerBounty` per mark of **current**
   health, as magic damage, for `ZoneDuration`. The wolf attacks at its own speed from
@@ -804,10 +831,12 @@ League wiki's Movement speed page. It is worth three things:
 
 - **Tempo**: part of every game is walking between camps, lanes and fights (`walkShare` by
   role: jungle 45%, support 40%, mid 30%, top and bottom 25%). Being faster shrinks it, and the
-  score adds `tempoWeight · ln(tempo)`. The weight follows `tempoWeightByMinute`, measured so one
-  point of movement speed is worth about 12 gold of your other stats at that point in the game
-  (the wiki's gold value for flat movement speed; Boots are 300 gold for 25).
-  `OneBootsPointIsWorthAboutTwelveGoldOfStats` checks it.
+  score adds `tempoWeight · ln(tempo)`. The weight follows `tempoWeightByMinute`, first fitted so
+  one point of movement speed was worth about 12 gold of your other stats (the wiki's gold value
+  for flat movement speed; Boots are 300 gold for 25). That fit was made while the fight sim all
+  but ignored attack speed; now that attack speed counts, stats are worth more per gold and the
+  same curve prices a point at about 5 gold (Boots ≈ 125). The curve was kept as it is on
+  purpose. `OneBootsPointIsWorthAboutFiveGoldOfStats` checks it.
 - **Clear**: walking between camps (`walkSeconds`) is timed at base speed and shrinks with
   yours.
 - **Fights**: incoming damage scales with (enemy team's average speed / yours) to the power

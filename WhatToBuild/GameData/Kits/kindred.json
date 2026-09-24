@@ -8,7 +8,8 @@
     "attackSpeed": 0.35,
     "attackSpeedPerMark": 0.05,
     "attackSpeedDuration": 4,
-    "canCrit": true
+    "canCrit": true,
+    "castTime": 0.01
   },
   "w": {
     "cooldown": [19, 18, 17, 16, 15, 14, 14],
@@ -23,7 +24,8 @@
     "wolfAttackSpeedPerLevel": 0.027,
     "wolfShareOfBonusAttackSpeed": 0.25,
     "monsterBonusDamage": 0.5,
-    "zoneUptime": 0.6
+    "zoneUptime": 0.6,
+    "castTime": 0.25
   },
   "e": {
     "cooldown": [14, 14, 12.5, 11, 9.5, 8, 8],
@@ -34,7 +36,8 @@
     "missingHealth": 0.05,
     "missingHealthPerMark": 0.005,
     "critChanceRatio": 0.5,
-    "monsterCap": 200
+    "monsterCap": 200,
+    "castTime": 0.25
   },
   "r": {
     "duration": 4,

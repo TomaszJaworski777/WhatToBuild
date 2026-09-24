@@ -5,6 +5,7 @@
     "name":  "Nasus",
     "icon":  "Nasus.png",
     "attackSpeedRatio":  0.638,
+    "attackWindup":  0.2014,
     "base":  {
                  "health":  650,
                  "mana":  326,

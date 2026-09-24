@@ -96,10 +96,30 @@ public class KaynKitTests
         var supported = _kits.For(Kayn)!;
         var us = KaynWith(13, 3071, 3053);
 
-        Assert.IsGreaterThanOrEqualTo(0.25, supported.DamageHealShare(us, KaynForm.Darkin));
-        Assert.AreEqual(0, supported.DamageHealShare(us, KaynForm.ShadowAssassin), 1e-9);
+        Assert.IsGreaterThanOrEqualTo(0.25, supported.Omnivamp(us, KaynForm.Darkin));
+        Assert.AreEqual(0, supported.Omnivamp(us, KaynForm.ShadowAssassin), 1e-9);
         Assert.IsGreaterThan(0, supported.Survival(new AbilityRanks(0, 0, 0, 1), us, KaynForm.Darkin, 2000)!.Heal);
         Assert.AreEqual(0, supported.Survival(new AbilityRanks(0, 0, 0, 1), us, KaynForm.ShadowAssassin, 2000)!.Heal, 1e-9);
+    }
+
+    [TestMethod]
+    public void LifeStealHealsOffAttacksAndOmnivampOffEverything()
+    {
+        const int Bloodthirster = 3072;
+        var us = KaynWith(13, Bloodthirster);
+        var ranks = new AbilityRanks(5, 3, 1, 2);
+
+        var fight = Fight(KaynForm.ShadowAssassin, us, ranks, 3);
+        var attacks = fight.DamageBySource[FightSimulator.Attacks];
+        Assert.IsGreaterThan(0, fight.DamageBySource[KaynKit.ReapingSlash]);
+        Assert.AreEqual(0.15 * attacks, fight.SelfHealed, 0.05 * attacks, "Bloodthirster heals off his attacks, not his spells.");
+
+        var rhaast = FightSimulator.Run(
+            new FightSetup(us, Target(), ranks, 0, 3, 0.5, Sustained: true, Omnivamp: 0.25),
+            _kits.NewFight(Kayn, KaynForm.Darkin));
+        var spells = rhaast.Damage - rhaast.DamageBySource[FightSimulator.Attacks];
+        Assert.IsGreaterThan(0.15 * rhaast.DamageBySource[FightSimulator.Attacks] + 0.2 * spells, rhaast.SelfHealed,
+            "Rhaast's passive heals off his spells too.");
     }
 
     [TestMethod]

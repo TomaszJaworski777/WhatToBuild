@@ -35,6 +35,9 @@ public sealed class ViKitData
         public double BonusAdRatio { get; set; }
         public double MaxDamageMultiplier { get; set; } = 1;
         public double ChargeSeconds { get; set; }
+
+        /// <summary>The dash after the charge is let go (ViQMissile's mCastTime): no attacks until she lands.</summary>
+        public double ReleaseSeconds { get; set; }
     }
 
     public sealed class WData
