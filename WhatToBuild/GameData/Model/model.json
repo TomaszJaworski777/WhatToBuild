@@ -86,7 +86,6 @@
     "champions": {
       "Kindred": {
         "damage": 1,
-        "uptime": 0,
         "survival": 0,
         "clear": 1,
         "movement": 1
@@ -94,7 +93,6 @@
       "Kayn": {
         "damage": 0,
         "burst": 1,
-        "uptime": 1,
         "survival": 0.5,
         "clear": 1,
         "movement": 1
@@ -102,7 +100,6 @@
       "Kayn/Darkin": {
         "damage": 0,
         "burst": 1,
-        "uptime": 1,
         "survival": 0.5,
         "clear": 1,
         "movement": 1
@@ -110,7 +107,6 @@
       "Vi": {
         "damage": 1,
         "burst": 0.25,
-        "uptime": 1,
         "survival": 0.5,
         "clear": 1,
         "movement": 1
@@ -118,7 +114,6 @@
       "Nasus": {
         "damage": 1,
         "burst": 0,
-        "uptime": 1,
         "survival": 1,
         "clear": 1,
         "movement": 1
@@ -126,7 +121,6 @@
       "Kayn/ShadowAssassin": {
         "damage": 0,
         "burst": 2,
-        "uptime": 0,
         "survival": 0,
         "clear": 1,
         "movement": 1

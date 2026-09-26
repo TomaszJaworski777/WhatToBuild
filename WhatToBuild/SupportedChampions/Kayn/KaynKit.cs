@@ -70,7 +70,14 @@ public sealed class KaynChampion : ISupportedChampion
             : 0;
 }
 
-public sealed class KaynKit : IChampionKit
+/// <summary>
+/// Kayn's script, in priority: Q, then W, then R once something has landed on a champion. Attack,
+/// Q, attack, W, attack: one spell in each gap the attack timer leaves, after the attack's windup.
+/// None of his abilities reset the timer, so the next attack still waits for it, and for the
+/// spell's animation if that runs longer. He weaves in and out of the target, so he is attacking
+/// only part of the time (<see cref="KaynKitData.AttackUptime"/>).
+/// </summary>
+public sealed class KaynKit : ScriptedKit
 {
     public const string ReapingSlash = "Q Reaping Slash";
     public const string BladesReach = "W Blade's Reach";
@@ -100,7 +107,20 @@ public sealed class KaynKit : IChampionKit
 
     private bool Assassin => _form == KaynForm.ShadowAssassin;
 
-    public void Update(Fight fight)
+    protected override Playstyle DefinePlaystyle() => new(
+        ComboOrder.Priority,
+        [
+            new ScriptedAbility("Q", CastTiming.BetweenAttacks, CastQ, Woven: true),
+            new ScriptedAbility("W", CastTiming.BetweenAttacks, CastW, Woven: true),
+            new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR, Woven: true),
+        ],
+        new Kiting(_data.AttackUptime),
+        Burst: ["W", "Q", Attack]);
+
+    protected override ScriptedKit Fresh(bool burst) => new KaynKit(_data, _form);
+
+    /// <summary>The Shadow Assassin passive opens the fight, and Umbral Trespass bursts out when he leaves the target.</summary>
+    protected override void BeforeCasts(Fight fight)
     {
         if (!_started)
         {
@@ -112,33 +132,9 @@ public sealed class KaynKit : IChampionKit
         {
             ExitR(fight);
         }
-
-        if (!fight.CanCast || !_weave)
-        {
-            return;
-        }
-
-        // Attack, Q, attack, W, attack: one spell in each gap the attack timer leaves, after the
-        // attack's windup. None of his abilities reset the timer, so the next attack still waits
-        // for it, and for the spell's animation if that runs longer.
-        _ = CastQ(fight) || CastW(fight) || CastR(fight);
     }
 
-    public void OnAttack(Fight fight)
-    {
-        _weave = true;
-    }
-
-    private bool _weave = true;
-
-    private void Woven(Fight fight)
-    {
-        _weave = false;
-    }
-
-    public double AttackUptime => _data.AttackUptime;
-
-    public void OnDamage(Fight fight, string source, double damage)
+    public override void OnDamage(Fight fight, string source, double damage)
     {
         if (!Assassin || source == ShadowPassive || fight.Time > _passiveUntil || damage <= 0)
         {
@@ -181,7 +177,6 @@ public sealed class KaynKit : IChampionKit
         fight.Cast();
         fight.Casting(_data.Q.CastTime);
         _qReadyAt = fight.Time + fight.Cooldown(KaynKitData.AtRank(_data.Q.Cooldown, rank));
-        Woven(fight);
         return true;
     }
 
@@ -222,7 +217,6 @@ public sealed class KaynKit : IChampionKit
         fight.Cast();
         fight.Casting(Assassin ? w.AssassinCastTime : w.CastTime);
         _wReadyAt = fight.Time + fight.Cooldown(KaynKitData.AtRank(w.Cooldown, rank));
-        Woven(fight);
         return true;
     }
 
@@ -237,7 +231,6 @@ public sealed class KaynKit : IChampionKit
         _exitAt = fight.Time + _data.R.CastTime + _data.R.MinimumInfest;
         fight.Casting(_data.R.CastTime + _data.R.MinimumInfest);
         _rReadyAt = fight.Time + fight.Cooldown(KaynKitData.AtRank(_data.R.Cooldown, rank));
-        _weave = false;
         return true;
     }
 

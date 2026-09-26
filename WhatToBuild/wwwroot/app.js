@@ -458,7 +458,7 @@ function renderForm(rec) {
 
     const cards = f.options.map((o) => {
         const picked = o.form === f.recommended;
-        const burst = o.burstTarget ? `<div>First 3s take <b>${pct(o.burstOnTarget ?? 0)}</b> of ${esc(o.burstTarget)}'s health, kill in <b>${killTime(o.burstKillSeconds)}</b></div>` : "";
+        const burst = o.burstTarget ? `<div>Burst combo takes <b>${pct(o.burstOnTarget ?? 0)}</b> of ${esc(o.burstTarget)}'s health, kill in <b>${killTime(o.burstKillSeconds)}</b></div>` : "";
         const heal = o.healingPerSecond >= 1 ? `<div>Heals <b>${Math.round(o.healingPerSecond)}</b>/s in fights</div>` : "";
         return `
             <div class="form-card${picked ? " form-picked" : ""}">
@@ -666,44 +666,41 @@ function onRecommendation(recommendation) {
     renderAll();
 }
 
-// Build focus: the champion's constant objective weights (constant damage, burst, uptime,
-// survival) as a four-cornered shape. Each corner slides along its own axis from 0 to the max.
-// The score adds weight × ln(measure) per axis, so only the balance between weights matters:
-// a weight twice another means +1% of the first is worth +2% of the second.
+// Build focus: the champion's constant objective weights (constant damage, burst, survival) as a
+// three-cornered shape. Each corner slides along its own axis from 0 to the max. Damage and burst
+// never mind dying; only survival does. The score adds weight × ln(measure) per axis, so only
+// the balance between weights matters: a weight twice another means +1% of the first is worth
+// +2% of the second.
 const FOCUS_CENTER = 100;
 const FOCUS_RADIUS = 80;
-// Constant damage (top) and burst (bottom) face each other, uptime and survival too; the long
-// label goes on the vertical axis, where it has room.
-const FOCUS_ANGLES = { damage: -90, uptime: 0, burst: 90, survival: 180 };
+// Constant damage on top, where its long label has room; burst and survival below.
+const FOCUS_ANGLES = { damage: -90, burst: 30, survival: 150 };
 // Corners are joined in this order, round the centre, so the shape never crosses itself.
-const FOCUS_ORDER = ["damage", "uptime", "burst", "survival"];
+const FOCUS_ORDER = ["damage", "burst", "survival"];
 /** What each axis measures, written out for the finished core. */
 const FOCUS_MEASURE = {
     damage: (v) => `${Math.round(v)} DPS`,
-    burst: (v) => `${Math.round(v * 100)}% of an enemy's health in 3 s`,
-    uptime: (v, fight) => `alive ${v.toFixed(1)} of ${fight} s of a teamfight`,
+    burst: (v) => `${Math.round(v * 100)}% of an enemy's health with the burst combo`,
     survival: (v) => `${v.toFixed(1)} s alive when focused`,
 };
 /** Just the number, for the value before a change. */
 const FOCUS_VALUE = {
     damage: (v) => `${Math.round(v)}`,
     burst: (v) => `${Math.round(v * 100)}%`,
-    uptime: (v) => `${v.toFixed(1)} s`,
     survival: (v) => `${v.toFixed(1)} s`,
 };
 /** The same, as a noun for the trade-off sentences. */
 const FOCUS_NOUN = {
     damage: "damage",
     burst: "burst",
-    uptime: "teamfight time alive",
     survival: "time alive when focused",
 };
-/** Starting points, built only from these four weights; scaled to the champion's own total. */
+/** Starting points, built only from these three weights; scaled to the champion's own total. */
 const FOCUS_PRESETS = [
-    { name: "Damage", hint: "Sustained damage only", weights: { damage: 1, burst: 0, uptime: 0, survival: 0 } },
-    { name: "One-shot", hint: "Take as much as possible in the first 3 seconds", weights: { damage: 0, burst: 1, uptime: 0, survival: 0 } },
-    { name: "Bruiser", hint: "Damage, and live long enough to deal it", weights: { damage: 1, burst: 0.25, uptime: 1, survival: 0.5 } },
-    { name: "Tank", hint: "Stay alive first", weights: { damage: 0.5, burst: 0, uptime: 1, survival: 1.5 } },
+    { name: "Damage", hint: "Sustained damage only, dying or not", weights: { damage: 1, burst: 0, survival: 0 } },
+    { name: "One-shot", hint: "As much as possible with your burst combo", weights: { damage: 0, burst: 1, survival: 0 } },
+    { name: "Bruiser", hint: "Damage, and live long enough to deal it", weights: { damage: 1, burst: 0.25, survival: 1 } },
+    { name: "Tank", hint: "Stay alive first", weights: { damage: 0.5, burst: 0, survival: 1.5 } },
 ];
 const focusState = {
     key: null, label: "", weights: [], max: 3, custom: false, values: null, dragging: null, pending: null,
@@ -771,11 +768,11 @@ function drawFocusFrame() {
 /** The corner labels sit past the end of each axis, with the value under the name. */
 function drawFocusLabels(values) {
     $("focus-axes").innerHTML = focusWeights().map((w) => {
-        const angle = FOCUS_ANGLES[w.name];
+        const angle = FOCUS_ANGLES[w.name] * Math.PI / 180;
         const [x, y] = axisPoint(w.name, focusState.max);
-        const side = angle === 180 ? -1 : angle === 0 ? 1 : 0;
+        const side = Math.abs(Math.cos(angle)) < 0.2 ? 0 : Math.sign(Math.cos(angle));
         const lx = x + side * 14;
-        const ly = angle === -90 ? y - 22 : angle === 90 ? y + 18 : y - 3;
+        const ly = Math.sin(angle) < -0.9 ? y - 22 : Math.sin(angle) > 0.9 ? y + 18 : y - 3;
         const anchor = side < 0 ? "end" : side > 0 ? "start" : "middle";
         const changed = Math.abs(values[w.name] - w.default) >= 0.001;
         return `<text class="focus-axis-label" x="${lx}" y="${ly}" text-anchor="${anchor}">${esc(w.label)}`

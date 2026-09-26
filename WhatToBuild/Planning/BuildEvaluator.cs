@@ -211,13 +211,14 @@ public sealed class Evaluation
 
     public required double Burst { get; init; }
 
-    public required double Uptime { get; init; }
+    public required double FightSeconds { get; init; }
 
     public required double MoveSpeed { get; init; }
 
     public required double Tempo { get; init; }
 
-    public double DamageBeforeDeath => Dps * Uptime;
+    /// <summary>What you deal in a teamfight before you die, if you do: for weighing forms, not part of the score.</summary>
+    public double DamageBeforeDeath => Dps * Math.Min(FightSeconds, TimeAlive);
 
     public required double IncomingDps { get; init; }
 
@@ -423,8 +424,6 @@ public sealed class BuildEvaluator
         var opening = targets.Sum(t => t.Enemy.Threat * Math.Min(1, t.Fight.EarlyDamage / Math.Max(1, t.Fight.TargetHealth)));
         var survival = Survival(us, field, targets, form);
         var fightSeconds = settings.Fight.TeamfightSeconds;
-        var caught = settings.Fight.CaughtShare;
-        var uptime = fightSeconds * ((1 - caught) + caught * (1 - Math.Exp(-survival.TimeAlive / fightSeconds)));
 
         var clearWeight = _context.ClearWeightAt(time);
         ClearResult? clear = null;
@@ -436,9 +435,10 @@ public sealed class BuildEvaluator
         var walkShare = settings.Movement.WalkShareFor(_context.Me.Position);
         var tempo = 1 / (walkShare * _context.Champion.Base.MoveSpeed / Math.Max(1, us.Stats.MoveSpeed) + 1 - walkShare);
 
+        // Each objective stands alone: damage is sustained DPS and burst what the burst combo takes,
+        // neither minding whether you live; dying only counts through survival.
         var objective = _context.ObjectiveFor(form);
-        var score = objective.Damage * Math.Log(Math.Max(MinimumValue, dps))
-                    + objective.Uptime * Math.Log(Math.Max(MinimumValue, uptime))
+        var score =objective.Damage * Math.Log(Math.Max(MinimumValue, dps))
                     + objective.Burst * Math.Log(Math.Max(MinimumValue, opening))
                     + objective.Movement * settings.Movement.TempoWeightAt(time) * Math.Log(tempo)
                     + objective.Survival * Math.Log(Math.Max(MinimumValue, survival.TimeAlive))
@@ -453,7 +453,7 @@ public sealed class BuildEvaluator
             TimeAliveWithoutAbility = survival.WithoutAbility,
             Form = form,
             Burst = opening,
-            Uptime = uptime,
+            FightSeconds = fightSeconds,
             MoveSpeed = us.Stats.MoveSpeed,
             Tempo = tempo,
             IncomingDps = survival.Incoming,

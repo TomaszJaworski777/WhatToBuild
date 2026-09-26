@@ -628,7 +628,7 @@ public sealed class BuildRecommendations : IRecommendationSource
         {
             var e = evaluator.Evaluate(inventory, time, null, EvaluationMode.Full, form);
             var onCarry = carry is null ? null : e.Targets.FirstOrDefault(t => t.Enemy == carry)?.Fight;
-            return new FormOptionDto(form, supported.FormLabel(form), e.Dps * e.Uptime, e.Dps, e.TimeAlive, e.HealingPerSecond, carry?.Champion.Name,
+            return new FormOptionDto(form, supported.FormLabel(form), e.DamageBeforeDeath, e.Dps, e.TimeAlive, e.HealingPerSecond, carry?.Champion.Name,
                 onCarry?.TimeToKill, e.Burst, onCarry is null ? null : Math.Min(1, onCarry.EarlyDamage / Math.Max(1, onCarry.TargetHealth)));
         }).ToList();
 
@@ -779,8 +779,7 @@ public sealed class BuildRecommendations : IRecommendationSource
         return new WeightsDto(key, label,
         [
             Weight("damage", "Constant damage", "Damage per second over a whole fight", w => w.Damage, finished.Dps),
-            Weight("burst", "Burst", "Share of the enemy team's health you take in the first three seconds", w => w.Burst, finished.Burst),
-            Weight("uptime", "Uptime", "Seconds of a teamfight you are still alive and hitting", w => w.Uptime, finished.Uptime),
+            Weight("burst", "Burst", "Share of the enemy team's health your burst combo takes", w => w.Burst, finished.Burst),
             Weight("survival", "Survival", "Seconds you last when the enemy team focuses you", w => w.Survival, finished.TimeAlive),
         ], ModelSettings.ObjectiveWeights.MaxWeight, context.ChosenWeights.ContainsKey(key), finished.Time, context.Settings.Fight.TeamfightSeconds);
     }
@@ -890,7 +889,7 @@ public sealed class BuildRecommendations : IRecommendationSource
         var item = step.Item;
         var reasons = new List<string>
         {
-            $"+{Pct(Math.Exp(after.Score - before.Score) - 1)} fight value at ~{Clock(step.At)} (damage before death {before.DamageBeforeDeath:0} → {after.DamageBeforeDeath:0})",
+            $"+{Pct(Math.Exp(after.Score - before.Score) - 1)} fight value at ~{Clock(step.At)}",
             $"Damage: {before.Dps:0} → {after.Dps:0} DPS against the enemy team as forecast then (+{Pct(Gain(before.Dps, after.Dps))})",
         };
 

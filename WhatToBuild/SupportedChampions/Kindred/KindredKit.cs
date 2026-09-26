@@ -31,7 +31,15 @@ public sealed class KindredChampion : ISupportedChampion
         new KindredKit(_data).EHint(new Fight(setup)) is { } e ? [e] : [];
 }
 
-public sealed class KindredKit : IChampionKit
+/// <summary>
+/// Kindred's script, in priority each tick: Wolf's Frenzy, then Dance of Arrows, then Mounting
+/// Dread. Q, attack, Q, attack: the dash has no animation worth an attack and resets the attack
+/// timer, so an attack follows it at once, and the next Q waits for that attack. W and E have
+/// animations and go between attacks, and neither resets the timer. E is held until the pounce
+/// would kill, unless its cooldown would be back before then. She attacks the whole fight, dashing
+/// in and out of the wolf's zone rather than parked in it (<see cref="KindredKitData"/>'s zone uptime).
+/// </summary>
+public sealed class KindredKit : ScriptedKit
 {
     public const string DanceOfArrows = "Q Dance of Arrows";
     public const string WolfsFrenzy = "W Wolf's Frenzy";
@@ -62,18 +70,23 @@ public sealed class KindredKit : IChampionKit
 
     public bool InZone(Fight fight) => fight.Time < _zoneUntil;
 
-    public void Update(Fight fight)
-    {
-        CastW(fight);
-        CastQ(fight);
-        CastE(fight);
-        WolfBites(fight);
-    }
+    protected override Playstyle DefinePlaystyle() => new(
+        ComboOrder.Priority,
+        [
+            new ScriptedAbility("W", CastTiming.BetweenAttacks, CastW),
+            new ScriptedAbility("Q", CastTiming.Instant, CastQ, Woven: true, ResetsAttack: true),
+            new ScriptedAbility("E", CastTiming.BetweenAttacks, CastE),
+        ],
+        Kiting.StandAndFight,
+        Burst: ["W", "E", Attack, "Q", Attack, Attack]);
 
-    public void OnAttack(Fight fight)
-    {
-        _qWeave = true;
+    /// <summary>The burst casts E at once: it is the opener there, not held for the kill.</summary>
+    protected override ScriptedKit Fresh(bool burst) => new KindredKit(_data, _holdE && !burst);
 
+    protected override void AfterCasts(Fight fight) => WolfBites(fight);
+
+    protected override void Attacked(Fight fight)
+    {
         if (_eAttacksLeft <= 0 || fight.Time > _eExpiresAt)
         {
             return;
@@ -88,12 +101,12 @@ public sealed class KindredKit : IChampionKit
         }
     }
 
-    private void CastW(Fight fight)
+    private bool CastW(Fight fight)
     {
         var rank = fight.Ranks.W;
-        if (rank <= 0 || fight.Time < _wReadyAt || !fight.CanCast)
+        if (rank <= 0 || fight.Time < _wReadyAt)
         {
-            return;
+            return false;
         }
 
         _zoneUntil = fight.Time + _data.W.ZoneDuration;
@@ -101,14 +114,15 @@ public sealed class KindredKit : IChampionKit
         fight.Casting(_data.W.CastTime);
         _nextBite = fight.Time;
         _wReadyAt = fight.Time + fight.Cooldown(KindredKitData.AtRank(_data.W.Cooldown, rank));
+        return true;
     }
 
-    private void CastQ(Fight fight)
+    private bool CastQ(Fight fight)
     {
         var rank = fight.Ranks.Q;
-        if (rank <= 0 || fight.Time < _qReadyAt || !_qWeave || !fight.CanCastInstant)
+        if (rank <= 0 || fight.Time < _qReadyAt)
         {
-            return;
+            return false;
         }
 
         var q = _data.Q;
@@ -128,21 +142,15 @@ public sealed class KindredKit : IChampionKit
         var share = InZone(fight) ? _data.W.ZoneUptime : 0;
         var cooldown = share * KindredKitData.AtRank(q.CooldownInW, rank) + (1 - share) * q.Cooldown;
         _qReadyAt = fight.Time + fight.Cooldown(cooldown);
-
-        // Q, attack, Q, attack: the dash resets her attack timer, so an attack follows it at
-        // once, and the next Q waits for that attack. W and E do not reset it.
-        _qWeave = false;
-        fight.ResetAttack();
+        return true;
     }
 
-    private bool _qWeave = true;
-
-    private void CastE(Fight fight)
+    private bool CastE(Fight fight)
     {
         var rank = fight.Ranks.E;
-        if (rank <= 0 || fight.Time < _eReadyAt || !fight.CanCast || !WorthCastingE(fight, rank))
+        if (rank <= 0 || fight.Time < _eReadyAt || !WorthCastingE(fight, rank))
         {
-            return;
+            return false;
         }
 
         _eAttacksLeft = _data.E.AttacksAfterCast;
@@ -150,6 +158,7 @@ public sealed class KindredKit : IChampionKit
         fight.Casting(_data.E.CastTime);
         _eExpiresAt = fight.Time + _data.E.Window;
         _eReadyAt = fight.Time + fight.Cooldown(KindredKitData.AtRank(_data.E.Cooldown, rank));
+        return true;
     }
 
     private bool WorthCastingE(Fight fight, int rank)

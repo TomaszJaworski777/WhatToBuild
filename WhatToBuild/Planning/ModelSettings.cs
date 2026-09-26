@@ -56,7 +56,6 @@ public sealed class ModelSettings
         public List<double> CheapAttackPhases { get; set; } = [0.5];
         public int CheapTargets { get; set; } = 3;
         public double MaxTimeAliveSeconds { get; set; } = 60;
-        public double CaughtShare { get; set; } = 0.35;
         public double TeamfightIntervalSeconds { get; set; } = 120;
     }
 
@@ -151,7 +150,6 @@ public sealed class ModelSettings
         public double Clear { get; set; } = 1;
 
         public double Movement { get; set; } = 1;
-        public double Uptime { get; set; } = 1;
         public double Burst { get; set; }
 
         /// <summary>The most any one weight can be set to from the page.</summary>
@@ -163,15 +161,14 @@ public sealed class ModelSettings
             Survival = Math.Clamp(Survival, 0, MaxWeight),
             Clear = Math.Clamp(Clear, 0, MaxWeight),
             Movement = Math.Clamp(Movement, 0, MaxWeight),
-            Uptime = Math.Clamp(Uptime, 0, MaxWeight),
             Burst = Math.Clamp(Burst, 0, MaxWeight),
         };
 
         public string Key => string.Create(CultureInfo.InvariantCulture,
-            $"{Damage:0.00}/{Burst:0.00}/{Uptime:0.00}/{Survival:0.00}");
+            $"{Damage:0.00}/{Burst:0.00}/{Survival:0.00}");
 
         /// <summary>
-        /// These weights with the constant, champion-specific ones (damage, burst, uptime,
+        /// These weights with the constant, champion-specific ones (damage, burst and
         /// survival) taken from <paramref name="chosen"/>. Clear and movement stay: they already
         /// change with game time, so they are the model's to set, not a build preference.
         /// </summary>
@@ -179,7 +176,6 @@ public sealed class ModelSettings
         {
             Damage = chosen.Damage,
             Burst = chosen.Burst,
-            Uptime = chosen.Uptime,
             Survival = chosen.Survival,
             Clear = Clear,
             Movement = Movement,

@@ -100,7 +100,7 @@ public class SliderPlanTests
         var state = Game("Kayn", 12 * 60, 0);
         var chosen = new Dictionary<string, ModelSettings.ObjectiveWeights>
         {
-            ["Kayn/Darkin"] = new() { Damage = 0.4, Burst = 2, Uptime = 0, Survival = 0, Clear = 3, Movement = 3 },
+            ["Kayn/Darkin"] = new() { Damage = 0.4, Burst = 2, Survival = 0, Clear = 3, Movement = 3 },
         };
         var stack = new GameStack();
         stack.Push(state);
@@ -124,7 +124,7 @@ public class SliderPlanTests
         var state = Game("Kindred", 12 * 60, 800, pet: Gustwalker, marks: 4);
         var tanky = new Dictionary<string, ModelSettings.ObjectiveWeights>
         {
-            ["Kindred"] = new() { Damage = 1, Burst = 0, Uptime = 1, Survival = 2 },
+            ["Kindred"] = new() { Damage = 1, Burst = 0, Survival = 2 },
         };
 
         var standard = Plan(state);
@@ -140,7 +140,7 @@ public class SliderPlanTests
         var preferences = new PlanPreferences();
         var before = preferences.Key;
 
-        preferences.SetWeights("Kindred", new ModelSettings.ObjectiveWeights { Damage = 1, Burst = 9, Uptime = 0, Survival = 0.5 });
+        preferences.SetWeights("Kindred", new ModelSettings.ObjectiveWeights { Damage = 1, Burst = 9, Survival = 0.5 });
 
         Assert.AreNotEqual(before, preferences.Key, "New weights are a reason to re-plan.");
         Assert.AreEqual(ModelSettings.ObjectiveWeights.MaxWeight, preferences.Weights["kindred"].Burst, 1e-9, "Clamped to the page's range.");

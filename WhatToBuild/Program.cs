@@ -69,7 +69,6 @@ app.MapPost("/api/preferences", (PlanPreferences preferences, PreferenceRequest 
         {
             Damage = weights.Damage,
             Burst = weights.Burst,
-            Uptime = weights.Uptime,
             Survival = weights.Survival,
         });
     }
@@ -84,4 +83,4 @@ app.Run();
 record PreferenceRequest(int? CoreItems, WeightsRequest? Weights);
 
 /// <summary>Objective weights for one entry of model.json's objectives; <c>Reset</c> goes back to the model's own.</summary>
-record WeightsRequest(string Key, double Damage, double Burst, double Uptime, double Survival, bool Reset = false);
+record WeightsRequest(string Key, double Damage, double Burst, double Survival, bool Reset = false);

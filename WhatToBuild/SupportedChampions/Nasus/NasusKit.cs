@@ -71,12 +71,14 @@ public sealed class NasusChampion : ISupportedChampion
 }
 
 /// <summary>
-/// Nasus in a fight: Fury of the Sands first against a champion (it halves Q's cooldown and burns
-/// a share of the target's max health every tick), then Siphoning Strike whenever it is up. Q resets
-/// the attack timer and the attack after it carries its damage and your stacks; its cooldown starts
-/// when that attack lands. Spirit Fire hits, burns and shreds armor while it lasts.
+/// Nasus's script, in priority each tick: Fury of the Sands first against a champion (it halves Q's
+/// cooldown and burns a share of the target's max health every tick), then Siphoning Strike whenever
+/// it is up, then Spirit Fire. Q has no animation and resets the attack timer: the attack after it
+/// carries its damage and your stacks, and its cooldown starts when that attack lands. R and E have
+/// animations and go between attacks. Spirit Fire hits, burns and shreds armor while it lasts. He
+/// walks up and stays on the target.
 /// </summary>
-public sealed class NasusKit : IChampionKit
+public sealed class NasusKit : ScriptedKit
 {
     public const string SiphoningStrike = "Q Siphoning Strike";
     public const string SpiritFire = "E Spirit Fire";
@@ -98,22 +100,26 @@ public sealed class NasusKit : IChampionKit
         _data = data;
     }
 
-    public void Update(Fight fight)
+    protected override Playstyle DefinePlaystyle() => new(
+        ComboOrder.Priority,
+        [
+            new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR),
+            new ScriptedAbility("Q", CastTiming.Instant, CastQ, ResetsAttack: true, EmpowersAttack: true),
+            new ScriptedAbility("E", CastTiming.BetweenAttacks, CastE),
+        ],
+        Kiting.StandAndFight,
+        Burst: ["E", "Q"]);
+
+    protected override ScriptedKit Fresh(bool burst) => new NasusKit(_data);
+
+    /// <summary>Spirit Fire's burn and Fury's aura tick.</summary>
+    protected override void BeforeCasts(Fight fight)
     {
         Burn(fight);
         Fury(fight);
-
-        if (!fight.CanCastInstant)
-        {
-            return;
-        }
-
-        CastR(fight);
-        CastQ(fight);
-        CastE(fight);
     }
 
-    public void OnAttack(Fight fight)
+    protected override void Attacked(Fight fight)
     {
         if (!_empowered)
         {
@@ -129,24 +135,24 @@ public sealed class NasusKit : IChampionKit
         _qReadyAt = fight.Time + fight.Cooldown(cooldown);
     }
 
-    private void CastQ(Fight fight)
+    private bool CastQ(Fight fight)
     {
-        if (fight.Ranks.Q <= 0 || _empowered || fight.Time < _qReadyAt || !fight.CanCastInstant)
+        if (fight.Ranks.Q <= 0 || _empowered || fight.Time < _qReadyAt)
         {
-            return;
+            return false;
         }
 
         _empowered = true;
         fight.Cast();
-        fight.ResetAttack();
+        return true;
     }
 
-    private void CastE(Fight fight)
+    private bool CastE(Fight fight)
     {
         var rank = fight.Ranks.E;
-        if (rank <= 0 || fight.Time < _eReadyAt || !fight.CanCast)
+        if (rank <= 0 || fight.Time < _eReadyAt)
         {
-            return;
+            return false;
         }
 
         var e = _data.E;
@@ -157,6 +163,7 @@ public sealed class NasusKit : IChampionKit
         _nextBurn = fight.Time + 1;
         fight.Casting(e.CastTime);
         _eReadyAt = fight.Time + fight.Cooldown(e.Cooldown);
+        return true;
     }
 
     private void Burn(Fight fight)
@@ -171,12 +178,12 @@ public sealed class NasusKit : IChampionKit
         _nextBurn += 1;
     }
 
-    private void CastR(Fight fight)
+    private bool CastR(Fight fight)
     {
         var rank = fight.Ranks.R;
-        if (rank <= 0 || fight.Time < _rReadyAt || fight.Target is not ChampionState || !fight.CanCast)
+        if (rank <= 0 || fight.Time < _rReadyAt || fight.Target is not ChampionState)
         {
-            return;
+            return false;
         }
 
         var r = _data.R;
@@ -186,6 +193,7 @@ public sealed class NasusKit : IChampionKit
         fight.Casting(r.CastTime);
         fight.Cast();
         fight.Ultimate();
+        return true;
     }
 
     /// <summary>Fury's aura: a share of the target's max health every tick while R is up.</summary>

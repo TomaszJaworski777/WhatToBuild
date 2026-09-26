@@ -34,12 +34,15 @@ public sealed class ViChampion : ISupportedChampion
 }
 
 /// <summary>
-/// Vi weaves her combo with an attack after each ability: R, E, fully charged Q, E. Only E
-/// resets the attack timer; after Q and R the attack waits for it. Q is charged in
-/// full before it is let go, E empowers the attack that follows it, and every third attack on the
-/// target procs Denting Blows (W): a slice of its max health, armor shred and attack speed.
+/// Vi's script. Combo, in that order with an attack after each spell: R, E, fully charged Q, E.
+/// A step on cooldown is passed over for the next one that is ready. R is the engage from range,
+/// so it does not wait on the attack timer before the first hit. E has no animation and resets the
+/// attack timer; Q and R do not, so the attack after them waits for it. Q is charged in full before
+/// it is let go, E empowers the attack that follows it, and every third attack on the target procs
+/// Denting Blows (W): a slice of its max health, armor shred and attack speed. She sticks to the
+/// target and never kites.
 /// </summary>
-public sealed class ViKit : IChampionKit
+public sealed class ViKit : ScriptedKit
 {
     public const string VaultBreaker = "Q Vault Breaker";
     public const string DentingBlows = "W Denting Blows";
@@ -56,7 +59,6 @@ public sealed class ViKit : IChampionKit
     private double _eRechargeAt = double.MaxValue;
     private double _eReadyAt;
     private bool _empowered;
-    private bool _weave = true;
     private int _hits;
 
     public ViKit(ViKitData data)
@@ -64,7 +66,19 @@ public sealed class ViKit : IChampionKit
         _data = data;
     }
 
-    public void Update(Fight fight)
+    protected override Playstyle DefinePlaystyle()
+    {
+        var r = new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR, Woven: true, OpensFromRange: true);
+        var e = new ScriptedAbility("E", CastTiming.Instant, CastE, Woven: true, ResetsAttack: true, EmpowersAttack: true);
+        var q = new ScriptedAbility("Q", CastTiming.BetweenAttacks, CastQ, Woven: true);
+
+        return new Playstyle(ComboOrder.Sequence, [r, e, q, e], Kiting.StandAndFight, Burst: ["R", "Q", Attack, "E"]);
+    }
+
+    protected override ScriptedKit Fresh(bool burst) => new ViKit(_data);
+
+    /// <summary>E's charges come back, and the charged Q and R land when their dash does.</summary>
+    protected override void BeforeCasts(Fight fight)
     {
         Recharge(fight);
 
@@ -77,58 +91,10 @@ public sealed class ViKit : IChampionKit
         {
             LandR(fight);
         }
-
-        if (!fight.CanCastInstant || !_weave)
-        {
-            return;
-        }
-
-        // The combo, an attack after each: R, E, fully charged Q, E. A step that is not ready
-        // is passed over for the next one that is, and the combo carries on after whatever was cast.
-        // A step whose animation would hold up a ready attack waits for that attack instead.
-        for (var k = 0; k < Combo.Length; k++)
-        {
-            var step = (_step + k) % Combo.Length;
-            if (Waits(fight, Combo[step]))
-            {
-                return;
-            }
-
-            if (Cast(fight, Combo[step]))
-            {
-                _step = (step + 1) % Combo.Length;
-                return;
-            }
-        }
     }
 
-    private static readonly char[] Combo = ['R', 'E', 'Q', 'E'];
-
-    private int _step;
-
-    /// <summary>
-    /// E has no animation: it only empowers the coming attack. R opens the fight from range, so
-    /// nothing is waited for before the first hit. Anything else goes between attacks.
-    /// </summary>
-    private static bool Waits(Fight fight, char ability) => ability switch
+    protected override void Attacked(Fight fight)
     {
-        'E' => false,
-        'R' when fight.DamageDealt <= 0 => false,
-        _ => !fight.CanCast,
-    };
-
-    private bool Cast(Fight fight, char ability) => ability switch
-    {
-        'R' => CastR(fight),
-        'E' => CastE(fight),
-        'Q' => CastQ(fight),
-        _ => false,
-    };
-
-    public void OnAttack(Fight fight)
-    {
-        _weave = true;
-
         if (_empowered)
         {
             _empowered = false;
@@ -143,16 +109,6 @@ public sealed class ViKit : IChampionKit
         ProcDentingBlows(fight);
     }
 
-    /// <summary>A spell went out: the next one waits for an attack. Only E resets her attack timer.</summary>
-    private void Woven(Fight fight, bool resetsAttack = false)
-    {
-        _weave = false;
-        if (resetsAttack)
-        {
-            fight.ResetAttack();
-        }
-    }
-
     private bool CastQ(Fight fight)
     {
         var rank = fight.Ranks.Q;
@@ -165,7 +121,6 @@ public sealed class ViKit : IChampionKit
         var seconds = _data.Q.ChargeSeconds + _data.Q.ReleaseSeconds;
         _qReleaseAt = fight.Time + seconds;
         fight.Casting(seconds);
-        _weave = false;
         return true;
     }
 
@@ -175,7 +130,7 @@ public sealed class ViKit : IChampionKit
         fight.Deal(VaultBreaker, fight.Physical(QDamage(fight, fight.Ranks.Q)).Ability());
         fight.Cast();
         _qReadyAt = fight.Time + fight.Cooldown(ViKitData.AtRank(_data.Q.Cooldown, fight.Ranks.Q));
-        Woven(fight);
+        AwaitAttack();
     }
 
     public double QDamage(Fight fight, int rank) =>
@@ -194,7 +149,6 @@ public sealed class ViKit : IChampionKit
         _rHitAt = fight.Time + _data.R.CastTime + _data.R.TravelSeconds;
         fight.Casting(_data.R.CastTime + _data.R.TravelSeconds);
         _rReadyAt = fight.Time + fight.Cooldown(ViKitData.AtRank(_data.R.Cooldown, rank));
-        _weave = false;
         return true;
     }
 
@@ -204,7 +158,7 @@ public sealed class ViKit : IChampionKit
         fight.Deal(CeaseAndDesist, fight.Physical(RDamage(fight)).Ability());
         fight.Cast();
         fight.Ultimate();
-        Woven(fight);
+        AwaitAttack();
     }
 
     public double RDamage(Fight fight) =>
@@ -244,7 +198,6 @@ public sealed class ViKit : IChampionKit
         _eReadyAt = fight.Time + _data.E.StaticCooldown;
         _empowered = true;
         fight.Cast();
-        Woven(fight, resetsAttack: true);
         return true;
     }
 

@@ -70,6 +70,49 @@ public class WeavingTests
             });
 
     [TestMethod]
+    public void EverySupportedChampionDeclaresItsPlaystyle()
+    {
+        foreach (var name in _kits.Supported)
+        {
+            var kit = _kits.NewFight(_champions.ByName(name)!) as ScriptedKit;
+            Assert.IsNotNull(kit, $"{name} is scripted.");
+            Assert.IsNotEmpty(kit.Playstyle.Combo, $"{name} has a combo.");
+        }
+    }
+
+    private static FightResult Burst(string champion, string? form, AbilityRanks ranks)
+    {
+        var us = new ChampionState(_champions.ByName(champion)!, 13, [_items.ByRiotId(3071)!]);
+        var kit = (ScriptedKit)_kits.NewFight(us.Champion, form)!;
+        return FightSimulator.Burst(new FightSetup(us, Target(), ranks), kit);
+    }
+
+    [TestMethod]
+    [DataRow("Nasus", null, 1, new[] { "E", "Q" })]
+    [DataRow("Vi", null, 2, new[] { "R", "Q", "E" })]
+    [DataRow("Kayn", KaynForm.Darkin, 1, new[] { "W", "Q" })]
+    [DataRow("Kindred", null, 3, new[] { "W", "E", "Q" })]
+    public void BurstIsTheScriptedSequence(string champion, string? form, int attacks, string[] spells)
+    {
+        var burst = Burst(champion, form, new AbilityRanks(3, 3, 3, 2));
+
+        Assert.AreEqual(attacks, burst.Attacks, "Only the sequence's attacks, empowered ones included.");
+        CollectionAssert.AreEquivalent(spells, burst.DamageBySource.Keys.Where(IsSpell).Select(s => s[..1]).Distinct().ToList());
+        Assert.IsLessThan(5.0, burst.Seconds, "It ends with the sequence, not a fixed window.");
+    }
+
+    [TestMethod]
+    public void TheFightReportsItsBurstSequence()
+    {
+        var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3071)!]);
+        var ranks = new AbilityRanks(3, 3, 3, 2);
+        var fight = FightSimulator.Run(new FightSetup(us, Target(), ranks), _kits.NewFight(us.Champion));
+        var burst = Burst("Nasus", null, ranks);
+
+        Assert.AreEqual(burst.Damage, fight.EarlyDamage, 1e-9);
+    }
+
+    [TestMethod]
     public void KaynWeavesAnAttackBetweenEveryTwoSpells()
     {
         var hits = Fight("Kayn", KaynForm.Darkin, new AbilityRanks(5, 3, 1, 2));
