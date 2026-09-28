@@ -4,6 +4,7 @@ using WhatToBuild.Modeling.Simulation;
 using WhatToBuild.SupportedChampions.Kayn;
 using WhatToBuild.SupportedChampions.Kindred;
 using WhatToBuild.SupportedChampions.Nasus;
+using WhatToBuild.SupportedChampions.Talon;
 using WhatToBuild.SupportedChampions.Vi;
 
 namespace WhatToBuild.SupportedChampions;
@@ -82,6 +83,7 @@ public sealed class ChampionKits
             new KaynChampion(KaynKitData.Load(Path.Combine(folder, KaynKitData.FileName))),
             new ViChampion(ViKitData.Load(Path.Combine(folder, ViKitData.FileName))),
             new NasusChampion(NasusKitData.Load(Path.Combine(folder, NasusKitData.FileName))),
+            new TalonChampion(TalonKitData.Load(Path.Combine(folder, TalonKitData.FileName))),
         ]);
     }
 

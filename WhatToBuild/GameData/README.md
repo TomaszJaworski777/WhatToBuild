@@ -473,8 +473,8 @@ they do not.
 ## Kits
 
 Champions whose abilities are simulated have a file in `Kits/`, read by their code in
-`SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`), Kayn (`Kits/kayn.json`), Vi (`Kits/vi.json`) and
-Nasus (`Kits/nasus.json`).
+`SupportedChampions/<Name>/`: Kindred (`Kits/kindred.json`), Kayn (`Kits/kayn.json`), Vi (`Kits/vi.json`),
+Nasus (`Kits/nasus.json`) and Talon (`Kits/talon.json`).
 
 **Fight timing, for every champion.** Attacks and spells both have animations, and the fight
 plays them out:
@@ -534,10 +534,10 @@ Forms: before `forms.transformSeconds` (10:00) Kayn is planned in base form, aft
 locked form. Both are scored on damage over a teamfight weighted by time alive, and Rhaast is
 kept unless Shadow Assassin beats it by `preferDefaultMargin` (10%).
 Objectives per form are in `objectives`. Every Kayn entry scores burst (the share of each
-enemy's health removed in the first three seconds) instead of damage over the whole fight:
+enemy's health his burst combo, W → Q → attack, removes) instead of damage over the whole fight:
 `damage` is 0 and its weight moved into `burst`. `Kayn/ShadowAssassin` is pure burst (2) and
 nothing at all for staying alive, so he never buys a survival item. `Kayn/Darkin` wants burst
-*and* to live through the fight, so Rhaast pays for time alive (0.5) and fight uptime. Rhaast
+*and* to live through the fight, so Rhaast pays for time alive (0.5). Rhaast
 has no ability of his own in the live data (only Shadow Assassin's `KaynAssW` shows), so he is
 told apart by elimination: from `forms.undetectedIsDefaultFromSeconds` (15:00) a Kayn without
 Shadow Assassin's W is Rhaast, and that overrides whatever form was locked before.
@@ -571,9 +571,10 @@ percentages are fractions.
 
 `objectives.champions.Vi` points her toward the bruiser build her meta build follows (Eclipse,
 Plated Steelcaps, Black Cleaver, Sterak's, Death's Dance, Guardian Angel) without copying it:
-damage 1, uptime 1, survival 0.5 like Rhaast, and burst 0.25 for her R into a charged Q. With the
-default weights (survival 0.25) she built pure on-hit. Her Focus can be changed on
-its own.
+damage 1, survival 0.6, and burst 0.25 for her burst combo (R → Q → attack → E). At 0.6 she builds
+Trinity Force, Death's Dance and Guardian Angel at 15 and 25 minutes, lasting about as long as
+her meta core; below it she drops Guardian Angel late, above it she adds Heartsteel. Her Focus
+can be changed on its own.
 
 ### Nasus
 
@@ -585,10 +586,14 @@ Numbers from `nasus.bin.json` (patch 16.18 client data): spells `NasusQ`, `Nasus
 - `q` — Siphoning Strike resets the attack timer and the attack after it adds `BonusDamage` plus
   your stacks (the game's `TotalDamage`: `BonusDamage` + AD + stacks, the AD being the attack's
   own). The cooldown starts when that attack lands.
-- `w` — Wither is not damage, so it lives in survival: it goes on whoever hits you hardest with
-  attacks and takes away `AttackSpeedSlowMult` (75%) of its slow, which ramps from `SlowBase` 35%
-  to the rank's maximum over `Duration` 5 s. The cooldown starts the moment it is cast, so a
-  10 s teamfight holds one cast, and a second only once haste brings it under the fight.
+- `w` — Wither is his gap closer, first in his script against a champion within `range` 700:
+  for `duration` 5 s the target keeps practically none of its movement or attack speed
+  (`removes` 1), so it cannot kite him and he attacks at full uptime. For survival it goes on
+  whoever hits you hardest with attacks and cuts all of their attacks while it lasts. The
+  cooldown starts the moment it is cast, so a 10 s teamfight holds one cast, and a second only
+  once haste brings it under the fight.
+- He rarely attacks between Qs: while Siphoning Strike is down he throws `attacksBetweenQs`
+  (20%) of the attacks he could.
 - `e` — Spirit Fire: `InitialHitDamage` + 60% AP, then `DamagePerTick` + 12% AP every second for
   5 s, and `ArmorShredPercent` for those 5 s.
 - `r` — Fury of the Sands is cast at the start of a fight against a champion. For its 15 s it
@@ -598,9 +603,40 @@ Numbers from `nasus.bin.json` (patch 16.18 client data): spells `NasusQ`, `Nasus
   its cooldown allows (`teamfightIntervalSeconds` / cooldown).
 - `passive` — Soul Eater: 10% lifesteal, +5% at level 7 and 13, healing from his fight damage.
 
-`objectives.champions.Nasus` leans survival (1, twice Vi's): his meta build is Trinity Force into
-tank items. The fight model does not yet rate Sunfire, Thornmail or Frozen Heart as highly as
-the meta does, so the plan keeps some damage items where the meta goes tank.
+`objectives.champions.Nasus` leans survival (0.75): his meta build is Trinity Force into tank
+items, and at 0.75 he builds Death's Dance, Protoplasm Harness, Guardian Angel and Trinity Force.
+The fight model does not yet rate Sunfire, Thornmail or Frozen Heart as highly as the meta does,
+so the plan keeps some damage items where the meta goes tank.
+
+### Talon
+
+Numbers from `talon.bin.json` (patch 16.18 client data): spells `TalonQ` (with `TalonQAttack`
+for the melee stab), `TalonW`, `TalonR`, `TalonPassive`; meanings from the `spell_talon*_tooltip`
+and `game_buff_tooltip_talonpassive` strings. Per-rank lists keep index 0 unused. His
+`attackWindup` is 0.198 / 1.6.
+
+- **Combo**, in priority, one spell in each gap between attacks: R, W, Q. None of them resets
+  his attack timer. **Burst**: R → W → Q → attack, which stacks Blade's End and procs it.
+- `q` — Noxian Diplomacy: from out of melee range (`meleeRange` 170, `TalonQAttack`'s range) he
+  leaps up to `range` 575 onto the target for `LeapDamage` = base + 100% bonus AD, landing on it
+  (a dash that engages). In melee range it critically strikes instead, for `LeapDamage` ×
+  (`EnhancedDamageMod` 1.5 + any crit damage beyond the base). 0.25s `castTime`. The heal and
+  cooldown refund on a kill are left out.
+- `w` — Rake: blades out for `InitialBaseDamage` + 40% bonus AD, then back `returnSeconds` 0.7s
+  later (`ReturnDelay`) for `ReturnBaseDamage` + 90% bonus AD. The slow is left out. `range` 650.
+- `r` — Shadow Assault: a ring of blades out to `range` 550 for `BaseDamage` + 100% bonus AD, and
+  2.5s invisibility; the blades hit again when it ends, or at his target as soon as he attacks
+  or casts Q. His engage, cast from range, champions only. For survival the invisibility counts
+  like Kayn's R, 2.5s nothing can target him.
+- `passive` — Blade's End: every ability hit (each R and W pass, Q) stacks on a champion or large
+  monster for 6 seconds; an attack at 3 stacks makes it bleed for 80 → 280 (level 1 → 18) +
+  210% bonus AD. The bleed runs over 2 seconds in the game and is dealt at once here, so it counts
+  in the burst. The game text gives it no per-target cooldown.
+- E (Assassin's Path) vaults terrain and does no damage, so fights leave it out.
+
+`objectives.champions.Talon` is pure burst like Shadow Assassin: burst 2, damage 0, survival 0.
+He builds lethality: Bastionbreaker, Hubris, Lord Dominik's and Umbral Glaive, bursting more of
+a target's health than his meta core (Profane Hydra, Youmuu's, Serylda's) at the same time alive.
 
 ### Kindred
 

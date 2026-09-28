@@ -3,6 +3,7 @@ using WhatToBuild.Modeling;
 using WhatToBuild.Modeling.Simulation;
 using WhatToBuild.SupportedChampions;
 using WhatToBuild.SupportedChampions.Kayn;
+using WhatToBuild.SupportedChampions.Talon;
 using WhatToBuild.SupportedChampions.Vi;
 
 namespace WhatToBuild.Tests;
@@ -94,6 +95,7 @@ public class WeavingTests
     [DataRow("Vi", null, 2, new[] { "R", "Q", "E" })]
     [DataRow("Kayn", KaynForm.Darkin, 1, new[] { "W", "Q" })]
     [DataRow("Kindred", null, 3, new[] { "W", "E", "Q" })]
+    [DataRow("Talon", null, 1, new[] { "R", "W", "Q" })]
     public void BurstIsTheScriptedSequence(string champion, string? form, int attacks, string[] spells)
     {
         var burst = Burst(champion, form, new AbilityRanks(3, 3, 3, 2));
@@ -101,6 +103,33 @@ public class WeavingTests
         Assert.AreEqual(attacks, burst.Attacks, "Only the sequence's attacks, empowered ones included.");
         CollectionAssert.AreEquivalent(spells, burst.DamageBySource.Keys.Where(IsSpell).Select(s => s[..1]).Distinct().ToList());
         Assert.IsLessThan(5.0, burst.Seconds, "It ends with the sequence, not a fixed window.");
+    }
+
+    [TestMethod]
+    public void TalonsBurstStacksBladesEndAndProcsIt()
+    {
+        var burst = Burst("Talon", null, new AbilityRanks(3, 3, 1, 2));
+
+        // R out and back (his Q brings the blades into the target), W out and back, Q: past three
+        // stacks by the attack, which makes the target bleed.
+        Assert.IsTrue(burst.DamageBySource.ContainsKey(TalonKit.BladesEnd), string.Join(", ", burst.DamageBySource.Keys));
+        var us = new ChampionState(_champions.ByName("Talon")!, 13, [_items.ByRiotId(3071)!]);
+        var kit = (TalonKit)_kits.NewFight(us.Champion)!;
+        var probe = new Modeling.Simulation.Fight(new FightSetup(us, Target(), new AbilityRanks(3, 3, 1, 2)));
+        var rHit = probe.Physical(kit.RDamage(probe)).Ability().Run().HealthDamage;
+        Assert.IsGreaterThan(rHit * 1.5, burst.DamageBySource[TalonKit.ShadowAssault], "Both of R's hits land.");
+    }
+
+    [TestMethod]
+    public void TalonWeavesAnAttackBetweenEveryTwoSpells()
+    {
+        var hits = Fight("Talon", null, new AbilityRanks(5, 3, 1, 2));
+        var order = Sequence(hits, TalonKit.BladesEnd);
+
+        Assert.AreEqual("spell", order[0], "He opens with R.");
+        Assert.Contains("attack", order);
+        Assert.IsTrue(hits.Any(h => h.Source == TalonKit.NoxianDiplomacy), "Q goes out.");
+        Assert.IsTrue(hits.Any(h => h.Source == TalonKit.BladesEnd), "The bleed procs in a fight too.");
     }
 
     [TestMethod]

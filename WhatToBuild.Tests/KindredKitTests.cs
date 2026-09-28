@@ -34,11 +34,11 @@ public class KindredKitTests
             _kits.NewFight(Kindred));
 
     [TestMethod]
-    public void KindredAndKaynAreSupported()
+    public void TheSimulatedChampionsAreSupported()
     {
         Assert.IsNotNull(_kits.For(Kindred));
         Assert.IsNull(_kits.For(Garen));
-        CollectionAssert.AreEquivalent(new[] { "Kindred", "Kayn", "Vi", "Nasus" }, _kits.Supported.ToList());
+        CollectionAssert.AreEquivalent(new[] { "Kindred", "Kayn", "Vi", "Nasus", "Talon" }, _kits.Supported.ToList());
     }
 
     [TestMethod]

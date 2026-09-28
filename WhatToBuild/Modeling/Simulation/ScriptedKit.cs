@@ -155,6 +155,9 @@ public abstract class ScriptedKit : IChampionKit
     {
     }
 
+    /// <summary>A hit the kit started is still on its way (Talon's returning blades): the burst is not over until it lands.</summary>
+    protected virtual bool HitsPending(Fight fight) => false;
+
     /// <summary>The next woven spell waits for an attack (a spell whose hit lands after its cast, like a charged dash).</summary>
     protected void AwaitAttack() => _attackLanded = false;
 
@@ -186,7 +189,7 @@ public abstract class ScriptedKit : IChampionKit
         }
 
         if (CurrentBurstStep is null && !_awaitingEmpoweredAttack
-            && fight.Time >= fight.AttacksBlockedUntil && fight.Time >= fight.WindupUntil)
+            && fight.Time >= fight.AttacksBlockedUntil && fight.Time >= fight.WindupUntil && !HitsPending(fight))
         {
             BurstDone = true;
         }

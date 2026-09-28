@@ -5,6 +5,7 @@
     "name":  "Talon",
     "icon":  "Talon.png",
     "attackSpeedRatio":  0.625,
+    "attackWindup":  0.1238,
     "base":  {
                  "health":  658,
                  "mana":  400,
