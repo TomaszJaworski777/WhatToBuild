@@ -82,8 +82,9 @@ public sealed class CombatProfiler
 
         var streams = new List<DamageStream>();
 
-        var autoShare = (champion.IsRanged ? e.AutoUptimeRanged : e.AutoUptimeMelee)
-                        * Math.Max(e.MinAutoShare, champion.Tag("adDamageDealer"));
+        // Attacks while in range and attacking; how much of the fight that is depends on who it
+        // attacks (the matchup's uptime) and is applied where the target is known.
+        var autoShare = Math.Max(e.MinAutoShare, champion.Tag("adDamageDealer"));
         var attacksPerSecond = stats.AttackSpeed * autoShare;
         var critChance = AttackerHits.CritChance(entity);
         var critDamage = AttackerHits.CritDamage(entity);

@@ -110,9 +110,9 @@ public sealed class KaynKit : ScriptedKit
     protected override Playstyle DefinePlaystyle() => new(
         ComboOrder.Priority,
         [
-            new ScriptedAbility("Q", CastTiming.BetweenAttacks, CastQ, Woven: true),
-            new ScriptedAbility("W", CastTiming.BetweenAttacks, CastW, Woven: true),
-            new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR, Woven: true),
+            new ScriptedAbility("Q", CastTiming.BetweenAttacks, CastQ, Woven: true, Range: _data.Q.Range),
+            new ScriptedAbility("W", CastTiming.BetweenAttacks, CastW, Woven: true, Range: _data.W.Range),
+            new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR, Woven: true, Range: _data.R.Range),
         ],
         new Kiting(_data.AttackUptime),
         Burst: ["W", "Q", Attack]);
@@ -169,6 +169,7 @@ public sealed class KaynKit : ScriptedKit
             return false;
         }
 
+        fight.Dash(_data.Q.Dash);
         for (var hit = 0; hit < _data.Q.Hits; hit++)
         {
             fight.Deal(ReapingSlash, fight.Physical(QHit(fight, rank)).Ability());
@@ -214,6 +215,11 @@ public sealed class KaynKit : ScriptedKit
         var w = _data.W;
         var baseDamage = KaynKitData.AtRank(Assassin ? w.AssassinDamage : w.Damage, rank);
         fight.Deal(BladesReach, fight.Physical(baseDamage + w.BonusAdRatio * AttackerHits.BonusAttackDamage(fight.Attacker)).Ability());
+        if (Darkin)
+        {
+            fight.Disable(w.DarkinKnockup);
+        }
+
         fight.Cast();
         fight.Casting(Assassin ? w.AssassinCastTime : w.CastTime);
         _wReadyAt = fight.Time + fight.Cooldown(KaynKitData.AtRank(w.Cooldown, rank));
@@ -237,6 +243,7 @@ public sealed class KaynKit : ScriptedKit
     private void ExitR(Fight fight)
     {
         _exitAt = double.MaxValue;
+        fight.Dash(double.MaxValue);
         fight.Deal(UmbralTrespass, fight.Physical(RDamage(fight)).Ability());
         fight.Cast();
         fight.Ultimate();

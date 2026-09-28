@@ -898,6 +898,11 @@ public sealed class BuildRecommendations : IRecommendationSource
             reasons.Add($"Survival: {before.TimeAlive:0.0}s → {after.TimeAlive:0.0}s alive under focus ({before.IncomingDps:0} damage/s on you)");
         }
 
+        if (after.LockedShare < before.LockedShare - 0.01)
+        {
+            reasons.Add($"Crowd control: locked down {Pct(before.LockedShare)} → {Pct(after.LockedShare)} of a teamfight");
+        }
+
         reasons.AddRange(SpikeLines(evaluator, step));
 
         if (after.Clear is { } clearAfter && before.Clear is { } clearBefore && after.ClearWeight > 0.05
@@ -1127,7 +1132,7 @@ public sealed class BuildRecommendations : IRecommendationSource
         var enemies = eval.Targets.Select(t =>
         {
             var p = t.Enemy;
-            var perSecond = p.Streams.Sum(s => s.RawPerSecond + s.TargetMaxHealthPerSecond * us.MaxHealth);
+            var perSecond = eval.IncomingByEnemy.GetValueOrDefault(p);
             var notes = new List<string>();
             if (p.Forecast.ItemStacks.Count > 0)
             {
@@ -1150,7 +1155,7 @@ public sealed class BuildRecommendations : IRecommendationSource
                 p.Entity.Stats.MagicResist,
                 t.Sustain.HealPerSecond,
                 t.Sustain.ShieldTotal,
-                field.Focus[p] * perSecond,
+                perSecond,
                 t.Fight.TimeToKill,
                 notes);
         }).ToList();

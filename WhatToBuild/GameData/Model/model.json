@@ -18,19 +18,24 @@
     "cheapTargets": 3,
     "maxTimeAliveSeconds": 60,
     "teamfightIntervalSeconds": 120,
-    "caughtShare": 0.35
+    "dashContactSeconds": 1,
+    "attackUptime": {
+      "meleeVsMelee": 0.8,
+      "rangedVsRanged": 0.9,
+      "rangedVsMelee": 0.9,
+      "meleeVsRanged": 0.4
+    }
   },
   "focus": {
-    "teamSize": 5,
-    "frontlineWeight": 1.5,
-    "meleeWeight": 0.3,
-    "diveBias": 1.2,
-    "carryFocusBias": 1,
-    "kiteReduction": 0.3
+    "onMelee": 1,
+    "onRangedFromRanged": 0.9,
+    "onRangedFromMelee": 0.4
+  },
+  "crowdControl": {
+    "secondsPerTag": 1.5,
+    "maxLockedShare": 0.6
   },
   "enemyDamage": {
-    "autoUptimeRanged": 1,
-    "autoUptimeMelee": 0.85,
     "minAutoShare": 0.35,
     "abilityCycleSeconds": 5,
     "castsPerCycle": 3,
@@ -47,8 +52,7 @@
     "trueDamageShare": 0.5,
     "burstShare": 1,
     "abilityDamageStackRatio": 1,
-    "averageTargetHealthPercent": 0.6,
-    "abilityAreaShare": 0.15
+    "averageTargetHealthPercent": 0.6
   },
   "sustain": {
     "healBase": 10,
@@ -107,14 +111,14 @@
       "Vi": {
         "damage": 1,
         "burst": 0.25,
-        "survival": 0.5,
+        "survival": 0.6,
         "clear": 1,
         "movement": 1
       },
       "Nasus": {
         "damage": 1,
         "burst": 0,
-        "survival": 1,
+        "survival": 0.75,
         "clear": 1,
         "movement": 1
       },
@@ -254,28 +258,25 @@
     "tempoWeightByMinute": [
       [
         4,
-        2.3
+        0.74
       ],
       [
         9,
-        0.83
+        0.27
       ],
       [
         15,
-        0.46
+        0.15
       ],
       [
         22,
-        0.45
+        0.145
       ],
       [
         40,
-        0.45
+        0.145
       ]
-    ],
-    "evasionExponent": 0.5,
-    "kiteSpeedExponent": 1,
-    "maxKiteReduction": 0.7
+    ]
   },
   "forms": {
     "transformSeconds": 600,

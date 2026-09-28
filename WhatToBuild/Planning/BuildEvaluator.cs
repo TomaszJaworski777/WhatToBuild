@@ -226,6 +226,15 @@ public sealed class Evaluation
 
     public required IReadOnlyDictionary<DamageType, double> IncomingByType { get; init; }
 
+    /// <summary>What each enemy deals you per second in a teamfight, after focus and your resists.</summary>
+    public required IReadOnlyDictionary<CombatProfile, double> IncomingByEnemy { get; init; }
+
+    /// <summary>The share of a teamfight the enemy team keeps you locked down, dealing nothing.</summary>
+    public required double LockedShare { get; init; }
+
+    /// <summary>The share of a teamfight you keep the enemy that hits you hardest locked down.</summary>
+    public required double LockdownShare { get; init; }
+
     public required double HealthPool { get; init; }
 
     public required double HealingPerSecond { get; init; }
@@ -293,8 +302,7 @@ public sealed class BuildEvaluator
         var target = evaluation.Targets.FirstOrDefault(t => t.Enemy.Champion.Id == enemy.Champion.Id);
         var ourKill = target?.Fight.TimeToKill ?? _context.Settings.Fight.MaxFightSeconds;
 
-        var theirDps = enemy.Streams.Sum(stream =>
-            Mitigation(enemy.Entity, us, stream) * (stream.RawPerSecond + stream.TargetMaxHealthPerSecond * us.MaxHealth));
+        var theirDps = Incoming(enemy, us, Reach(us, _context.Kits.NewFight(_context.Champion, evaluation.Form))).PerSecond;
 
         var theirKill = theirDps <= evaluation.HealingPerSecond
             ? _context.Settings.Fight.MaxFightSeconds
@@ -404,15 +412,19 @@ public sealed class BuildEvaluator
 
         var lifeSteal = _context.Supported?.LifeSteal(us, form) ?? 0;
         var omnivamp = _context.Supported?.Omnivamp(us, form) ?? 0;
+        var ourReach = Reach(us, _context.Kits.NewFight(_context.Champion, form));
         var targets = new List<TargetResult>();
         foreach (var enemy in opponents)
         {
             var sustain = field.Sustain[enemy];
             var target = enemy.Forecast.NewEntity();
+            // Both start as far apart as the longer reach of the two, and we walk in.
+            var start = Math.Max(ourReach, Reach(enemy.Entity, EnemyKit(enemy)));
+            var uptime = settings.Fight.AttackUptime.For(us.Champion.IsRanged, enemy.Champion.IsRanged);
             var results = phases
                 .Select(phase => FightSimulator.Run(
                     new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true,
-                        LifeSteal: lifeSteal, Omnivamp: omnivamp),
+                        LifeSteal: lifeSteal, Omnivamp: omnivamp, StartDistance: start, AttackUptime: uptime, DashContactSeconds: settings.Fight.DashContactSeconds),
                     _context.Kits.NewFight(_context.Champion, form)))
                 .ToList();
 
@@ -420,10 +432,17 @@ public sealed class BuildEvaluator
             targets.Add(new TargetResult(enemy, FightResult.Average(results), sustain, probe.GrievousWounds, probe.ShieldReduction));
         }
 
-        var dps = targets.Sum(t => t.Enemy.Threat * t.Fight.EffectiveDps);
-        var opening = targets.Sum(t => t.Enemy.Threat * Math.Min(1, t.Fight.EarlyDamage / Math.Max(1, t.Fight.TargetHealth)));
-        var survival = Survival(us, field, targets, form);
         var fightSeconds = settings.Fight.TeamfightSeconds;
+        var incomingFrom = field.Enemies.ToDictionary(e => e, e => Incoming(e, us, ourReach));
+
+        // Time the enemy team keeps you locked down is time you deal nothing: their hard crowd
+        // control on you, weighed like their damage by how much of it comes your way.
+        var locked = Math.Min(settings.CrowdControl.MaxLockedShare,
+            field.Enemies.Sum(e => field.Focus[e] * incomingFrom[e].LocksUs) / fightSeconds);
+
+        var dps = (1 - locked) * targets.Sum(t => t.Enemy.Threat * t.Fight.EffectiveDps);
+        var opening = targets.Sum(t => t.Enemy.Threat * Math.Min(1, t.Fight.EarlyDamage / Math.Max(1, t.Fight.TargetHealth)));
+        var survival = Survival(us, field, targets, incomingFrom, form);
 
         var clearWeight = _context.ClearWeightAt(time);
         ClearResult? clear = null;
@@ -459,6 +478,9 @@ public sealed class BuildEvaluator
             IncomingDps = survival.Incoming,
             IncomingBurst = survival.Burst,
             IncomingByType = survival.ByType,
+            IncomingByEnemy = survival.ByEnemy,
+            LockedShare = locked,
+            LockdownShare = survival.Lockdown,
             HealthPool = survival.Pool,
             HealingPerSecond = survival.Healing,
             Clear = clear,
@@ -468,47 +490,35 @@ public sealed class BuildEvaluator
         };
     }
 
-    private (double TimeAlive, double WithoutAbility, double Incoming, double Burst, double Pool, double Healing, Dictionary<DamageType, double> ByType) Survival(
-        ChampionState us, Battlefield field, List<TargetResult> targets, string? form)
+    private (double TimeAlive, double WithoutAbility, double Incoming, double Burst, double Pool, double Healing, Dictionary<DamageType, double> ByType, Dictionary<CombatProfile, double> ByEnemy, double Lockdown) Survival(
+        ChampionState us, Battlefield field, List<TargetResult> targets, IReadOnlyDictionary<CombatProfile, IncomingDamage> incomingFrom, string? form)
     {
         var settings = _context.Settings;
         var byType = new Dictionary<DamageType, double> { [DamageType.Physical] = 0, [DamageType.Magic] = 0, [DamageType.True] = 0 };
         double incoming = 0, burst = 0;
 
-        var movement = settings.Movement;
-        var enemySpeed = field.Enemies.Count > 0 ? field.Enemies.Average(e => e.Entity.Stats.MoveSpeed) : us.Stats.MoveSpeed;
-        var evasion = Math.Pow(enemySpeed / Math.Max(1, us.Stats.MoveSpeed), movement.EvasionExponent);
+        // Our hard crowd control goes on whoever hits us hardest: while locked down they do nothing,
+        // so that share of the teamfight comes off all of their damage.
+        var biggest = field.Enemies.MaxBy(e => field.Focus[e] * incomingFrom[e].PerSecond);
+        var lockdown = biggest is null ? 0 : Math.Clamp(Lockdown(biggest, targets) / settings.Fight.TeamfightSeconds, 0, 1);
+
+        var byEnemy = new Dictionary<CombatProfile, double>();
         var attacksBy = new Dictionary<CombatProfile, Dictionary<DamageType, double>>();
 
         foreach (var enemy in field.Enemies)
         {
-            foreach (var stream in enemy.Streams)
+            var focus = field.Focus[enemy] * (enemy == biggest ? 1 - lockdown : 1);
+            var from = incomingFrom[enemy];
+
+            foreach (var (type, perSecond) in from.ByType)
             {
-                var aimed = field.Focus[enemy];
-                var focus = stream.Flags.HasFlag(HitFlags.Ability)
-                    ? aimed + (1 - aimed) * settings.EnemyDamage.AbilityAreaShare
-                    : aimed;
-                if (stream.Flags.HasFlag(HitFlags.Attack) && !enemy.Champion.IsRanged && us.Champion.IsRanged)
-                {
-                    var kiting = settings.Focus.KiteReduction
-                                 * Math.Pow(us.Stats.MoveSpeed / Math.Max(1, enemy.Entity.Stats.MoveSpeed), movement.KiteSpeedExponent);
-                    focus *= 1 - Math.Clamp(kiting, 0, movement.MaxKiteReduction);
-                }
-
-                focus *= evasion;
-
-                var mitigated = Mitigation(enemy.Entity, us, stream);
-                var perSecond = focus * mitigated * (stream.RawPerSecond + stream.TargetMaxHealthPerSecond * us.MaxHealth);
-                incoming += perSecond;
-                burst += focus * mitigated * stream.Burst;
-                byType[stream.Type] += perSecond;
-
-                if (stream.Flags.HasFlag(HitFlags.Attack))
-                {
-                    var attacks = attacksBy.TryGetValue(enemy, out var known) ? known : attacksBy[enemy] = new Dictionary<DamageType, double>();
-                    attacks[stream.Type] = attacks.GetValueOrDefault(stream.Type) + perSecond;
-                }
+                byType[type] += focus * perSecond;
             }
+
+            incoming += focus * from.PerSecond;
+            burst += field.Focus[enemy] * from.Burst;
+            byEnemy[enemy] = focus * from.PerSecond;
+            attacksBy[enemy] = from.Attacks.ToDictionary(a => a.Key, a => focus * a.Value);
         }
 
         // An ability that slows attacks (Nasus's Wither) goes on whoever hits you hardest with them.
@@ -592,7 +602,107 @@ public sealed class BuildEvaluator
         }
 
         var cap = settings.Fight.MaxTimeAliveSeconds;
-        return (Math.Clamp(alive, 0.25, cap), Math.Clamp(withoutAbility, 0.25, cap), incoming, burst, pool, healing, byType);
+        return (Math.Clamp(alive, 0.25, cap), Math.Clamp(withoutAbility, 0.25, cap), incoming, burst, pool, healing, byType, byEnemy, lockdown);
+    }
+
+    /// <summary>What one enemy deals you in a teamfight, per second and after your resists, before focus, and how many seconds of it they keep you locked down.</summary>
+    private sealed record IncomingDamage(
+        double PerSecond,
+        IReadOnlyDictionary<DamageType, double> ByType,
+        double Burst,
+        IReadOnlyDictionary<DamageType, double> Attacks,
+        double LocksUs);
+
+    /// <summary>
+    /// A supported enemy's own shield or heal in a fight (Vi's Blast Shield, Rhaast's Umbral
+    /// Trespass heal) on top of what its tags and items give it: once a teamfight, more we have
+    /// to get through.
+    /// </summary>
+    private TargetSustain WithKitShield(CombatProfile enemy, TargetSustain sustain)
+    {
+        if (_context.Kits.For(enemy.Champion) is not { } supported)
+        {
+            return sustain;
+        }
+
+        var ranks = _context.Kits.RanksFor(enemy.Champion, enemy.Forecast.Level, null);
+        var ourHealth = _context.State.EntityFor(_context.Me, _context.Neutrals).MaxHealth;
+        return supported.Survival(ranks, enemy.Entity, supported.DefaultForm, ourHealth) is { Heal: > 0 } ability
+            ? sustain with { Shields = [.. sustain.Shields, new Shield(ability.Heal)] }
+            : sustain;
+    }
+
+    /// <summary>
+    /// Seconds of a teamfight our kit keeps this enemy locked down, from our fight against it; an
+    /// enemy we did not simulate (a cheap evaluation fights only the biggest threats) takes the
+    /// most we managed on any of them.
+    /// </summary>
+    private static double Lockdown(CombatProfile enemy, IReadOnlyList<TargetResult> targets) =>
+        targets.FirstOrDefault(t => t.Enemy == enemy)?.Fight.Disabled
+        ?? targets.Select(t => t.Fight.Disabled).DefaultIfEmpty(0).Max();
+
+    /// <summary>The farthest a champion reaches a target from: its attack range, or its longest ability.</summary>
+    private static double Reach(ChampionState champion, IChampionKit? kit) =>
+        kit is ScriptedKit scripted ? scripted.Reach(champion.Stats.AttackRange) : champion.Stats.AttackRange;
+
+    /// <summary>A supported enemy's own script, fresh; null for one the model only knows by its tags.</summary>
+    private ScriptedKit? EnemyKit(CombatProfile enemy) =>
+        _context.Kits.For(enemy.Champion) is { } supported ? supported.NewFight(supported.DefaultForm) as ScriptedKit : null;
+
+    /// <summary>
+    /// One enemy's damage on you. A supported champion plays its own script against you: it walks
+    /// in from the longer reach of the two, weaves its combo into its attacks at the matchup's
+    /// uptime, and its burst is its burst combo. Any other is its tag-built streams: attacks at the
+    /// matchup's uptime and only once it has walked into range, abilities throughout.
+    /// </summary>
+    private IncomingDamage Incoming(CombatProfile enemy, ChampionState us, double ourReach)
+    {
+        var settings = _context.Settings;
+        var fightSeconds = settings.Fight.TeamfightSeconds;
+        var kit = EnemyKit(enemy);
+        var start = Math.Max(ourReach, Reach(enemy.Entity, kit));
+        var uptime = settings.Fight.AttackUptime.For(enemy.Champion.IsRanged, us.Champion.IsRanged);
+
+        if (kit is not null)
+        {
+            var ranks = _context.Kits.RanksFor(enemy.Champion, enemy.Forecast.Level, null);
+            var stacks = enemy.Champion.Stacking.FirstOrDefault() is { } stacking ? enemy.Forecast.ChampionStacks.GetValueOrDefault(stacking.Stat) : 0;
+            var fight = FightSimulator.Run(
+                new FightSetup(enemy.Entity, us, ranks, stacks, fightSeconds, 0.5, Sustained: true, StartDistance: start, AttackUptime: uptime,
+                    DashContactSeconds: settings.Fight.DashContactSeconds),
+                kit);
+            var seconds = Math.Max(0.1, fight.Seconds);
+            var byType = (fight.DamageByType ?? new Dictionary<DamageType, double>()).ToDictionary(d => d.Key, d => d.Value / seconds);
+            var attacks = new Dictionary<DamageType, double>
+            {
+                [DamageType.Physical] = fight.DamageBySource.GetValueOrDefault(FightSimulator.Attacks) / seconds,
+            };
+
+            return new IncomingDamage(byType.Values.Sum(), byType, fight.EarlyDamage, attacks, fight.Disabled);
+        }
+
+        var approach = Math.Max(0, start - enemy.Entity.Stats.AttackRange) / Math.Max(1, enemy.Entity.Stats.MoveSpeed);
+        var attackShare = uptime * Math.Clamp((fightSeconds - approach) / fightSeconds, 0, 1);
+        var streamsByType = new Dictionary<DamageType, double>();
+        var attacksByType = new Dictionary<DamageType, double>();
+        double burst = 0;
+
+        foreach (var stream in enemy.Streams)
+        {
+            var isAttack = stream.Flags.HasFlag(HitFlags.Attack);
+            var mitigated = Mitigation(enemy.Entity, us, stream);
+            var perSecond = (isAttack ? attackShare : 1) * mitigated * (stream.RawPerSecond + stream.TargetMaxHealthPerSecond * us.MaxHealth);
+            streamsByType[stream.Type] = streamsByType.GetValueOrDefault(stream.Type) + perSecond;
+            burst += mitigated * stream.Burst;
+
+            if (isAttack)
+            {
+                attacksByType[stream.Type] = attacksByType.GetValueOrDefault(stream.Type) + perSecond;
+            }
+        }
+
+        var locks = enemy.Champion.Tag("crowdControl") * settings.CrowdControl.SecondsPerTag * (1 - Math.Clamp(us.Stats.Tenacity, 0, 1));
+        return new IncomingDamage(streamsByType.Values.Sum(), streamsByType, burst, attacksByType, locks);
     }
 
     /// <summary>
@@ -651,7 +761,7 @@ public sealed class BuildEvaluator
         var allies = world.AlliesAt(time).Select(_profiler.Profile).ToList();
         _profiler.AssignThreat(enemies);
 
-        var sustain = enemies.ToDictionary(e => e, e => _profiler.SustainFor(e, enemies, allies, _context.State, _context.Neutrals));
+        var sustain = enemies.ToDictionary(e => e, e => WithKitShield(e, _profiler.SustainFor(e, enemies, allies, _context.State, _context.Neutrals)));
 
         var level = _context.Forecaster.LevelAt(_context.Me, time);
         var champion = _context.Champion;
@@ -663,36 +773,12 @@ public sealed class BuildEvaluator
             Enemies = enemies,
             Allies = allies,
             Sustain = sustain,
-            Focus = enemies.ToDictionary(e => e, e => Focus(e, allies)),
+            Focus = enemies.ToDictionary(e => e, e => _context.Settings.Focus.For(champion.IsRanged, e.Champion.IsRanged)),
             OurLevel = level,
             OurRanks = _context.Kits.RanksAt(champion, level, _context.State.ActivePlayerRanks),
             OurMarks = marks,
             Survival = _context.Kits.For(champion)?.Survival(_context.Kits.RanksAt(champion, level, _context.State.ActivePlayerRanks)),
         };
-    }
-
-    private double Focus(CombatProfile enemy, IReadOnlyList<CombatProfile> allies)
-    {
-        var f = _context.Settings.Focus;
-        var me = _context.Champion;
-
-        double Weight(Champion c)
-        {
-            var weight = 1 + f.FrontlineWeight * c.Tag("tank") + f.MeleeWeight * c.Tag("melee");
-            var damage = Math.Max(c.Tag("adDamageDealer"), c.Tag("apDamageDealer"));
-            return c.Tag("tank") < 0.3 ? weight * (1 + f.CarryFocusBias * damage) : weight;
-        }
-
-        var ours = Weight(me);
-        if (me.Tag("tank") < 0.3)
-        {
-            ours *= 1 + f.DiveBias * enemy.Champion.Tag("burst");
-        }
-
-        var missing = Math.Max(0, f.TeamSize - 1 - allies.Count);
-        var others = allies.Sum(a => Weight(a.Champion)) + missing;
-
-        return ours / (ours + others);
     }
 
     private static string Key(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? stacks, EvaluationMode mode)

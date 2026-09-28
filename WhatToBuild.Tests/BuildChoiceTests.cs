@@ -122,7 +122,19 @@ public class BuildChoiceTests
             $"Shadow Assassin is pure damage: {string.Join(" > ", assassin.Select(i => i.Name))}");
 
         // The same item, judged by each form: staying alive is worth something to Rhaast only.
-        Assert.IsGreaterThan(Value(KaynForm.ShadowAssassin, DeathsDance), Value(KaynForm.Darkin, DeathsDance));
+        double SurvivalPart(string form, int riotId)
+        {
+            var evaluator = new BuildEvaluator(Context(state, form));
+            var owned = evaluator.Context.Owned;
+            var at = 20 * 60.0;
+            var bare = evaluator.Evaluate(owned, at, null, EvaluationMode.Full, form);
+            var with = evaluator.Evaluate([.. owned, Item(riotId)], at, null, EvaluationMode.Full, form);
+            return evaluator.Context.ObjectiveFor(form).Survival * Math.Log(with.TimeAlive / bare.TimeAlive);
+        }
+
+        Assert.IsGreaterThan(0.05, SurvivalPart(KaynForm.Darkin, DeathsDance), "Death's Dance keeps Rhaast alive longer, and that counts.");
+        Assert.AreEqual(0, SurvivalPart(KaynForm.ShadowAssassin, DeathsDance), 1e-12);
+        Assert.IsGreaterThan(0, Value(KaynForm.Darkin, DeathsDance));
     }
 
     [TestMethod]

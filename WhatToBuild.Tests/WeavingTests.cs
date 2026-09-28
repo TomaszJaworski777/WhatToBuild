@@ -36,6 +36,8 @@ public class WeavingTests
 
         public double AttackUptime => inner.AttackUptime;
 
+        public double AttackUptimeIn(Fight fight) => inner.AttackUptimeIn(fight);
+
         public void OnDamage(Fight fight, string source, double damage)
         {
             Hits.Add((fight.Time, source));
@@ -265,9 +267,9 @@ public class WeavingTests
         Assert.AreEqual(70, fury.Stats.MagicResist, 1e-9);
         Assert.IsNull(nasus.Stats(new AbilityRanks(5, 5, 5, 0)));
 
-        // Rank 5 Wither: 11 s cooldown from the cast, so one 5 s cast in a 10 s fight, the slow
-        // ramping 35% → 95% (65% on average), attack speed taking 75% of it.
-        Assert.AreEqual(0.5 * 0.75 * 0.65, nasus.AttackCut(new AbilityRanks(5, 5, 5, 3), us, 10), 1e-9);
+        // Rank 5 Wither: 11 s cooldown from the cast, so one 5 s cast in a 10 s fight, taking
+        // practically all of the attacker's attack speed while it lasts.
+        Assert.AreEqual(0.5, nasus.AttackCut(new AbilityRanks(5, 5, 5, 3), us, 10), 1e-9);
         Assert.AreEqual(0, nasus.AttackCut(new AbilityRanks(5, 0, 5, 3), us, 10), 1e-9);
     }
 
@@ -289,5 +291,97 @@ public class WeavingTests
 
         Assert.AreEqual("Blast Shield", vi.Survival(new AbilityRanks(1, 0, 0, 0))?.Name);
         Assert.HasCount(18, vi.SkillOrder);
+    }
+
+    [TestMethod]
+    public void NasusRarelyAttacksBetweenHisQs()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "GameData");
+        var weaving = SupportedChampions.Nasus.NasusKitData.Load(Path.Combine(root, ChampionKits.FolderName, SupportedChampions.Nasus.NasusKitData.FileName));
+        weaving.AttacksBetweenQs = 1;
+
+        List<(double Time, string Source)> Hits(IChampionKit kit)
+        {
+            var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3078)!]);
+            var recorder = new Recorder(kit);
+            FightSimulator.Run(new FightSetup(us, Target(), new AbilityRanks(5, 0, 0, 0), MaxSeconds: 20, Sustained: true), recorder);
+            return recorder.Hits;
+        }
+
+        static int PlainAttacks(List<(double Time, string Source)> hits)
+        {
+            var qs = hits.Where(h => h.Source == SupportedChampions.Nasus.NasusKit.SiphoningStrike).Select(h => h.Time).ToHashSet();
+            return hits.Where(h => h.Source == FightSimulator.Attacks).Select(h => h.Time).Distinct().Count(t => !qs.Contains(t));
+        }
+
+        var held = PlainAttacks(Hits(_kits.NewFight(_champions.ByName("Nasus")!)!));
+        var woven = PlainAttacks(Hits(new SupportedChampions.Nasus.NasusKit(weaving)));
+
+        Assert.IsGreaterThan(0, woven);
+        Assert.IsLessThan(woven / 2.0, held, $"{held} attacks between Qs, against {woven} if he weaved every one.");
+    }
+
+    [TestMethod]
+    public void WitherOpensAndKeepsARangedTargetFromKiting()
+    {
+        var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3078)!]);
+        List<(double Time, string Source)> Chase(AbilityRanks ranks)
+        {
+            var recorder = new Recorder(_kits.NewFight(us.Champion)!);
+            FightSimulator.Run(new FightSetup(us, Target(), ranks, MaxSeconds: 6, Sustained: true, StartDistance: 700,
+                AttackUptime: 0.4), recorder);
+            return recorder.Hits;
+        }
+
+        var withered = Chase(new AbilityRanks(5, 1, 0, 0));
+        var kited = Chase(new AbilityRanks(5, 0, 0, 0));
+
+        Assert.IsGreaterThan(
+            kited.Count(h => h.Source == FightSimulator.Attacks),
+            withered.Count(h => h.Source == FightSimulator.Attacks),
+            "Caitlyn can't walk away from him while withered, so he lands attacks a chase would lose.");
+    }
+
+    [TestMethod]
+    public void ViStaysOnHerTargetAfterEveryDashAndKnockUp()
+    {
+        var us = new ChampionState(_champions.ByName("Vi")!, 13, [_items.ByRiotId(3071)!]);
+        FightResult Chase(double contact) => FightSimulator.Run(
+            new FightSetup(us, Target(), new AbilityRanks(5, 3, 1, 2), MaxSeconds: 10, Sustained: true, AttackUptime: 0.4, DashContactSeconds: contact),
+            _kits.NewFight(us.Champion));
+
+        var kited = Chase(0);
+        var stuck = Chase(1);
+
+        Assert.IsGreaterThan(kited.Attacks, stuck.Attacks, "Her Q and R put her back on a kiting target.");
+        Assert.AreEqual(1.3 + 0.25, kited.Disabled, 0.3, "R's knock-up and Q's knock-back lock the target.");
+    }
+
+    [TestMethod]
+    public void AChampionWalksInFromRangeBeforeItAttacks()
+    {
+        var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3078)!]);
+        var recorder = new Recorder(_kits.NewFight(us.Champion)!);
+        FightSimulator.Run(new FightSetup(us, Target(), new AbilityRanks(1, 0, 1, 0), MaxSeconds: 10, Sustained: true, StartDistance: 800), recorder);
+
+        var walk = (800 - us.Stats.AttackRange) / us.Stats.MoveSpeed;
+        var firstAttack = recorder.Hits.First(h => h.Source == FightSimulator.Attacks).Time;
+        var firstE = recorder.Hits.First(h => h.Source == SupportedChampions.Nasus.NasusKit.SpiritFire).Time;
+
+        Assert.IsGreaterThanOrEqualTo(walk - 2 * Modeling.Simulation.Fight.Step, firstAttack, "No attack before he is in range.");
+        Assert.IsLessThan(firstAttack, firstE, "Spirit Fire reaches farther than his attack, so it goes out on the way in.");
+    }
+
+    [TestMethod]
+    public void AChaseLandsFewerAttacks()
+    {
+        var us = new ChampionState(_champions.ByName("Vi")!, 13, [_items.ByRiotId(3071)!]);
+        FightResult Chase(double uptime) =>
+            FightSimulator.Run(new FightSetup(us, Target(), AbilityRanks.None, MaxSeconds: 20, Sustained: true, AttackUptime: uptime));
+
+        var standing = Chase(1).Attacks;
+        var chasing = Chase(0.4).Attacks;
+
+        Assert.AreEqual(0.4 * standing, chasing, 0.1 * standing, $"{chasing} attacks chasing, {standing} standing.");
     }
 }

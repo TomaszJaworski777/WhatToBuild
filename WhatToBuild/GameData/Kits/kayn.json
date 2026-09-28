@@ -6,6 +6,8 @@
     "bonusAdRatio": 0.85,
     "hits": 2,
     "castTime": 0.15,
+    "range": 500,
+    "dash": 350,
     "darkinTotalAdRatio": 0.65,
     "darkinMaxHealth": 0.06,
     "darkinMaxHealthPer100BonusAd": 0.035,
@@ -18,7 +20,9 @@
     "assassinDamage": [90, 90, 135, 180, 225, 270, 315],
     "bonusAdRatio": 1.1,
     "castTime": 0.55,
-    "assassinCastTime": 0.6
+    "assassinCastTime": 0.6,
+    "range": 700,
+    "darkinKnockup": 1
   },
   "r": {
     "cooldown": [120, 120, 100, 80, 0, 0, 0],
@@ -29,7 +33,8 @@
     "darkinHeal": 0.75,
     "minimumInfest": 0.5,
     "infestDuration": 2.5,
-    "castTime": 0.1
+    "castTime": 0.1,
+    "range": 550
   },
   "passive": {
     "darkinHealing": 0.25,

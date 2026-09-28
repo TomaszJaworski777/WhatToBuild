@@ -7,9 +7,9 @@
   "w": {
     "cooldown": [16, 15, 14, 13, 12, 11, 11],
     "duration": 5,
-    "slowBase": 0.35,
-    "slowMax": [0.35, 0.47, 0.59, 0.71, 0.83, 0.95, 1.07],
-    "attackSpeedSlowRatio": 0.75
+    "removes": 1,
+    "range": 700,
+    "castTime": 0.25
   },
   "e": {
     "cooldown": 12,
@@ -19,7 +19,8 @@
     "tickApRatio": 0.12,
     "duration": 5,
     "armorShred": [0.3, 0.3, 0.35, 0.4, 0.45, 0.5, 0.5],
-    "castTime": 0.25
+    "castTime": 0.25,
+    "range": 650
   },
   "r": {
     "cooldown": [120, 120, 100, 80, 80, 80, 80],
@@ -37,5 +38,6 @@
     "lifesteal": 0.1,
     "lifestealSteps": [[7, 0.05], [13, 0.05]]
   },
+  "attacksBetweenQs": 0.2,
   "skillOrder": ["Q", "E", "W", "Q", "Q", "R", "Q", "E", "Q", "E", "R", "E", "E", "W", "W", "R", "W", "W"]
 }

@@ -12,6 +12,7 @@ public sealed class ModelSettings
 
     public FightSettings Fight { get; set; } = new();
     public FocusSettings Focus { get; set; } = new();
+    public CrowdControlSettings CrowdControl { get; set; } = new();
     public EnemyDamageSettings EnemyDamage { get; set; } = new();
     public SustainSettings Sustain { get; set; } = new();
     public AllySettings Allies { get; set; } = new();
@@ -57,22 +58,62 @@ public sealed class ModelSettings
         public int CheapTargets { get; set; } = 3;
         public double MaxTimeAliveSeconds { get; set; } = 60;
         public double TeamfightIntervalSeconds { get; set; } = 120;
+        public AttackUptimeSettings AttackUptime { get; set; } = new();
+
+        /// <summary>How long a dash onto the target (Vi's Q and R, Kayn's Q) keeps the attacker on it, whatever the target does.</summary>
+        public double DashContactSeconds { get; set; } = 1;
     }
 
+    /// <summary>
+    /// The share of the time a champion lands its attacks on a champion target once it is in
+    /// range: the rest goes to chasing, repositioning and dodging. A ranged champion keeps out of
+    /// a melee one's reach, so melee attacking ranged loses the most.
+    /// </summary>
+    public sealed class AttackUptimeSettings
+    {
+        public double MeleeVsMelee { get; set; } = 0.8;
+        public double RangedVsRanged { get; set; } = 0.9;
+        public double RangedVsMelee { get; set; } = 0.9;
+        public double MeleeVsRanged { get; set; } = 0.4;
+
+        public double For(bool attackerRanged, bool targetRanged) => (attackerRanged, targetRanged) switch
+        {
+            (false, false) => MeleeVsMelee,
+            (true, true) => RangedVsRanged,
+            (true, false) => RangedVsMelee,
+            (false, true) => MeleeVsRanged,
+        };
+    }
+
+    /// <summary>
+    /// Hard crowd control in a teamfight. A supported champion's script says how long it locks its
+    /// target; any other locks you for its crowdControl tag times <see cref="SecondsPerTag"/> a
+    /// teamfight, cut by your tenacity. Time locked is time you deal nothing, up to
+    /// <see cref="MaxLockedShare"/> of the fight.
+    /// </summary>
+    public sealed class CrowdControlSettings
+    {
+        public double SecondsPerTag { get; set; } = 1.5;
+        public double MaxLockedShare { get; set; } = 0.6;
+    }
+
+    /// <summary>
+    /// How much of each enemy's damage comes your way in a teamfight. A melee champion is in the
+    /// middle of it, so the whole enemy team hits it; a ranged one is mostly reached by the other
+    /// ranged champions and only partly by the melee ones.
+    /// </summary>
     public sealed class FocusSettings
     {
-        public int TeamSize { get; set; } = 5;
-        public double FrontlineWeight { get; set; } = 1.5;
-        public double MeleeWeight { get; set; } = 0.3;
-        public double DiveBias { get; set; } = 1.2;
-        public double CarryFocusBias { get; set; } = 1.0;
-        public double KiteReduction { get; set; } = 0.35;
+        public double OnMelee { get; set; } = 1;
+        public double OnRangedFromRanged { get; set; } = 0.9;
+        public double OnRangedFromMelee { get; set; } = 0.4;
+
+        public double For(bool usRanged, bool enemyRanged) =>
+            !usRanged ? OnMelee : enemyRanged ? OnRangedFromRanged : OnRangedFromMelee;
     }
 
     public sealed class EnemyDamageSettings
     {
-        public double AutoUptimeRanged { get; set; } = 0.8;
-        public double AutoUptimeMelee { get; set; } = 0.6;
         public double MinAutoShare { get; set; } = 0.35;
         public double AbilityCycleSeconds { get; set; } = 8;
         public double CastsPerCycle { get; set; } = 3;
@@ -90,7 +131,6 @@ public sealed class ModelSettings
         public double BurstShare { get; set; }
         public double AbilityDamageStackRatio { get; set; }
         public double AverageTargetHealthPercent { get; set; } = 0.6;
-        public double AbilityAreaShare { get; set; } = 0.3;
     }
 
     public sealed class SustainSettings
@@ -187,12 +227,6 @@ public sealed class ModelSettings
         public Dictionary<string, double> WalkShare { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public double DefaultWalkShare { get; set; } = 0.3;
         public double TempoWeight { get; set; } = 1;
-
-        public double EvasionExponent { get; set; } = 1;
-
-        public double KiteSpeedExponent { get; set; } = 2;
-
-        public double MaxKiteReduction { get; set; } = 0.7;
 
         public List<List<double>> TempoWeightByMinute { get; set; } = new();
 

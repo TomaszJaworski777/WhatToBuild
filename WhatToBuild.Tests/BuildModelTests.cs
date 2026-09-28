@@ -9,6 +9,7 @@ using WhatToBuild.Planning;
 using WhatToBuild.Recommendations;
 using WhatToBuild.SupportedChampions;
 using WhatToBuild.SupportedChampions.Kindred;
+using WhatToBuild.SupportedChampions.Vi;
 
 namespace WhatToBuild.Tests;
 
@@ -322,16 +323,17 @@ public class BuildModelTests
     }
 
     [TestMethod]
-    public void FrontlineAlliesDrawDamageAwayFromYou()
+    public void TheWholeTeamHitsAMeleeChampionAndMostlyTheRangedOnesReachARangedOne()
     {
-        var alone = Evaluator(Game(Squishies())).BattlefieldAt(Now);
-        var guarded = Evaluator(Game(Squishies(),
-        [
-            Player("Ornn", Team.Order, "TOP", 14, 3068),
-            Player("Leona", Team.Order, "UTILITY", 11, 3190),
-        ])).BattlefieldAt(Now);
+        var ranged = Evaluator(Game(Squishies())).BattlefieldAt(Now);
+        var vi = new PlayerState { Champion = _champions.ByName("Vi")!, Team = Team.Order, Position = "JUNGLE", Level = 13, Items = [new OwnedItem(Item(3071), 1, 0)], IsActivePlayer = true };
+        var melee = Evaluator(Game(Squishies(), me: vi)).BattlefieldAt(Now);
 
-        Assert.IsGreaterThan(guarded.Focus.Values.Sum(), alone.Focus.Values.Sum());
+        Assert.IsTrue(melee.Focus.Values.All(f => f == 1), "Vi is in the middle of the enemy team.");
+        foreach (var (enemy, focus) in ranged.Focus)
+        {
+            Assert.AreEqual(enemy.Champion.IsRanged ? 0.9 : 0.4, focus, 1e-9, $"{enemy.Champion.Name} on Kindred");
+        }
     }
 
     [TestMethod]
@@ -421,7 +423,6 @@ public class BuildModelTests
 
         Assert.AreEqual(barefoot.Clear!.WalkSeconds * 325 / 350, booted.Clear!.WalkSeconds, 1e-6);
         Assert.IsGreaterThan(barefoot.Tempo, booted.Tempo);
-        Assert.IsGreaterThan(booted.IncomingDps, barefoot.IncomingDps, "Faster than the enemy team: easier to dodge and kite.");
     }
 
     [TestMethod]
@@ -624,19 +625,67 @@ public class BuildModelTests
     }
 
     [TestMethod]
-    public void RangedChampionsKiteMeleeAttacks()
+    public void MeleeEnemiesLandFewerAttacksOnARangedChampion()
     {
         var state = Game(NoSustain());
-        var noKiting = ModelData.Load(Path.Combine(AppContext.BaseDirectory, "GameData"));
-        noKiting.Settings.Focus.KiteReduction = 0;
+        var standing = ModelData.Load(Path.Combine(AppContext.BaseDirectory, "GameData"));
+        standing.Settings.Fight.AttackUptime.MeleeVsRanged = standing.Settings.Fight.AttackUptime.MeleeVsMelee;
 
         var kiting = Evaluator(state);
-        var standing = new BuildEvaluator(new BuildContext(state, new GameStack(), _items, _neutrals, _kits, noKiting));
+        var caught = new BuildEvaluator(new BuildContext(state, new GameStack(), _items, _neutrals, _kits, standing));
 
         var withKiting = kiting.Evaluate(kiting.Context.Owned, Now).IncomingDps;
-        var without = standing.Evaluate(standing.Context.Owned, Now).IncomingDps;
+        var without = caught.Evaluate(caught.Context.Owned, Now).IncomingDps;
 
-        Assert.IsGreaterThan(withKiting, without, "Standing still in melee range takes more damage.");
+        Assert.IsGreaterThan(withKiting, without, "A melee champion that could stay on you would land more.");
+    }
+
+    [TestMethod]
+    public void ViLocksDownTheEnemyThatHitsHardest()
+    {
+        var vi = new PlayerState { Champion = _champions.ByName("Vi")!, Team = Team.Order, Position = "JUNGLE", Level = 13, Items = [new OwnedItem(Item(3071), 1, 0)], IsActivePlayer = true };
+        var evaluator = Evaluator(Game(Squishies(), me: vi));
+        var evaluation = evaluator.Evaluate(evaluator.Context.Owned, Now, null, EvaluationMode.Full);
+
+        // R's knock-up and Q's knock-back, once each in a teamfight.
+        Assert.AreEqual((1.3 + 0.25) / _model.Settings.Fight.TeamfightSeconds, evaluation.LockdownShare, 0.05);
+    }
+
+    [TestMethod]
+    public void EnemyCrowdControlCostsYouDamageAndTenacityGivesItBack()
+    {
+        var lockdown = Game(Tanks());
+        var bare = Evaluator(lockdown);
+        var treads = Evaluator(Game(Tanks(), me: Kindred(6672, 3031, 3111, 1101)));
+
+        var without = bare.Evaluate(bare.Context.Owned, Now, null, EvaluationMode.Full);
+        var with = treads.Evaluate(treads.Context.Owned, Now, null, EvaluationMode.Full);
+
+        Assert.IsGreaterThan(0.1, without.LockedShare, "A team of tanks keeps you locked down a good part of the fight.");
+        Assert.IsLessThan(without.LockedShare, with.LockedShare, "Mercury's Treads' tenacity shortens it.");
+    }
+
+    [TestMethod]
+    public void SupportedEnemiesFightWithTheirOwnScript()
+    {
+        var vi = Player("Vi", Team.Chaos, "JUNGLE", 13, 3071, 3047, 6333);
+        var state = Game([vi]);
+        var evaluator = Evaluator(state);
+        var evaluation = evaluator.Evaluate(evaluator.Context.Owned, Now, null, EvaluationMode.Full);
+        var enemy = evaluator.BattlefieldAt(Now).Enemies.Single();
+
+        var viSimulated = FightSimulator.Run(
+            new FightSetup(enemy.Entity, evaluation.Us, _kits.RanksFor(enemy.Champion, enemy.Forecast.Level, null), 0, _model.Settings.Fight.TeamfightSeconds, 0.5,
+                Sustained: true, StartDistance: 800, AttackUptime: _model.Settings.Fight.AttackUptime.MeleeVsRanged,
+                DashContactSeconds: _model.Settings.Fight.DashContactSeconds),
+            _kits.NewFight(enemy.Champion));
+
+        Assert.IsTrue(viSimulated.DamageBySource.ContainsKey(ViKit.CeaseAndDesist), "Her script engages with R.");
+        Assert.IsTrue(evaluator.BattlefieldAt(Now).Sustain[enemy].Shields.Any(s => Math.Abs(s.Amount - 0.12 * enemy.Entity.MaxHealth) < 1e-6),
+            "Her Blast Shield is more to get through in our fight against her.");
+        Assert.AreEqual(
+            _model.Settings.Focus.OnRangedFromMelee * viSimulated.Damage / viSimulated.Seconds,
+            evaluation.IncomingByEnemy[enemy], 1e-6, "What she deals you is her own fight against you, at a melee's focus on a ranged champion.");
     }
 
     [TestMethod]
@@ -684,6 +733,20 @@ public class BuildModelTests
 
     private static GameState Replay() =>
         GameStateParser.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Replays", "demo", "000.json")), _champions, _items);
+
+    [TestMethod]
+    public void UnseenChampionStacksStopAtTheirCap()
+    {
+        var state = GameStateParser.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Replays", "kayn", "029.json")), _champions, _items);
+        var garen = state.Players.Single(p => p.Champion.Name == "Garen");
+        var evaluator = Evaluator(state);
+        var forecast = evaluator.BattlefieldAt(state.GameTime).Enemies.Single(e => e.Champion.Name == "Garen");
+
+        // Courage is 30 armor and magic resist at most, not ten a minute for 23 minutes.
+        Assert.IsTrue(garen.EstimatedStacks.All(s => s.Stacks <= 30), string.Join(", ", garen.EstimatedStacks.Select(s => $"{s.Stat.Name} {s.Stacks:0}")));
+        Assert.AreEqual(30, forecast.Forecast.StackStats.Armor, 1e-9);
+        Assert.AreEqual(30, forecast.Forecast.StackStats.MagicResist, 1e-9);
+    }
 
     [TestMethod]
     public void PlansAreLegalAndFitTheInventory()

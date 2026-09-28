@@ -46,9 +46,9 @@ public sealed class NasusChampion : ISupportedChampion
     }
 
     /// <summary>
-    /// Wither on whoever hits you hardest: its slow ramps from the base to the rank's maximum
-    /// over its duration and takes attack speed at a share of the slow. The cooldown starts when
-    /// it is cast, so a fight holds one cast, and a second only if the cooldown runs out inside it.
+    /// Wither on whoever hits you hardest: while it lasts it takes practically all of their
+    /// movement and attack speed. The cooldown starts when it is cast, so a fight holds one cast,
+    /// and a second only if the cooldown runs out inside it.
     /// </summary>
     public double AttackCut(AbilityRanks ranks, ChampionState us, double fightSeconds)
     {
@@ -65,18 +65,19 @@ public sealed class NasusChampion : ISupportedChampion
             covered += Math.Min(w.Duration, fightSeconds - cast);
         }
 
-        var averageSlow = Math.Min(1, (w.SlowBase + NasusKitData.AtRank(w.SlowMax, ranks.W)) / 2);
-        return Math.Clamp(covered / fightSeconds, 0, 1) * w.AttackSpeedSlowRatio * averageSlow;
+        return Math.Clamp(covered / fightSeconds, 0, 1) * Math.Clamp(w.Removes, 0, 1);
     }
 }
 
 /// <summary>
-/// Nasus's script, in priority each tick: Fury of the Sands first against a champion (it halves Q's
-/// cooldown and burns a share of the target's max health every tick), then Siphoning Strike whenever
-/// it is up, then Spirit Fire. Q has no animation and resets the attack timer: the attack after it
+/// Nasus's script, in priority each tick: Wither first against a champion, as his gap closer (for its
+/// duration the target keeps practically no movement or attack speed, so it can neither kite nor run),
+/// then Fury of the Sands (it halves Q's cooldown and burns a share of the target's max health every
+/// tick), then Siphoning Strike whenever it is up, then Spirit Fire. Q has no animation and resets the attack timer: the attack after it
 /// carries its damage and your stacks, and its cooldown starts when that attack lands. R and E have
-/// animations and go between attacks. Spirit Fire hits, burns and shreds armor while it lasts. He
-/// walks up and stays on the target.
+/// animations and go between attacks. Spirit Fire hits, burns and shreds armor while it lasts, and
+/// reaches farther than his attack, so it goes out on the way in. He walks up and stays on the
+/// target, and rarely attacks between Qs: most of his attacks wait for the next one.
 /// </summary>
 public sealed class NasusKit : ScriptedKit
 {
@@ -94,6 +95,7 @@ public sealed class NasusKit : ScriptedKit
     private double _rUntil = double.MinValue;
     private double _rReadyAt;
     private double _nextFury;
+    private double _wReadyAt;
 
     public NasusKit(NasusKitData data)
     {
@@ -103,14 +105,19 @@ public sealed class NasusKit : ScriptedKit
     protected override Playstyle DefinePlaystyle() => new(
         ComboOrder.Priority,
         [
+            new ScriptedAbility("W", CastTiming.BetweenAttacks, CastW, Range: _data.W.Range),
             new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR),
             new ScriptedAbility("Q", CastTiming.Instant, CastQ, ResetsAttack: true, EmpowersAttack: true),
-            new ScriptedAbility("E", CastTiming.BetweenAttacks, CastE),
+            new ScriptedAbility("E", CastTiming.BetweenAttacks, CastE, Range: _data.E.Range),
         ],
         Kiting.StandAndFight,
         Burst: ["E", "Q"]);
 
     protected override ScriptedKit Fresh(bool burst) => new NasusKit(_data);
+
+    /// <summary>He rarely weaves attacks between Qs: while Siphoning Strike is down, most of them are held for it.</summary>
+    public override double AttackUptimeIn(Fight fight) =>
+        _empowered || fight.Time >= _qReadyAt || fight.Ranks.Q <= 0 ? AttackUptime : AttackUptime * _data.AttacksBetweenQs;
 
     /// <summary>Spirit Fire's burn and Fury's aura tick.</summary>
     protected override void BeforeCasts(Fight fight)
@@ -144,6 +151,27 @@ public sealed class NasusKit : ScriptedKit
 
         _empowered = true;
         fight.Cast();
+        return true;
+    }
+
+    /// <summary>Wither: his gap closer. The target keeps practically no movement or attack speed, so it cannot get away from him.</summary>
+    private bool CastW(Fight fight)
+    {
+        var rank = fight.Ranks.W;
+        if (rank <= 0 || fight.Time < _wReadyAt || fight.Target is not ChampionState)
+        {
+            return false;
+        }
+
+        var w = _data.W;
+        fight.Cast();
+        fight.Casting(w.CastTime);
+        if (w.Removes > 0)
+        {
+            fight.PinTarget(w.Duration);
+        }
+
+        _wReadyAt = fight.Time + fight.Cooldown(NasusKitData.AtRank(w.Cooldown, rank));
         return true;
     }
 

@@ -85,8 +85,9 @@ public static class GameStateParser
 
     private static List<StackEstimate> Stacks(Champion champion, double gameTime, StatSheet? observedStats, List<OwnedItem> owned)
     {
+        // Without a reading, the standard pace so far, stopped at the cap (Garen's Courage tops out at 30).
         var estimates = champion.Stacking
-            .Select(s => new StackEstimate(s.Stat, s.InitialStacksPerMinute * gameTime / 60, s.Max))
+            .Select(s => new StackEstimate(s.Stat, s.Max > 0 ? Math.Min(s.Max, s.InitialStacksPerMinute * gameTime / 60) : s.InitialStacksPerMinute * gameTime / 60, s.Max))
             .ToList();
 
         if (observedStats is null || champion.StackReading is not { } reading || estimates.Count == 0)

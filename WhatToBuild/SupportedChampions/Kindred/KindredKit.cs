@@ -73,9 +73,9 @@ public sealed class KindredKit : ScriptedKit
     protected override Playstyle DefinePlaystyle() => new(
         ComboOrder.Priority,
         [
-            new ScriptedAbility("W", CastTiming.BetweenAttacks, CastW),
-            new ScriptedAbility("Q", CastTiming.Instant, CastQ, Woven: true, ResetsAttack: true),
-            new ScriptedAbility("E", CastTiming.BetweenAttacks, CastE),
+            new ScriptedAbility("W", CastTiming.BetweenAttacks, CastW, Range: _data.W.Range),
+            new ScriptedAbility("Q", CastTiming.Instant, CastQ, Woven: true, ResetsAttack: true, Range: _data.Q.Range),
+            new ScriptedAbility("E", CastTiming.BetweenAttacks, CastE, Range: _data.E.Range),
         ],
         Kiting.StandAndFight,
         Burst: ["W", "E", Attack, "Q", Attack, Attack]);
@@ -126,6 +126,7 @@ public sealed class KindredKit : ScriptedKit
         }
 
         var q = _data.Q;
+        fight.Dash(q.Dash, engages: false);
         var damage = QDamage(fight);
         var crit = q.CanCrit ? AttackerHits.CritChance(fight.Attacker) : 0;
 

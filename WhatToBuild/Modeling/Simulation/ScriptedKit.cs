@@ -32,6 +32,7 @@ public enum ComboOrder
 /// <param name="ResetsAttack">It resets the attack timer, so the next attack comes as soon as nothing blocks it.</param>
 /// <param name="OpensFromRange">It is the engage: before the first hit lands it goes out without waiting on the attack timer.</param>
 /// <param name="EmpowersAttack">Its hit rides on the next attack (Nasus's Q, Vi's E): it is not done until that attack lands.</param>
+/// <param name="Range">How close to the target it can be cast from; none means attack range. Where it moves the caster is the kit's: <see cref="Fight.Dash"/>.</param>
 public sealed record ScriptedAbility(
     string Key,
     CastTiming Timing,
@@ -39,7 +40,8 @@ public sealed record ScriptedAbility(
     bool Woven = false,
     bool ResetsAttack = false,
     bool OpensFromRange = false,
-    bool EmpowersAttack = false);
+    bool EmpowersAttack = false,
+    double? Range = null);
 
 /// <summary>How a champion moves while it fights.</summary>
 /// <param name="AttackUptime">The share of the time it is attacking rather than walking to or around the target (1: never lets go).</param>
@@ -76,6 +78,12 @@ public abstract class ScriptedKit : IChampionKit
     public Playstyle Playstyle => _playstyle ??= DefinePlaystyle();
 
     public double AttackUptime => Playstyle.Kiting.AttackUptime;
+
+    /// <summary>The share of attack time right now; a kit that holds its attacks at times (Nasus between Qs) says so here.</summary>
+    public virtual double AttackUptimeIn(Fight fight) => AttackUptime;
+
+    /// <summary>The farthest it reaches a target from: its attack range, or an ability that goes farther.</summary>
+    public double Reach(double attackRange) => Playstyle.Combo.Select(a => a.Range ?? attackRange).Append(attackRange).Max();
 
     /// <summary>Running the burst: every step has gone out and every hit it started has landed.</summary>
     public bool BurstDone { get; private set; }
@@ -216,7 +224,7 @@ public abstract class ScriptedKit : IChampionKit
 
     private bool Fits(Fight fight, ScriptedAbility ability, bool weave = true)
     {
-        if (weave && ability.Woven && !_attackLanded)
+        if (weave && ability.Woven && !_attackLanded || !fight.InRange(ability.Range))
         {
             return false;
         }

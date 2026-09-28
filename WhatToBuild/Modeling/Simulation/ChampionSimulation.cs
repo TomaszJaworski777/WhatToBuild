@@ -10,6 +10,9 @@ public interface IChampionKit
 
     double AttackUptime => 1;
 
+    /// <summary>The kit's share of attack time right now; by default its constant <see cref="AttackUptime"/>.</summary>
+    double AttackUptimeIn(Fight fight) => AttackUptime;
+
     /// <summary>The kit keeps the next attack back even though the timer is ready (a burst waiting on its next spell).</summary>
     bool HoldsAttack(Fight fight) => false;
 
@@ -68,15 +71,22 @@ public sealed class ChampionSimulation
             Land();
         }
 
-        // The attack timer runs through windups and spell animations alike; an attack
-        // that comes off cooldown during a cast waits for the cast to end.
-        _attackProgress += fight.AttackSpeed * Fight.Step * (Kit?.AttackUptime ?? 1);
-        if (fight.TakeAttackReset())
+        // Out of range, it walks in; not during a windup or a spell's animation.
+        if (!fight.InAttackRange && fight.Time >= fight.AttacksBlockedUntil && fight.Time >= fight.WindupUntil)
         {
-            _attackProgress = Math.Max(_attackProgress, 1);
+            fight.Walk(Fight.Step);
         }
 
-        if (fight.Time < fight.AttacksBlockedUntil)
+        // The attack timer runs through windups and spell animations alike; an attack
+        // that comes off cooldown during a cast, or out of range, waits for it to end.
+        // In range, only part of the time goes to attacking: the matchup's uptime, and the kit's.
+        _attackProgress += fight.AttackSpeed * Fight.Step * fight.MatchupUptime * (Kit?.AttackUptimeIn(fight) ?? 1);
+        if (fight.TakeAttackReset())
+        {
+            _attackProgress = Math.Max(_attackProgress, fight.MatchupUptime);
+        }
+
+        if (fight.Time < fight.AttacksBlockedUntil || !fight.InAttackRange)
         {
             _attackProgress = Math.Min(_attackProgress, 1);
         }
@@ -84,10 +94,12 @@ public sealed class ChampionSimulation
         fight.AttackReady = CanAttack();
         Kit?.Update(fight);
 
-        // Only a true reset (Vi's E, Nasus's Q, Kindred's Q) brings the next attack forward.
+        // Only a true reset (Vi's E, Nasus's Q, Kindred's Q) brings the next attack forward: at
+        // once against a target that stays put, and against one that kites only as far as the
+        // matchup's uptime, the rest of the timer spent catching up to it.
         if (fight.TakeAttackReset())
         {
-            _attackProgress = Math.Max(_attackProgress, 1);
+            _attackProgress = Math.Max(_attackProgress, fight.MatchupUptime);
         }
 
         if (CanAttack())
@@ -130,7 +142,9 @@ public sealed class ChampionSimulation
                 Sustained: true,
                 Kills: fight.Kills + (fight.TargetDead ? 1 : 0),
                 EarlyDamage: fight.EarlyDamage,
-                SelfHealed: fight.SelfHealed);
+                SelfHealed: fight.SelfHealed,
+                DamageByType: new Dictionary<DamageType, double>(fight.DamageByType),
+                Disabled: fight.DisabledSeconds);
         }
 
         return new FightResult(
@@ -144,12 +158,14 @@ public sealed class ChampionSimulation
             fight.InitialPool - fight.Pool,
             fight.Healed,
             fight.ShieldTotal,
-            SelfHealed: fight.SelfHealed);
+            SelfHealed: fight.SelfHealed,
+            DamageByType: new Dictionary<DamageType, double>(fight.DamageByType),
+            Disabled: fight.DisabledSeconds);
     }
 
     private bool CanAttack() =>
         _landsAt is null && _attackProgress >= 1 && Fight.Time >= Fight.AttacksBlockedUntil && !Fight.TargetDead
-        && Kit?.HoldsAttack(Fight) != true;
+        && Fight.InAttackRange && Kit?.HoldsAttack(Fight) != true;
 
     private void Land()
     {

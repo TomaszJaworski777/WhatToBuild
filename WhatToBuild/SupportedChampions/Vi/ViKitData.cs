@@ -30,6 +30,12 @@ public sealed class ViKitData
 
     public sealed class QData
     {
+        /// <summary>How far the fully charged dash goes.</summary>
+        public double Range { get; set; } = 725;
+
+        /// <summary>How long the target is knocked back when she crashes into it.</summary>
+        public double Knockup { get; set; } = 0.25;
+
         public List<double> Cooldown { get; set; } = new();
         public List<double> Damage { get; set; } = new();
         public double BonusAdRatio { get; set; }
@@ -63,6 +69,12 @@ public sealed class ViKitData
 
     public sealed class RData
     {
+        /// <summary>How far away she can lock on; she lands on the target.</summary>
+        public double Range { get; set; } = 800;
+
+        /// <summary>How long the target is knocked up once she lands: it can do nothing meanwhile.</summary>
+        public double Knockup { get; set; } = 1.3;
+
         public List<double> Cooldown { get; set; } = new();
         public List<double> Damage { get; set; } = new();
         public double BonusAdRatio { get; set; }

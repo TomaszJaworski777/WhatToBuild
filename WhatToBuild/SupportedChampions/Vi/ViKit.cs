@@ -68,9 +68,9 @@ public sealed class ViKit : ScriptedKit
 
     protected override Playstyle DefinePlaystyle()
     {
-        var r = new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR, Woven: true, OpensFromRange: true);
+        var r = new ScriptedAbility("R", CastTiming.BetweenAttacks, CastR, Woven: true, OpensFromRange: true, Range: _data.R.Range);
         var e = new ScriptedAbility("E", CastTiming.Instant, CastE, Woven: true, ResetsAttack: true, EmpowersAttack: true);
-        var q = new ScriptedAbility("Q", CastTiming.BetweenAttacks, CastQ, Woven: true);
+        var q = new ScriptedAbility("Q", CastTiming.BetweenAttacks, CastQ, Woven: true, Range: _data.Q.Range);
 
         return new Playstyle(ComboOrder.Sequence, [r, e, q, e], Kiting.StandAndFight, Burst: ["R", "Q", Attack, "E"]);
     }
@@ -127,6 +127,8 @@ public sealed class ViKit : ScriptedKit
     private void ReleaseQ(Fight fight)
     {
         _qReleaseAt = double.MaxValue;
+        fight.Dash(_data.Q.Range);
+        fight.Disable(_data.Q.Knockup);
         fight.Deal(VaultBreaker, fight.Physical(QDamage(fight, fight.Ranks.Q)).Ability());
         fight.Cast();
         _qReadyAt = fight.Time + fight.Cooldown(ViKitData.AtRank(_data.Q.Cooldown, fight.Ranks.Q));
@@ -155,6 +157,8 @@ public sealed class ViKit : ScriptedKit
     private void LandR(Fight fight)
     {
         _rHitAt = double.MaxValue;
+        fight.Dash(double.MaxValue);
+        fight.Disable(_data.R.Knockup);
         fight.Deal(CeaseAndDesist, fight.Physical(RDamage(fight)).Ability());
         fight.Cast();
         fight.Ultimate();

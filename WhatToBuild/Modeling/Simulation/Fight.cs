@@ -30,13 +30,17 @@ public sealed record FightSetup(
     TargetSustain? Sustain = null,
     bool Sustained = false,
     double LifeSteal = 0,
-    double Omnivamp = 0);
+    double Omnivamp = 0,
+    double StartDistance = 0,
+    double AttackUptime = 1,
+    double DashContactSeconds = 0);
 
 public sealed class Fight
 {
     public const double Step = 0.02;
 
     private readonly Dictionary<string, double> _damage = new();
+    private readonly Dictionary<DamageType, double> _damageByType = new();
     private readonly List<(double Bonus, double Until)> _attackSpeedBuffs = new();
     private readonly List<ShieldPool> _shields = new();
     private readonly List<Shield> _sustainShields;
@@ -78,6 +82,8 @@ public sealed class Fight
 
         _sustainShields = sustain.Shields.Where(s => s.Amount > 0).ToList();
         FillShields();
+
+        Distance = setup.StartDistance;
 
         ShieldTotal = _shields.Sum(s => s.Amount);
         _poolAtBatchStart = Pool;
@@ -161,7 +167,78 @@ public sealed class Fight
         }
     }
 
+    /// <summary>How far the attacker is from the target: it walks in from the setup's start distance.</summary>
+    public double Distance { get; set; }
+
+    public double AttackRange => Attacker.Stats.AttackRange;
+
+    public bool InAttackRange => InRange(null);
+
+    /// <summary>Within <paramref name="range"/> of the target; no range means attack range.</summary>
+    public bool InRange(double? range) => Distance <= (range ?? AttackRange) + 1e-9;
+
+    /// <summary>
+    /// A dash toward the target, as far as <paramref name="distance"/>, stopping at attack range.
+    /// One that <paramref name="engages"/> lands on the target, re-engaging it wherever it had
+    /// walked to: for <see cref="FightSetup.DashContactSeconds"/> no attack time goes to chasing it.
+    /// </summary>
+    public void Dash(double distance, bool engages = true)
+    {
+        Close(distance);
+        if (engages)
+        {
+            PinTarget(Setup.DashContactSeconds);
+        }
+    }
+
+    /// <summary>A step's walk toward the target, stopping at attack range.</summary>
+    public void Walk(double seconds) => Close(Attacker.Stats.MoveSpeed * seconds);
+
+    private void Close(double distance)
+    {
+        if (Distance > AttackRange)
+        {
+            Distance = Math.Max(AttackRange, Distance - distance);
+        }
+    }
+
+    private double _targetPinnedUntil = double.MinValue;
+
+    /// <summary>The attacker stays on the target for a while (Nasus's Wither, a knock-up, a dash onto it): no attack time goes to chasing it.</summary>
+    public void PinTarget(double seconds) => _targetPinnedUntil = Math.Max(_targetPinnedUntil, Time + seconds);
+
+    public bool TargetPinned => Time < _targetPinnedUntil;
+
+    private double _targetDisabledUntil = double.MinValue;
+
+    /// <summary>
+    /// Hard crowd control on the target (a stun, knock-up or suppression): for its duration, cut
+    /// by a champion's tenacity, the target can do nothing at all, not move, not attack, not cast.
+    /// Overlapping locks count once.
+    /// </summary>
+    public void Disable(double seconds)
+    {
+        var tenacity = Target is ChampionState ? Math.Clamp(Target.Stats.Tenacity, 0, 1) : 0;
+        var until = Time + seconds * (1 - tenacity);
+        if (until <= _targetDisabledUntil)
+        {
+            return;
+        }
+
+        DisabledSeconds += until - Math.Max(Time, _targetDisabledUntil);
+        _targetDisabledUntil = until;
+        PinTarget(until - Time);
+    }
+
+    /// <summary>How long the target has been locked down so far.</summary>
+    public double DisabledSeconds { get; private set; }
+
+    /// <summary>The matchup's share of attack time, or all of it while the target cannot move.</summary>
+    public double MatchupUptime => TargetPinned ? 1 : Setup.AttackUptime;
+
     public IReadOnlyDictionary<string, double> DamageBySource => _damage;
+
+    public IReadOnlyDictionary<DamageType, double> DamageByType => _damageByType;
 
     public double DamageDealt => _damage.Values.Sum();
 
@@ -404,6 +481,7 @@ public sealed class Fight
 
         Target.CurrentHealth -= toHealth;
         _damage[source] = _damage.GetValueOrDefault(source) + damage;
+        _damageByType[result.Hit.Type] = _damageByType.GetValueOrDefault(result.Hit.Type) + damage;
         _batchDamage += damage;
         if (Time <= BurstSeconds)
         {
@@ -451,7 +529,9 @@ public sealed record FightResult(
     bool Sustained = false,
     double Kills = 0,
     double EarlyDamage = 0,
-    double SelfHealed = 0)
+    double SelfHealed = 0,
+    IReadOnlyDictionary<DamageType, double>? DamageByType = null,
+    double Disabled = 0)
 {
     public const double MinimumKillTime = 0.1;
 
@@ -481,6 +561,11 @@ public sealed record FightResult(
             Sustained: results[0].Sustained,
             Kills: results.Average(r => r.Kills),
             EarlyDamage: results.Average(r => r.EarlyDamage),
-            SelfHealed: results.Average(r => r.SelfHealed));
+            SelfHealed: results.Average(r => r.SelfHealed),
+            DamageByType: results
+                .SelectMany(r => r.DamageByType ?? new Dictionary<DamageType, double>())
+                .GroupBy(d => d.Key)
+                .ToDictionary(g => g.Key, g => g.Sum(d => d.Value) / results.Count),
+            Disabled: results.Average(r => r.Disabled));
     }
 }

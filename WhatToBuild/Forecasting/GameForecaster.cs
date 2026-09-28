@@ -120,7 +120,11 @@ public sealed class GameForecaster
     public double StacksAt(PlayerState player, ChampionStacking stacking, double time)
     {
         var observed = player.EstimatedStacks.FirstOrDefault(s => s.Stat == stacking.Stat);
-        var now = observed?.Stacks ?? stacking.InitialStacksPerMinute * Now / 60;
+
+        // Without a reading, what they have is only the standard pace so far, and that stops at
+        // the cap like any forecast (Garen's Courage: 30 armor, not ten a minute forever).
+        var paced = stacking.InitialStacksPerMinute * Now / 60;
+        var now = observed?.Stacks ?? (stacking.Max > 0 ? Math.Min(stacking.Max, paced) : paced);
 
         // Mostly the standard pace: your own pace so far only leans on it, and only once the game
         // is long enough for it to mean something. Gold pace is not applied on top, since the

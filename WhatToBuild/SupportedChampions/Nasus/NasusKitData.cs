@@ -21,6 +21,12 @@ public sealed class NasusKitData
 
     public List<string> SkillOrder { get; set; } = new();
 
+    /// <summary>
+    /// Of the attacks he could throw while Siphoning Strike is on cooldown, the share he does:
+    /// he mostly walks with the target and saves his attacks for the next Q.
+    /// </summary>
+    public double AttacksBetweenQs { get; set; } = 0.2;
+
     public static NasusKitData Load(string path) =>
         JsonSerializer.Deserialize<NasusKitData>(File.ReadAllText(path), GameDataJson.Options)
         ?? throw new InvalidDataException($"{path} is empty.");
@@ -38,13 +44,18 @@ public sealed class NasusKitData
     {
         public List<double> Cooldown { get; set; } = new();
         public double Duration { get; set; }
-        public double SlowBase { get; set; }
-        public List<double> SlowMax { get; set; } = new();
-        public double AttackSpeedSlowRatio { get; set; }
+
+        /// <summary>The share of the target's movement and attack speed Wither takes while it lasts: all but nothing of either.</summary>
+        public double Removes { get; set; } = 1;
+
+        public double Range { get; set; } = 700;
+        public double CastTime { get; set; } = 0.25;
     }
 
     public sealed class EData
     {
+        public double Range { get; set; } = 650;
+
         public double Cooldown { get; set; }
         public List<double> Damage { get; set; } = new();
         public double ApRatio { get; set; }

@@ -30,6 +30,11 @@ public sealed class KaynKitData
 
     public sealed class QData
     {
+        /// <summary>Reach: the dash, then the spin around where he lands.</summary>
+        public double Range { get; set; } = 500;
+
+        public double Dash { get; set; } = 350;
+
         public List<double> Cooldown { get; set; } = new();
         public List<double> Damage { get; set; } = new();
         public double BonusAdRatio { get; set; }
@@ -44,6 +49,11 @@ public sealed class KaynKitData
 
     public sealed class WData
     {
+        public double Range { get; set; } = 700;
+
+        /// <summary>Rhaast's Blade's Reach knocks up what it hits.</summary>
+        public double DarkinKnockup { get; set; } = 1;
+
         public List<double> Cooldown { get; set; } = new();
         public List<double> Damage { get; set; } = new();
         public List<double> AssassinDamage { get; set; } = new();
@@ -54,6 +64,9 @@ public sealed class KaynKitData
 
     public sealed class RData
     {
+        /// <summary>How far away he can infest a marked target; he bursts out next to it.</summary>
+        public double Range { get; set; } = 550;
+
         public List<double> Cooldown { get; set; } = new();
         public List<double> Damage { get; set; } = new();
         public double BonusAdRatio { get; set; }

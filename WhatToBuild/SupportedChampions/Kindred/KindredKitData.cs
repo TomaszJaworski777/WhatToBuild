@@ -28,6 +28,11 @@ public sealed class KindredKitData
 
     public sealed class QData
     {
+        /// <summary>Reach: the dash, then arrows at targets in attack range of where she lands.</summary>
+        public double Range { get; set; } = 800;
+
+        public double Dash { get; set; } = 300;
+
         public List<double> Damage { get; set; } = new();
         public double BonusAdRatio { get; set; }
         public double Cooldown { get; set; }
@@ -44,6 +49,8 @@ public sealed class KindredKitData
 
     public sealed class WData
     {
+        public double Range { get; set; } = 500;
+
         public List<double> Cooldown { get; set; } = new();
         public double ZoneDuration { get; set; }
         public List<double> Damage { get; set; } = new();
@@ -65,6 +72,8 @@ public sealed class KindredKitData
 
     public sealed class EData
     {
+        public double Range { get; set; } = 500;
+
         public List<double> Cooldown { get; set; } = new();
         public int AttacksAfterCast { get; set; }
         public double Window { get; set; }
