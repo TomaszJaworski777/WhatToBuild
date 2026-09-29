@@ -41,9 +41,25 @@ builder.Services.AddHostedService(sp => sp.GetRequiredService<GameStateService>(
 
 builder.Services.AddSignalR();
 
+// Nothing here needs draining: a connection still open when stopping is cut after a few seconds, not 30.
+builder.Services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(3));
+
 var app = builder.Build();
 
 app.Urls.Add("http://127.0.0.1:5123");
+
+// Stopping closes the page's hub connection, and the page reconnects at once while the server is
+// still listening; that new connection would hold shutdown open. Once stopping, it is turned away.
+app.Use(async (context, next) =>
+{
+    if (app.Lifetime.ApplicationStopping.IsCancellationRequested && context.Request.Path.StartsWithSegments("/hub"))
+    {
+        context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+        return;
+    }
+
+    await next();
+});
 
 app.UseDefaultFiles();
 app.UseStaticFiles(new StaticFileOptions
