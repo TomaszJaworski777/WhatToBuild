@@ -225,13 +225,25 @@ public sealed class BuildRecommendations : IRecommendationSource
     private BuildEvaluator NewEvaluator(GameState state, GameStack stack)
     {
         _preferences.StartGame(GameKey(state));
-        return new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model)
+        var context = new BuildContext(state, stack, _items, _neutrals, _kits, _model)
         {
             ChosenWeights = _preferences.Weights,
             BurstCombo = _preferences.BurstCombo(state.ActivePlayer!.Champion.Name),
             BurstExcluded = _preferences.BurstExcluded,
-        });
+        };
+
+        // While the game looks the same, every evaluator shares one cache: the refresh every
+        // poll, a re-plan and the deeper searches reuse each other's fights instead of redoing them.
+        var key = EvaluationCache.KeyFor(context, _preferences.Key, _model.Settings.Planner.ReplanSeconds);
+        if (_cache?.Key != key)
+        {
+            _cache = new EvaluationCache(key, context.Now);
+        }
+
+        return new BuildEvaluator(context, _cache);
     }
+
+    private EvaluationCache? _cache;
 
     public RecommendationDto? Compute(GameState state, GameStack stack)
     {
@@ -360,8 +372,10 @@ public sealed class BuildRecommendations : IRecommendationSource
         {
             // Items of the old build that clash with the new one (Mortal Reminder after a Lord
             // Dominik's, a second pair of boots) are left out, not allowed to end the tail there.
+            // What you have bought since is done, not a step to buy again.
             var tail = new List<Item>();
-            foreach (var item in previous.Plan.Steps.Select(s => s.Item).Where(item => steps.All(s => s.Id != item.Id)))
+            foreach (var item in previous.Plan.Steps.Select(s => s.Item)
+                         .Where(item => steps.All(s => s.Id != item.Id) && evaluator.Context.Owned.All(o => o.Id != item.Id)))
             {
                 if (ItemRules.IsLegal([.. evaluator.Context.Owned, .. steps, .. tail, item]))
                 {
@@ -577,13 +591,21 @@ public sealed class BuildRecommendations : IRecommendationSource
         }
     }
 
+    /// <summary>
+    /// The page keeps the last build thought through to the end, except once you have bought
+    /// something since: that build still lists what you now own, so the first plan made on your
+    /// new inventory goes up at once and the deeper search refines it from there.
+    /// </summary>
     private void Keep()
     {
-        if (Finished)
+        if (Finished || _shown is { } shown && _planned is { } planned && !SameInventory(shown.Context.Owned, planned.Context.Owned))
         {
             _shown = _planned;
         }
     }
+
+    private static bool SameInventory(IReadOnlyList<Item> a, IReadOnlyList<Item> b) =>
+        a.Select(i => i.Id).Order().SequenceEqual(b.Select(i => i.Id).Order());
 
     /// <summary>True once the plan in hand came from the last rung of the ladder.</summary>
     private bool Finished => _planned is not null && _rung + 1 >= _ladder.Count;
@@ -729,7 +751,8 @@ public sealed class BuildRecommendations : IRecommendationSource
         var gold = state.CurrentGold;
 
         var steps = new List<BuildStepDto>();
-        foreach (var owned in context.Owned.Where(i => i.Cost >= 900 && !IsComponent(i)).DistinctBy(i => i.Id))
+        // Shoes are built too, even though a later pair could build out of them.
+        foreach (var owned in context.Owned.Where(i => i.Cost >= 900 && (!IsComponent(i) || i.Groups.Contains("Boots"))).DistinctBy(i => i.Id))
         {
             steps.Add(new BuildStepDto(Map(owned, context), BuildStepDto.Owned, null, null, 0, null, ["Already built"]));
         }
@@ -1016,11 +1039,11 @@ public sealed class BuildRecommendations : IRecommendationSource
             reasons.Add($"Health-scaling damage: {healthiest.Enemy.Champion.Name} is forecast at {healthiest.Enemy.Entity.MaxHealth:0} health by then");
         }
 
-        var amps = effects.Where(e => e.Stat == Stats.DamageAmp && e.When.Any(c => c.Property == ConditionProperty.BonusHealth)).ToList();
+        var amps = effects.Where(e => e.Stat == Stats.DamageAmp && ScalesWithBonusHealth(e)).ToList();
         if (amps.Count > 0)
         {
             var active = after.Targets
-                .Select(t => (t.Enemy, Amp: amps.Where(a => t.Enemy.Entity.Satisfies(a.When)).Sum(a => a.Amount)))
+                .Select(t => (t.Enemy, Amp: amps.Where(a => t.Enemy.Entity.Satisfies(a.When)).Sum(a => a.Amount * t.Enemy.Entity.ShareOf(a))))
                 .Where(t => t.Amp > 0)
                 .Select(t => $"{t.Enemy.Champion.Name} +{Pct(t.Amp)}")
                 .ToList();
@@ -1137,7 +1160,7 @@ public sealed class BuildRecommendations : IRecommendationSource
         if (tanky is not null && tanky.Enemy.Entity.BonusHealth >= 1200)
         {
             Need("Anti-tank", $"{tanky.Enemy.Champion.Name} is forecast at {tanky.Enemy.Entity.BonusHealth:0} bonus health by ~{Clock(eval.Time)}",
-                i => i.Effects.Any(e => e.PerTargetCurrentHealth > 0 || e.PerTargetMaxHealth > 0 || e.Stat == Stats.DamageAmp && e.When.Any(c => c.Property == ConditionProperty.BonusHealth)));
+                i => i.Effects.Any(e => e.PerTargetCurrentHealth > 0 || e.PerTargetMaxHealth > 0 || e.Stat == Stats.DamageAmp && ScalesWithBonusHealth(e)));
         }
 
         var incoming = Math.Max(1, eval.IncomingDps);
@@ -1269,6 +1292,10 @@ public sealed class BuildRecommendations : IRecommendationSource
 
         return list;
     }
+
+    /// <summary>A bonus that depends on the target's bonus health, at thresholds or scaling with it (Lord Dominik's).</summary>
+    private static bool ScalesWithBonusHealth(Effect effect) =>
+        effect.When.Any(c => c.Property == ConditionProperty.BonusHealth) || effect.ScalesWith?.Property == ConditionProperty.BonusHealth;
 
     private bool IsComponent(Item item) => _items.All.Any(i => i.BuildPath.Contains(item.Id));
 

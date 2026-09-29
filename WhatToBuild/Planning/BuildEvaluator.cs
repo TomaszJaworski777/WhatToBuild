@@ -261,25 +261,32 @@ public sealed class BuildEvaluator
     private readonly BuildContext _context;
     private readonly CombatProfiler _profiler;
     private readonly ClearSimulator _clear;
-    private readonly ConcurrentDictionary<int, Lazy<Battlefield>> _battlefields = new();
-    private readonly ConcurrentDictionary<string, Lazy<Evaluation>> _evaluations = new();
+    private readonly EvaluationCache _cache;
 
-    public BuildEvaluator(BuildContext context)
+    /// <param name="cache">Results to share with other evaluators of the same game moment; none keeps them to this one.</param>
+    public BuildEvaluator(BuildContext context, EvaluationCache? cache = null)
     {
         _context = context;
+        _cache = cache ?? new EvaluationCache("", context.Now);
         _profiler = new CombatProfiler(context.Settings);
         _clear = new ClearSimulator(context.Neutrals, context.Settings);
     }
 
     public BuildContext Context => _context;
 
-    public int EvaluationCount => _evaluations.Count;
+    public int EvaluationCount => _cache.EvaluationCount;
+
+    public EvaluationCache Cache => _cache;
+
+    /// <summary>A moment on the cache's grid: whole buckets from its anchor, never before it.</summary>
+    private double Snap(double time, double bucket) =>
+        _cache.Anchor + Math.Round(Math.Max(0, time - _cache.Anchor) / bucket) * bucket;
 
     public Battlefield BattlefieldAt(double time)
     {
-        var snapped = _context.World.Snap(time);
-        var key = (int)Math.Round((snapped - _context.Now) / _context.World.BucketSeconds);
-        return _battlefields.GetOrAdd(key, _ => new Lazy<Battlefield>(() => BuildBattlefield(snapped))).Value;
+        var snapped = Snap(time, _context.World.BucketSeconds);
+        var key = snapped.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+        return _cache.Battlefields.GetOrAdd(key, _ => new Lazy<Battlefield>(() => BuildBattlefield(snapped))).Value;
     }
 
     /// <summary>
@@ -320,12 +327,56 @@ public sealed class BuildEvaluator
     public Evaluation Evaluate(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks = null, EvaluationMode mode = EvaluationMode.Screen, string? form = null)
     {
         var snapped = mode == EvaluationMode.Cheap
-            ? _context.World.Snap(_context.Now + Math.Round((time - _context.Now) / _context.Settings.Planner.CheapTimeBucketSeconds) * _context.Settings.Planner.CheapTimeBucketSeconds)
-            : _context.World.Snap(time);
+            ? Snap(Snap(time, _context.Settings.Planner.CheapTimeBucketSeconds), _context.World.BucketSeconds)
+            : Snap(time, _context.World.BucketSeconds);
         var activeForm = _context.FormAt(snapped, form);
-        var key = Key(inventory, snapped, newStacks, mode) + "|" + activeForm;
+        // The fights under an evaluation do not depend on the search mode: they are shared by this key.
+        var fightKey = Key(inventory, snapped, newStacks) + "|" + activeForm;
 
-        return _evaluations.GetOrAdd(key, _ => new Lazy<Evaluation>(() => Run(inventory, snapped, newStacks, mode, activeForm))).Value;
+        return _cache.Evaluations.GetOrAdd($"{mode}|{fightKey}", _ => new Lazy<Evaluation>(() => Run(inventory, snapped, newStacks, mode, activeForm, fightKey))).Value;
+    }
+
+    /// <summary>
+    /// Half the cores, at most twelve: the game runs on the same machine, so the planner never
+    /// takes all of it.
+    /// </summary>
+    private static readonly ParallelOptions Parallelism = new() { MaxDegreeOfParallelism = Math.Clamp(Environment.ProcessorCount / 2, 1, 12) };
+
+    /// <summary>
+    /// Works out a batch of evaluations side by side, so the search that asks for them one by one
+    /// right after finds them done. Nothing about the answers changes, only when they are ready.
+    /// The threads run below normal priority, as the planner's own does, to leave the game alone.
+    /// </summary>
+    /// <param name="expired">True once the caller's time is up: no more is started, in order, so
+    /// what is done is what the caller would have reached first.</param>
+    public void Prefetch(IEnumerable<(IReadOnlyList<Item> Inventory, double Time, IReadOnlyDictionary<Guid, double>? Stacks)> requests, EvaluationMode mode, Func<bool>? expired = null, string? form = null)
+    {
+        var batch = requests.ToList();
+        if (batch.Count < 2 || Parallelism.MaxDegreeOfParallelism < 2)
+        {
+            return;
+        }
+
+        Parallel.ForEach(Partitioner.Create(batch, EnumerablePartitionerOptions.NoBuffering), Parallelism, (request, loop) =>
+        {
+            if (expired?.Invoke() == true)
+            {
+                loop.Stop();
+                return;
+            }
+
+            var thread = Thread.CurrentThread;
+            var priority = thread.Priority;
+            thread.Priority = ThreadPriority.BelowNormal;
+            try
+            {
+                Evaluate(request.Inventory, request.Time, request.Stacks, mode, form);
+            }
+            finally
+            {
+                thread.Priority = priority;
+            }
+        });
     }
 
     public ChampionState Us(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks = null)
@@ -400,7 +451,7 @@ public sealed class BuildEvaluator
         return sheet;
     }
 
-    private Evaluation Run(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks, EvaluationMode mode, string? form)
+    private Evaluation Run(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? newStacks, EvaluationMode mode, string? form, string fightKey)
     {
         var settings = _context.Settings;
         var field = BattlefieldAt(time);
@@ -427,20 +478,34 @@ public sealed class BuildEvaluator
             // Both start as far apart as the longer reach of the two, and we walk in.
             var start = Math.Max(ourReach, Reach(enemy.Entity, EnemyKit(enemy)));
             var uptime = settings.Fight.AttackUptime.For(us.Champion.IsRanged, enemy.Champion.IsRanged);
+            // A cached fight may run on another thread than this evaluation, so it gets its own
+            // champion and target, built the same way, never ones this evaluation also uses.
+            FightSetup Setup(double phase) =>
+                new(Us(inventory, time, newStacks), enemy.Forecast.NewEntity(), field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true,
+                    LifeSteal: lifeSteal, Omnivamp: omnivamp, StartDistance: start, AttackUptime: uptime, DashContactSeconds: settings.Fight.DashContactSeconds,
+                    BurstCombo: _context.BurstCombo);
+
+            // Each phase's fight once per game moment: a full evaluation reuses the ones a screen
+            // already ran. The burst is played once, from a fresh start, not again in every phase.
             var results = phases
-                .Select(phase => FightSimulator.Run(
-                    new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true,
-                        LifeSteal: lifeSteal, Omnivamp: omnivamp, StartDistance: start, AttackUptime: uptime, DashContactSeconds: settings.Fight.DashContactSeconds,
-                        BurstCombo: _context.BurstCombo),
-                    _context.Kits.NewFight(_context.Champion, form)))
+                .Select(phase => _cache.Fights.GetOrAdd($"{fightKey}|{enemy.Champion.Id}|{phase}", _ => new Lazy<FightResult>(() =>
+                    FightSimulator.Run(Setup(phase), _context.Kits.NewFight(_context.Champion, form), burst: false))).Value)
                 .ToList();
 
+            var fight = FightResult.Average(results);
+            if (FightSimulator.HasBurst(Setup(0), _context.Kits.NewFight(_context.Champion, form), out var scripted))
+            {
+                var burst = _cache.Fights.GetOrAdd($"{fightKey}|{enemy.Champion.Id}|burst", _ => new Lazy<FightResult>(() => FightSimulator.Burst(Setup(0), scripted))).Value;
+                fight = fight with { EarlyDamage = burst.Damage };
+            }
+
             var probe = new Fight(new FightSetup(us, target, field.OurRanks, field.OurMarks, Sustain: sustain));
-            targets.Add(new TargetResult(enemy, FightResult.Average(results), sustain, probe.GrievousWounds, probe.ShieldReduction));
+            targets.Add(new TargetResult(enemy, fight, sustain, probe.GrievousWounds, probe.ShieldReduction));
         }
 
         var fightSeconds = settings.Fight.TeamfightSeconds;
-        var incomingFrom = field.Enemies.ToDictionary(e => e, e => Incoming(e, us, ourReach));
+        // Their fights against you are the same whatever the search mode, so they are shared too.
+        var incomingFrom = field.Enemies.ToDictionary(e => e, e => (IncomingDamage)_cache.Incoming.GetOrAdd($"{fightKey}|{e.Champion.Id}", _ => Incoming(e, Us(inventory, time, newStacks), ourReach)));
 
         // Time the enemy team keeps you locked down is time you deal nothing: their hard crowd
         // control on you, weighed like their damage by how much of it comes your way.
@@ -808,10 +873,10 @@ public sealed class BuildEvaluator
         };
     }
 
-    private static string Key(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? stacks, EvaluationMode mode)
+    private static string Key(IReadOnlyList<Item> inventory, double time, IReadOnlyDictionary<Guid, double>? stacks)
     {
         var ids = string.Join(',', inventory.Select(i => i.RiotId).Order());
         var stackText = stacks is null ? "" : string.Join(',', stacks.Where(s => inventory.Any(i => i.Id == s.Key)).OrderBy(s => s.Key).Select(s => $"{s.Key}:{s.Value:0}"));
-        return $"{mode}|{time:0}|{ids}|{stackText}";
+        return $"{time:0}|{ids}|{stackText}";
     }
 }

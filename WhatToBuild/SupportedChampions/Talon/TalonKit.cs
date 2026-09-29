@@ -121,13 +121,15 @@ public sealed class TalonKit : ScriptedKit
 
         var q = _data.Q;
         var damage = TalonKitData.AtRank(q.Damage, rank) + q.BonusAdRatio * AttackerHits.BonusAttackDamage(fight.Attacker);
-        if (fight.Distance > q.MeleeRange)
+        var melee = fight.Distance <= q.MeleeRange;
+        if (!melee)
         {
             // A leap onto the target: it lands on him, and he stays on it.
             fight.Dash(q.Range);
         }
         else
         {
+            // In melee it always critically strikes, for more with crit damage (Infinity Edge).
             damage *= q.MeleeCritMultiplier + AttackerHits.CritDamage(fight.Attacker) - AttackerHits.BaseCritDamage;
         }
 
@@ -137,7 +139,11 @@ public sealed class TalonKit : ScriptedKit
             ReturnBlades(fight);
         }
 
-        Hit(fight, NoxianDiplomacy, damage);
+        Hit(fight, NoxianDiplomacy, damage, critical: melee);
+        if (melee && q.AppliesOnHit)
+        {
+            fight.ApplyOnHit();
+        }
         fight.Cast();
         fight.Casting(q.CastTime);
         _qReadyAt = fight.Time + fight.Cooldown(TalonKitData.AtRank(q.Cooldown, rank));
@@ -189,9 +195,9 @@ public sealed class TalonKit : ScriptedKit
         TalonKitData.AtRank(_data.R.Damage, fight.Ranks.R) + _data.R.BonusAdRatio * AttackerHits.BonusAttackDamage(fight.Attacker);
 
     /// <summary>An ability hit: its damage, and a Blade's End stack on a champion or large monster.</summary>
-    private void Hit(Fight fight, string source, double damage)
+    private void Hit(Fight fight, string source, double damage, bool critical = false)
     {
-        fight.Deal(source, fight.Physical(damage).Ability());
+        fight.Deal(source, critical ? fight.Physical(damage).Ability().Critical() : fight.Physical(damage).Ability());
         if (Stacks(fight.Target))
         {
             _stacks.Add(fight.Time);

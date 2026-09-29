@@ -101,7 +101,7 @@ public sealed class DamageCalculator
         {
             foreach (var effect in item.Effects.Where(e => ConditionsMet(e) && hit.Matches(e.Versus)))
             {
-                var amount = effect.Amount * Built(effect, hit) * effect.ShareFor(_ranged);
+                var amount = effect.Amount * Built(effect, hit) * effect.ShareFor(_ranged) * _defender.ShareOf(effect);
 
                 switch (effect.Kind)
                 {

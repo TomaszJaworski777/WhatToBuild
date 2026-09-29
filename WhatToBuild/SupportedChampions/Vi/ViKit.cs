@@ -102,7 +102,7 @@ public sealed class ViKit : ScriptedKit
             var extra = EDamage(fight) - fight.Attacker.Stats.AttackDamage;
             if (extra > 0)
             {
-                fight.Deal(RelentlessForce, fight.Physical(extra).Attack());
+                AttackerHits.DealPhysical(fight, RelentlessForce, extra, _data.E.CanCrit, _data.E.AppliesOnHit, asAttack: true);
             }
         }
 

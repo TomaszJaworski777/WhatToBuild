@@ -176,17 +176,16 @@ public class ItemTests
     }
 
     [TestMethod]
-    public void ConditionalEffectsCarryTheirCondition()
+    public void ScalingEffectsCarryTheirScale()
     {
-        var ldr = _items.ByRiotId(LordDominiks)!.Effects.MaxBy(e => e.Amount)!;
+        var ldr = _items.ByRiotId(LordDominiks)!.Effects.Single();
 
-        var condition = ldr.When.Single();
-        Assert.AreEqual(ConditionSubject.Target, condition.Subject);
-        Assert.AreEqual(ConditionProperty.BonusHealth, condition.Property);
-        Assert.AreEqual(ConditionOp.AtLeast, condition.Op);
-
-        Assert.IsTrue(condition.IsMet(2000), "Should count against a stacked-health target.");
-        Assert.IsFalse(condition.IsMet(300), "Should not count against a squishy.");
+        Assert.IsEmpty(ldr.When, "Giant Slayer has no threshold: it scales.");
+        var scale = ldr.ScalesWith!;
+        Assert.AreEqual(ConditionSubject.Target, scale.Subject);
+        Assert.AreEqual(ConditionProperty.BonusHealth, scale.Property);
+        Assert.AreEqual(0, scale.Share(0), 1e-9, "Nothing against a target with no bonus health.");
+        Assert.AreEqual(1, scale.Share(2500), 1e-9, "All of it against a stacked-health target.");
     }
 
     [TestMethod]

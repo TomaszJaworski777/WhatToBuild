@@ -84,8 +84,31 @@ public enum EffectKind
     Revive,
 }
 
+/// <summary>
+/// An effect that grows with something about its subject rather than switching on at a threshold:
+/// none of it at <see cref="From"/>, all of it at <see cref="To"/>, in a straight line between
+/// (Lord Dominik's Giant Slayer: more bonus damage the more bonus health the target has).
+/// </summary>
+public class EffectScale
+{
+    public ConditionSubject Subject { get; set; } = ConditionSubject.Target;
+
+    public ConditionProperty Property { get; set; }
+
+    public double From { get; set; }
+
+    public double To { get; set; }
+
+    /// <summary>How much of the effect applies at this measure, from 0 to 1.</summary>
+    public double Share(double measured) =>
+        To <= From ? (measured >= To ? 1 : 0) : Math.Clamp((measured - From) / (To - From), 0, 1);
+}
+
 public class Effect
 {
+    /// <summary>When set, only this share of <see cref="Amount"/> applies; see <see cref="EffectScale"/>.</summary>
+    public EffectScale? ScalesWith { get; set; }
+
     public EffectTrigger Trigger { get; set; }
 
     public EffectKind Kind { get; set; }

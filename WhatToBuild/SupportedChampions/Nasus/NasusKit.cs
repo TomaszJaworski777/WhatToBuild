@@ -136,7 +136,7 @@ public sealed class NasusKit : ScriptedKit
         // The empowered attack is a plain attack plus Q's damage and the stacks.
         _empowered = false;
         var q = _data.Q;
-        fight.Deal(SiphoningStrike, fight.Physical(NasusKitData.AtRank(q.Damage, fight.Ranks.Q) + fight.Stacks).Attack());
+        AttackerHits.DealPhysical(fight, SiphoningStrike, NasusKitData.AtRank(q.Damage, fight.Ranks.Q) + fight.Stacks, q.CanCrit, appliesOnHit: false, asAttack: true);
 
         var cooldown = NasusKitData.AtRank(q.Cooldown, fight.Ranks.Q) * (fight.Time < _rUntil ? 1 - _data.R.QCooldownReduction : 1);
         _qReadyAt = fight.Time + fight.Cooldown(cooldown);

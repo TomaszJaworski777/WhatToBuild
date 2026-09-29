@@ -14,13 +14,22 @@ public static class FightSimulator
     /// else the kit's own) deals when played once from a fresh start, or, for a kit with no
     /// script, what lands in the first <see cref="Fight.BurstSeconds"/>.
     /// </summary>
-    public static FightResult Run(FightSetup setup, IChampionKit? kit = null)
+    /// <param name="burst">False leaves the burst out of a scripted kit's result: for a caller that
+    /// replays it once itself rather than once per fight.</param>
+    public static FightResult Run(FightSetup setup, IChampionKit? kit = null, bool burst = true)
     {
         var result = Play(setup, kit, stop: _ => false);
 
-        return kit is ScriptedKit scripted && (setup.BurstCombo ?? scripted.Playstyle.Burst).Count > 0
+        return burst && HasBurst(setup, kit, out var scripted)
             ? result with { EarlyDamage = Burst(setup, scripted).Damage }
             : result;
+    }
+
+    /// <summary>Whether the fight's burst is a scripted sequence (one chosen, or the kit's own) rather than its opening seconds.</summary>
+    public static bool HasBurst(FightSetup setup, IChampionKit? kit, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out ScriptedKit? scripted)
+    {
+        scripted = kit as ScriptedKit;
+        return scripted is not null && (setup.BurstCombo ?? scripted.Playstyle.Burst).Count > 0;
     }
 
     /// <summary>The burst sequence, played once from a fresh start against a fresh target.</summary>

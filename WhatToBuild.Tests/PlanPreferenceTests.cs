@@ -119,6 +119,52 @@ public class PlanPreferenceTests
     }
 
     [TestMethod]
+    [DataRow(new[] { 1001, 1036, 2003 }, DisplayName = "Boots, a Long Sword and a potion")]
+    [DataRow(new[] { 1036, 1036, 2003 }, DisplayName = "No boots yet, a full hand of components")]
+    [DataRow(new[] { 1001 }, DisplayName = "Just boots")]
+    public void AFourItemCoreStillGetsItsShoes(int[] mine)
+    {
+        var source = new BuildRecommendations(_items, _neutrals, _kits, FastModel(), new PlanPreferences { CoreItems = 4 });
+        var state = Game(mine);
+
+        source.Compute(state, new GameStack());
+        while (source.Refine())
+        {
+        }
+
+        var planned = Planned(source.Current(state)!);
+        var names = string.Join(" > ", planned.Select(s => s.Item.Name));
+        Assert.IsTrue(planned.Any(s => _items.ByRiotId(s.Item.RiotId) is { } item && item.Groups.Contains("Boots") && item.BuildPath.Count > 0), $"No shoes in {names}.");
+        Assert.AreEqual(4, Items(source.Current(state)!), names);
+    }
+
+    [TestMethod]
+    public void APurchaseShowsAtOnceAndIsNeverPlannedAgain()
+    {
+        var source = new BuildRecommendations(_items, _neutrals, _kits, FastModel(), new PlanPreferences { CoreItems = 3 });
+        var state = Game();
+        source.Compute(state, new GameStack());
+        while (source.Refine())
+        {
+        }
+
+        var first = Planned(source.Display(state)!).First(s => !_items.ByRiotId(s.Item.RiotId)!.Groups.Contains("Boots"));
+        var bought = Game(first.Item.RiotId);
+
+        // One pass on the new inventory, no deeper search yet: the page already knows.
+        var shown = source.Compute(bought, new GameStack());
+        shown = source.Display(bought)!;
+        Assert.IsTrue(shown.BuildPath.Any(s => s.Status == BuildStepDto.Owned && s.Item.RiotId == first.Item.RiotId), $"{first.Item.Name} is not shown as built.");
+        Assert.IsFalse(Planned(shown).Any(s => s.Item.RiotId == first.Item.RiotId), $"{first.Item.Name} is still planned.");
+
+        while (source.Refine())
+        {
+        }
+
+        Assert.IsFalse(Planned(source.Display(bought)!).Any(s => s.Item.RiotId == first.Item.RiotId), $"{first.Item.Name} came back in the finished plan.");
+    }
+
+    [TestMethod]
     public void OnceTheCoreStandsItBuysTheBestItemOfTheMoment()
     {
         // Berserker's, Hubris and Hexoptics: a three item core with shoes, already built.

@@ -3,6 +3,7 @@
   "q": {
     "cooldown": [8, 8, 7.5, 7, 6.5, 6, 6],
     "damage": [45, 65, 85, 105, 125, 145, 165],
+    "appliesOnHit": false,
     "bonusAdRatio": 1,
     "meleeCritMultiplier": 1.5,
     "meleeRange": 170,

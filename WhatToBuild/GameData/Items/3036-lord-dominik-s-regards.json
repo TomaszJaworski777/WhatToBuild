@@ -21,35 +21,13 @@
             "trigger": "Always",
             "kind": "StatBuff",
             "stat": "damageAmp",
-            "amount": 0.075,
-            "when": [
-                {
-                    "subject": "Target",
-                    "property": "BonusHealth",
-                    "op": "AtLeast",
-                    "value": 750
-                },
-                {
-                    "subject": "Target",
-                    "property": "BonusHealth",
-                    "op": "AtMost",
-                    "value": 1499
-                }
-            ]
-        },
-        {
-            "trigger": "Always",
-            "kind": "StatBuff",
-            "stat": "damageAmp",
             "amount": 0.15,
-            "when": [
-                {
-                    "subject": "Target",
-                    "property": "BonusHealth",
-                    "op": "AtLeast",
-                    "value": 1500
-                }
-            ]
+            "scalesWith": {
+                "subject": "Target",
+                "property": "BonusHealth",
+                "from": 0,
+                "to": 1500
+            }
         }
     ]
 }

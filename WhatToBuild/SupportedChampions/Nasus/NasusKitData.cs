@@ -38,6 +38,9 @@ public sealed class NasusKitData
     {
         public List<double> Cooldown { get; set; } = new();
         public List<double> Damage { get; set; } = new();
+
+        /// <summary>Whether Q's bonus damage (flat and stacks) crits with the empowered attack; the attack itself crits as any attack.</summary>
+        public bool CanCrit { get; set; }
     }
 
     public sealed class WData

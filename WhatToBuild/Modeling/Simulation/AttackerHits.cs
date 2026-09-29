@@ -16,6 +16,30 @@ public static class AttackerHits
     public static double CritDamage(ChampionState attacker) =>
         BaseCritDamage + attacker.Items.Sum(i => i.Stats.CritDamage);
 
+    /// <summary>
+    /// A kit's physical hit, marked the way the game treats it. One that <paramref name="canCrit"/>
+    /// crits at your crit chance for your crit damage (Infinity Edge counts), as a critical strike;
+    /// one that <paramref name="appliesOnHit"/> sets off your items' on-hit effects as an attack
+    /// does. <paramref name="asAttack"/> for damage that rides on an attack (an empowered attack's
+    /// extra) rather than an ability's own.
+    /// </summary>
+    public static void DealPhysical(Fight fight, string source, double raw, bool canCrit, bool appliesOnHit, bool asAttack = false)
+    {
+        DamageCalculator Hit(double amount) => asAttack ? fight.Physical(amount).Attack() : fight.Physical(amount).Ability();
+
+        var crit = canCrit ? CritChance(fight.Attacker) : 0;
+        fight.Deal(source, Hit(raw), 1 - crit);
+        if (crit > 0)
+        {
+            fight.Deal(source, Hit(raw * CritDamage(fight.Attacker)).Critical(), crit);
+        }
+
+        if (appliesOnHit)
+        {
+            fight.ApplyOnHit();
+        }
+    }
+
     public static double BaseAttackDamage(ChampionState attacker) => Base(attacker, s => s.AttackDamage);
 
     public static double BonusAttackDamage(ChampionState attacker) => Bonus(attacker, s => s.AttackDamage);

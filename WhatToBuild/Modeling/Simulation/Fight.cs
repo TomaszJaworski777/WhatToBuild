@@ -257,6 +257,12 @@ public sealed class Fight
 
     public IChampionKit? Kit { get; init; }
 
+    /// <summary>Applies your items' on-hit effects once, as an attack does; set by whoever runs your attacks.</summary>
+    public Action? OnHitEffects { get; set; }
+
+    /// <summary>An ability that applies on-hit effects: they go off as on an attack.</summary>
+    public void ApplyOnHit() => OnHitEffects?.Invoke();
+
     public double AttacksBlockedUntil { get; set; }
 
     /// <summary>An attack is off cooldown and nothing stops it: it goes out before any spell.</summary>

@@ -79,8 +79,24 @@ public class DamageCalculatorTests
         var bulky = DamageCalculator.Create(GarenWith(Warmogs)).AdDamage(100).AttackerItems([LordDominiks]).Run();
         var tank = DamageCalculator.Create(GarenWith(Warmogs, Heartsteel)).AdDamage(100).AttackerItems([LordDominiks]).Run();
 
-        Assert.AreEqual(1.075, bulky.HealthDamage / squishy.HealthDamage, 0.0001);
-        Assert.AreEqual(1.15, tank.HealthDamage / squishy.HealthDamage, 0.0001);
+        // Giant Slayer grows in a straight line with the target's bonus health, to 15% at 1500.
+        double Expected(ChampionState target) => 1 + 0.15 * Math.Min(1, target.BonusHealth / 1500);
+
+        Assert.AreEqual(Expected(GarenWith(Warmogs)), bulky.HealthDamage / squishy.HealthDamage, 0.0001);
+        Assert.AreEqual(Expected(GarenWith(Warmogs, Heartsteel)), tank.HealthDamage / squishy.HealthDamage, 0.0001);
+    }
+
+    [TestMethod]
+    [DataRow(0, 0)]
+    [DataRow(375, 0.0375)]
+    [DataRow(750, 0.075)]
+    [DataRow(1400, 0.14)]
+    [DataRow(3000, 0.15)]
+    public void GiantSlayerScalesInAStraightLine(double bonusHealth, double amp)
+    {
+        var passive = LordDominiks.Effects.Single(e => e.Stat == Stats.DamageAmp);
+
+        Assert.AreEqual(amp, passive.Amount * passive.ScalesWith!.Share(bonusHealth), 1e-9, "No jumps at 750 or 1500: every point of bonus health counts.");
     }
 
     [TestMethod]

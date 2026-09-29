@@ -77,6 +77,12 @@ public static class ItemDescriber
             text += $" when {string.Join(" and ", effect.When.Select(Condition))}";
         }
 
+        if (effect.ScalesWith is { } scale)
+        {
+            var measure = scale.Property == ConditionProperty.HealthPercent ? (Func<double, string>)Percent : Number;
+            text += $", scaling with {(scale.Subject == ConditionSubject.Target ? "target" : "your")} {PropertyName(scale.Property)} from {measure(scale.From)} (none) to {measure(scale.To)} (all)";
+        }
+
         if (effect.MissingHealthAmp > 0)
         {
             text += $", up to {Percent(effect.MissingHealthAmp)} more against missing health";
@@ -246,17 +252,17 @@ public static class ItemDescriber
         var op = c.Op == ConditionOp.AtLeast ? "≥" : "≤";
         var value = c.Property == ConditionProperty.HealthPercent ? Percent(c.Value) : Number(c.Value);
 
-        var property = c.Property switch
-        {
-            ConditionProperty.HealthPercent => "health",
-            ConditionProperty.BonusHealth => "bonus health",
-            ConditionProperty.MaxHealth => "max health",
-            ConditionProperty.MagicResist => "magic resist",
-            _ => c.Property.ToString().ToLowerInvariant(),
-        };
-
-        return $"{who} {property} {op} {value}";
+        return $"{who} {PropertyName(c.Property)} {op} {value}";
     }
+
+    private static string PropertyName(ConditionProperty property) => property switch
+    {
+        ConditionProperty.HealthPercent => "health",
+        ConditionProperty.BonusHealth => "bonus health",
+        ConditionProperty.MaxHealth => "max health",
+        ConditionProperty.MagicResist => "magic resist",
+        _ => property.ToString().ToLowerInvariant(),
+    };
 
     private static string StatName(Stat? stat) => stat?.Name switch
     {

@@ -38,6 +38,12 @@ public abstract class Entity
         _ => null,
     };
 
+    /// <summary>How much of an effect applies against this entity: all of it unless it scales with something about it.</summary>
+    public double ShareOf(Effect effect) =>
+        effect.ScalesWith is not { } scale ? 1
+        : scale.Subject == ConditionSubject.Target && Measure(scale.Property) is { } value ? scale.Share(value)
+        : 0;
+
     public bool Satisfies(IEnumerable<EffectCondition> conditions) =>
         conditions.All(c => c.Subject == ConditionSubject.Target
                             && Measure(c.Property) is { } value

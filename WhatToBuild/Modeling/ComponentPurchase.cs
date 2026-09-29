@@ -20,7 +20,11 @@ public interface IPurchaseScorer
 
 public static class ComponentPurchase
 {
-    public const double BasicComponentWeight = 0.03;
+    /// <summary>Worth per 1000 gold put toward the target now rather than left unspent.</summary>
+    public const double ProgressWeight = 0.03;
+
+    /// <summary>Worth per 1000 gold of basic components: a tie-break between equal buys.</summary>
+    public const double BasicComponentWeight = 0.005;
 
     private const int MaxCandidates = 14;
 
@@ -79,6 +83,8 @@ public static class ComponentPurchase
             options.Add((chosen, cost, inventory));
         }
 
+        options = Undominated(options);
+
         scorer?.Prepare([ownedList, .. options.Select(o => (IReadOnlyList<Item>)o.Inventory)]);
 
         var best = new List<Node>();
@@ -106,14 +112,44 @@ public static class ComponentPurchase
             bestInventory);
     }
 
-    private static double Value(IPurchaseScorer? scorer, IReadOnlyList<Item> inventory, IEnumerable<Node> bought)
+    /// <summary>Above this many affordable options the dominance check is skipped; the scorer alone decides.</summary>
+    private const int MaxDominanceOptions = 2000;
+
+    /// <summary>
+    /// Leaves out every buy that another affordable one contains: two Long Swords when the whole
+    /// Caulfield's fits in the gold and the slots, or one piece when a second one fits beside it.
+    /// A finished piece has at least the stats of its parts, so the bigger buy is never worse,
+    /// and whatever the scorer thinks of the difference, you never leave the shop with gold that
+    /// could have gone into the item.
+    /// </summary>
+    private static List<(List<Node> Chosen, int Cost, List<Item> Inventory)> Undominated(List<(List<Node> Chosen, int Cost, List<Item> Inventory)> options)
     {
+        if (options.Count > MaxDominanceOptions)
+        {
+            return options;
+        }
+
+        static bool Covers(List<Node> bigger, List<Node> smaller) =>
+            smaller.All(s => bigger.Any(b => ReferenceEquals(b, s) || b.Contains(s)));
+
+        return options
+            .Where(o => !options.Any(other => other.Cost > o.Cost && Covers(other.Chosen, o.Chosen)))
+            .ToList();
+    }
+
+    private static double Value(IPurchaseScorer? scorer, IReadOnlyList<Item> inventory, IList<Node> bought)
+    {
+        // Gold put into the target is never lost: it is part of the item's price, and gold left
+        // in the pocket does nothing until the next back. So spending more of it counts, whatever
+        // the pieces are (a Caulfield's over two Long Swords that leave 400 gold unspent), and a
+        // basic component only breaks what is left of a tie.
+        var spent = bought.Sum(n => n.PriceToBuy);
         var basicGold = bought.Where(n => n.Item.BuildPath.Count == 0).Sum(n => n.Item.Cost);
         // Without a scorer (an enemy's forecast), stats go with gold: spend as much of it as
-        // the item allows, and the basic bonus only breaks near-ties.
+        // the item allows.
         var score = scorer?.Score(inventory) ?? inventory.Sum(i => i.Cost);
 
-        return score * (1 + BasicComponentWeight * basicGold / 1000);
+        return score * (1 + ProgressWeight * spent / 1000 + BasicComponentWeight * basicGold / 1000);
     }
 
     private static List<Item> InventoryAfter(List<Item> owned, IEnumerable<Node> bought)

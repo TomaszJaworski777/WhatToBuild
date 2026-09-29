@@ -39,6 +39,7 @@ public sealed class ChampionSimulation
         Kit = kit;
         Fight = new Fight(setup) { Kit = kit };
         _onHits = OnHitEffects(setup.Attacker);
+        Fight.OnHitEffects = ApplyOnHits;
         _attackProgress = 1 - setup.AttackPhase;
     }
 
@@ -194,6 +195,14 @@ public sealed class ChampionSimulation
             fight.Deal(FightSimulator.Attacks, fight.Physical(ad * AttackerHits.CritDamage(attacker)).Crit(), critChance);
         }
 
+        ApplyOnHits();
+    }
+
+    /// <summary>Your items' on-hit effects, once: after every attack, and after an ability that applies them.</summary>
+    private void ApplyOnHits()
+    {
+        var fight = Fight;
+        var attacker = fight.Attacker;
         foreach (var onHit in _onHits)
         {
             onHit.Attacks++;

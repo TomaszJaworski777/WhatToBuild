@@ -15,7 +15,8 @@ public sealed class GameStateService : BackgroundService
     public const string GameStateMessage = "GameState";
     public const string RecommendationMessage = "Recommendation";
 
-    private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
+    /// <summary>How often the game is read. A refresh on an unchanged game is cached work, so twice a second is cheap.</summary>
+    private static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(500);
 
     private readonly GameTracker _tracker;
     private readonly NeutralRepository _neutrals;

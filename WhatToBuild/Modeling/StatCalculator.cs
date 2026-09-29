@@ -175,6 +175,7 @@ public static class StatCalculator
         effect.Kind == EffectKind.StatBuff
         && effect.Trigger == EffectTrigger.Always
         && effect.When.Count == 0
+        && effect.ScalesWith is null
         && effect.Stat is not null;
 
     private static void Scale(StatSheet sheet, Stat stat, double factor)

@@ -860,7 +860,8 @@ function drawFocus() {
         }
     }
 
-    for (const button of document.querySelectorAll(".focus-preset")) {
+    // Only the presets: the burst panel's step buttons share their look, not their data.
+    for (const button of document.querySelectorAll("#focus-presets [data-preset]")) {
         button.classList.toggle("focus-preset-on", sameWeights(values, presetWeights(FOCUS_PRESETS[Number(button.dataset.preset)])));
     }
 
@@ -1004,7 +1005,7 @@ function wireFocus() {
     });
 
     $("focus-presets").addEventListener("click", (e) => {
-        const button = e.target.closest?.(".focus-preset");
+        const button = e.target.closest?.("[data-preset]");
         if (!button || !focusState.weights.length) {
             return;
         }

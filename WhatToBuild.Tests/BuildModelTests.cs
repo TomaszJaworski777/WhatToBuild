@@ -803,6 +803,7 @@ public class BuildModelTests
     }
 
     [TestMethod]
+    [DoNotParallelize]
     public void TheQuickStageAnswersWithinASecondOnOneThread()
     {
         var warmup = new BuildRecommendations(_items, _neutrals, _kits, _model);

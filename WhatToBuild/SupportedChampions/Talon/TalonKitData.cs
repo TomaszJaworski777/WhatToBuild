@@ -31,6 +31,9 @@ public sealed class TalonKitData
     {
         public List<double> Cooldown { get; set; } = new();
         public List<double> Damage { get; set; } = new();
+
+        /// <summary>Whether the melee stab applies on-hit effects, as an attack would.</summary>
+        public bool AppliesOnHit { get; set; }
         public double BonusAdRatio { get; set; }
 
         /// <summary>In melee range the stab critically strikes for this, plus any crit damage beyond the base.</summary>

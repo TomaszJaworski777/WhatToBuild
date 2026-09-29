@@ -127,14 +127,7 @@ public sealed class KindredKit : ScriptedKit
 
         var q = _data.Q;
         fight.Dash(q.Dash, engages: false);
-        var damage = QDamage(fight);
-        var crit = q.CanCrit ? AttackerHits.CritChance(fight.Attacker) : 0;
-
-        fight.Deal(DanceOfArrows, fight.Physical(damage).Ability(), 1 - crit);
-        if (crit > 0)
-        {
-            fight.Deal(DanceOfArrows, fight.Physical(damage * AttackerHits.CritDamage(fight.Attacker)).Ability().Critical(), crit);
-        }
+        AttackerHits.DealPhysical(fight, DanceOfArrows, QDamage(fight), q.CanCrit, q.AppliesOnHit);
         fight.Cast();
         fight.Casting(q.CastTime);
         fight.AddAttackSpeed(q.AttackSpeed + q.AttackSpeedPerMark * fight.Stacks, q.AttackSpeedDuration);

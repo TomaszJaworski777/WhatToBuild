@@ -60,6 +60,12 @@ public sealed class ViKitData
     public sealed class EData
     {
         public List<double> Damage { get; set; } = new();
+
+        /// <summary>The empowered attack can critically strike: its extra damage crits with it.</summary>
+        public bool CanCrit { get; set; }
+
+        /// <summary>It is an attack, so on-hit effects already apply once; this is for any second application.</summary>
+        public bool AppliesOnHit { get; set; }
         public double TotalAdRatio { get; set; }
         public double ApRatio { get; set; }
         public int Charges { get; set; } = 1;

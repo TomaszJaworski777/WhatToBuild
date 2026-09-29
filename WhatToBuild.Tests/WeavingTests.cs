@@ -3,6 +3,7 @@ using WhatToBuild.Modeling;
 using WhatToBuild.Modeling.Simulation;
 using WhatToBuild.SupportedChampions;
 using WhatToBuild.SupportedChampions.Kayn;
+using WhatToBuild.SupportedChampions.Nasus;
 using WhatToBuild.SupportedChampions.Talon;
 using WhatToBuild.SupportedChampions.Vi;
 
@@ -130,6 +131,39 @@ public class WeavingTests
         Assert.Contains("attack", order);
         Assert.IsTrue(hits.Any(h => h.Source == TalonKit.NoxianDiplomacy), "Q goes out.");
         Assert.IsTrue(hits.Any(h => h.Source == TalonKit.BladesEnd), "The bleed procs in a fight too.");
+    }
+
+    [TestMethod]
+    public void ViEsExtraDamageCritsWithHerCritChance()
+    {
+        // A Cloak of Agility adds crit chance and nothing else: E's extra damage grows by exactly
+        // the expected crit, 15% of the way to her crit damage.
+        FightResult BurstWith(params int[] items)
+        {
+            var vi = new ChampionState(_champions.ByName("Vi")!, 13, items.Select(id => _items.ByRiotId(id)!).ToList());
+            return FightSimulator.Burst(new FightSetup(vi, Target(), new AbilityRanks(3, 3, 3, 2)), (ScriptedKit)_kits.NewFight(vi.Champion)!);
+        }
+
+        var plain = BurstWith(3071).DamageBySource[ViKit.RelentlessForce];
+        var crit = BurstWith(3071, 1018).DamageBySource[ViKit.RelentlessForce];
+
+        Assert.AreEqual(1 + 0.15 * (AttackerHits.BaseCritDamage - 1), crit / plain, 1e-6);
+    }
+
+    [TestMethod]
+    public void NasusQCritsWithHisCritChance()
+    {
+        // Siphoning Strike's damage, stacks included, crits with the attack it empowers.
+        FightResult BurstWith(params int[] items)
+        {
+            var nasus = new ChampionState(_champions.ByName("Nasus")!, 13, items.Select(id => _items.ByRiotId(id)!).ToList());
+            return FightSimulator.Burst(new FightSetup(nasus, Target(), new AbilityRanks(3, 3, 3, 2), Stacks: 200), (ScriptedKit)_kits.NewFight(nasus.Champion)!);
+        }
+
+        var plain = BurstWith(3071).DamageBySource[NasusKit.SiphoningStrike];
+        var crit = BurstWith(3071, 1018).DamageBySource[NasusKit.SiphoningStrike];
+
+        Assert.AreEqual(1 + 0.15 * (AttackerHits.BaseCritDamage - 1), crit / plain, 1e-6);
     }
 
     [TestMethod]

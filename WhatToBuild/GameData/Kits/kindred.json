@@ -9,6 +9,7 @@
     "attackSpeedPerMark": 0.05,
     "attackSpeedDuration": 4,
     "canCrit": true,
+    "appliesOnHit": false,
     "castTime": 0.01,
     "range": 800,
     "dash": 300

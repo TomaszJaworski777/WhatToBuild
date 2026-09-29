@@ -21,6 +21,8 @@
   },
   "e": {
     "damage": [-10, 10, 30, 50, 70, 90, 110],
+    "canCrit": true,
+    "appliesOnHit": false,
     "totalAdRatio": 1.1,
     "apRatio": 1,
     "charges": 2,

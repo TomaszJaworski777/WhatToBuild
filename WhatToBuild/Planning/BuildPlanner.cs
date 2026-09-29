@@ -127,7 +127,8 @@ public sealed class BuildPlanner
     /// </summary>
     private Node WithBoots(Node best, double horizon)
     {
-        if (!_settings.RequireBoots || best.Item is null || best.Inventory.Any(IsAnyBoots))
+        // Plain Boots are not shoes: a build holding only them still gets a finished pair.
+        if (!_settings.RequireBoots || best.Item is null || best.Inventory.Any(i => IsAnyBoots(i) && !IsBasicBoots(i)))
         {
             return best;
         }
@@ -196,25 +197,59 @@ public sealed class BuildPlanner
         };
     }
 
-    /// <summary>Buys the items in this order, as soon as each is affordable. Stops at the first one that cannot be bought.</summary>
+    /// <summary>
+    /// Buys the items in this order, as soon as each is affordable. Stops at the first one that
+    /// cannot be bought.
+    /// <para>
+    /// Where each purchase lands depends only on the ones before it, so every prefix is walked
+    /// once for this evaluator and kept: the permutations of a core, the reorder passes and the
+    /// replays that refresh a build share their common beginnings instead of buying them again.
+    /// </para>
+    /// </summary>
     private (Node Last, int Bought) Walk(IReadOnlyList<Item> sequence)
     {
-        var node = Root();
+        var memo = _evaluator.Cache.Walks.GetValue(_evaluator, _ => new Dictionary<string, object?>());
+        var key = new System.Text.StringBuilder(_stage.Mode.ToString());
+        Node node;
+        lock (memo)
+        {
+            node = memo.TryGetValue(key.ToString(), out var root) ? (Node)root! : (Node)(memo[key.ToString()] = Root());
+        }
+
         var bought = 0;
 
         foreach (var item in sequence)
         {
-            if (ItemRules.Slots(node.Inventory) >= ItemRules.InventorySlots)
+            key.Append(',').Append(item.RiotId);
+            Node? child;
+            lock (memo)
             {
-                node.SellCandidate ??= LeastValuable(node);
+                if (memo.TryGetValue(key.ToString(), out var known))
+                {
+                    child = (Node?)known;
+                }
+                else
+                {
+                    if (ItemRules.Slots(node.Inventory) >= ItemRules.InventorySlots)
+                    {
+                        node.SellCandidate ??= LeastValuable(node);
+                    }
+
+                    child = Child(node, item, double.MaxValue);
+                    if (child is not null)
+                    {
+                        Score(child);
+                    }
+
+                    memo[key.ToString()] = child;
+                }
             }
 
-            if (Child(node, item, double.MaxValue) is not { } child)
+            if (child is null)
             {
                 break;
             }
 
-            Score(child);
             node = child;
             bought++;
         }
@@ -344,9 +379,16 @@ public sealed class BuildPlanner
 
     private bool NeedsShoes => _settings.RequireBoots && !OwnsShoes;
 
-    /// <summary>The core and its shoes fit in the free slots, so nothing has to be sold for it.</summary>
+    /// <summary>
+    /// The core and its shoes fit in the free slots, so nothing has to be sold for it. Components
+    /// you hold do not count: they are built into the core or sold to make room for it.
+    /// </summary>
     private bool SetFits() =>
-        ItemRules.Slots(_context.Owned) + _stage.Depth + (NeedsShoes && !_context.Owned.Any(IsAnyBoots) ? 1 : 0) <= ItemRules.InventorySlots;
+        ItemRules.Slots(_context.Owned.Where(i => !IsLooseComponent(i))) + _stage.Depth + (NeedsShoes && !_context.Owned.Any(IsAnyBoots) ? 1 : 0)
+        <= ItemRules.InventorySlots;
+
+    /// <summary>A component that is not plain Boots (those stand for the shoes they become).</summary>
+    private bool IsLooseComponent(Item item) => _components.Contains(item.Id) && !IsBasicBoots(item);
 
     /// <summary>Owned items with these bought on top, components folded into what they build; null if that is not a legal inventory.</summary>
     private (List<Item> Inventory, double Cost)? Holding(IEnumerable<Item> set)
@@ -363,6 +405,14 @@ public sealed class BuildPlanner
 
             inventory = purchase.InventoryAfter.ToList();
             cost += purchase.Cost;
+        }
+
+        // Components the set leaves unused are sold when they are in its way, cheapest first;
+        // what that loses is already charged as stranded gold.
+        while (ItemRules.Slots(inventory) > ItemRules.InventorySlots
+               && inventory.Where(IsLooseComponent).MinBy(i => i.Cost) is { } spare)
+        {
+            inventory.Remove(spare);
         }
 
         return ItemRules.Slots(inventory) <= ItemRules.InventorySlots ? (inventory, cost) : null;
@@ -433,6 +483,15 @@ public sealed class BuildPlanner
         var provisional = shoes.Count > 0 ? BestShoes([], EvaluationMode.Cheap) : null;
         IReadOnlyList<Item> WithShoes(IEnumerable<Item> set, Item? pair) => pair is null ? set.ToList() : [.. set, pair];
 
+        // Evaluations the loops below ask for one at a time, worked out together beforehand.
+        void Prefetch(IEnumerable<IReadOnlyList<Item>> sets, EvaluationMode how, double share) =>
+            _evaluator.Prefetch(sets
+                .Select(Holding)
+                .OfType<(List<Item> Inventory, double Cost)>()
+                .Select(h => ((IReadOnlyList<Item>)h.Inventory, when, (IReadOnlyDictionary<Guid, double>?)Stacks(h.Inventory))), how, Expired(watch, budget * share));
+
+        Prefetch(pool.Select(item => WithShoes([item], provisional)), EvaluationMode.Cheap, _settings.PrescreenShare);
+
         var screened = new List<(Item Item, double Gain)>();
         foreach (var item in pool)
         {
@@ -463,26 +522,24 @@ public sealed class BuildPlanner
             var seen = new HashSet<string>();
             var grown = new List<(List<Item> Set, double Value)>();
 
-            foreach (var (set, _) in beam)
+            // Every set of this size, once each: all of them evaluated side by side, then scored in turn.
+            var layer = beam
+                .SelectMany(b => branch.Where(i => b.Set.All(s => s.Id != i.Id)).Select(item => (List<Item>)[.. b.Set, item]))
+                .Where(next => seen.Add(string.Join(',', next.Select(i => i.RiotId).Order())))
+                .ToList();
+            Prefetch(layer.Select(next => WithShoes(next, provisional)), mode, 1);
+
+            foreach (var next in layer)
             {
-                foreach (var item in branch.Where(i => set.All(s => s.Id != i.Id)))
+                if (grown.Count >= _settings.MinScored && Stop(watch, budget))
                 {
-                    List<Item> next = [.. set, item];
-                    if (!seen.Add(string.Join(',', next.Select(i => i.RiotId).Order())))
-                    {
-                        continue;
-                    }
+                    timedOut = true;
+                    break;
+                }
 
-                    if (grown.Count >= _settings.MinScored && Stop(watch, budget))
-                    {
-                        timedOut = true;
-                        break;
-                    }
-
-                    if (Strength(WithShoes(next, provisional), mode) is { } value)
-                    {
-                        grown.Add((next, value));
-                    }
+                if (Strength(WithShoes(next, provisional), mode) is { } value)
+                {
+                    grown.Add((next, value));
                 }
             }
 
@@ -759,6 +816,11 @@ public sealed class BuildPlanner
         }
 
         var specs = CandidatePool().Select(item => Child(root, item, horizon)).OfType<Node>().ToList();
+        _evaluator.Prefetch(specs.SelectMany(s => new[]
+            {
+                ((IReadOnlyList<Item>)_context.Owned, s.Time, (IReadOnlyDictionary<Guid, double>?)null),
+                ((IReadOnlyList<Item>)s.Inventory, s.Time, (IReadOnlyDictionary<Guid, double>?)StacksAt(s.BoughtAt, s.Time)),
+            }), EvaluationMode.Cheap, Expired(watch, budget * _settings.PrescreenShare));
         var done = 0;
 
         foreach (var spec in specs)
@@ -785,6 +847,13 @@ public sealed class BuildPlanner
 
     private List<Node> Score(List<Node> specs, Stopwatch watch, double budget, ref bool timedOut)
     {
+        // What scoring each node asks for, evaluated side by side first.
+        (IReadOnlyList<Item>, double, IReadOnlyDictionary<Guid, double>?) Request(IReadOnlyList<Item> inventory, double time, Dictionary<Guid, double>? boughtAt) =>
+            (inventory, time, boughtAt is null ? null : StacksAt(boughtAt, time));
+
+        _evaluator.Prefetch(specs.SelectMany(s => s.Sold is not null && s.Parent is { } parent
+                ? new[] { Request(_context.Owned, s.Time, null), Request(s.Inventory, s.Time, s.BoughtAt), Request(parent.Inventory, s.Time, parent.BoughtAt) }
+                : [Request(_context.Owned, s.Time, null), Request(s.Inventory, s.Time, s.BoughtAt)]), _stage.Mode, Expired(watch, budget));
         var done = 0;
 
         foreach (var spec in specs)
@@ -900,6 +969,9 @@ public sealed class BuildPlanner
             .Where(i => i.Stacking is not null)
             .DistinctBy(i => i.Id)
             .Sum(i => i.Stacking!.Gains.Where(g => g.Stat == Data.Stats.Gold).Sum(g => g.Amount) * _context.StackRate(i.Stacking!) / 60);
+
+    /// <summary>A time check for work running beside the search: only the clock, never the planner's control, which is not for other threads.</summary>
+    private Func<bool> Expired(Stopwatch watch, double budget) => () => _cancelled || watch.Elapsed.TotalMilliseconds > budget;
 
     private bool Stop(Stopwatch watch, double budget)
     {

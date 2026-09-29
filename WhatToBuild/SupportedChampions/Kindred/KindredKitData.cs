@@ -44,6 +44,9 @@ public sealed class KindredKitData
         /// <summary>Whether the bolts can critically strike.</summary>
         public bool CanCrit { get; set; }
 
+        /// <summary>Whether the bolts apply on-hit effects, as an attack would.</summary>
+        public bool AppliesOnHit { get; set; }
+
         public double CastTime { get; set; }
     }
 
