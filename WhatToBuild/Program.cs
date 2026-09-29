@@ -2,6 +2,7 @@ using WhatToBuild.Clients;
 using WhatToBuild.Data;
 using WhatToBuild.Game;
 using WhatToBuild.Hubs;
+using WhatToBuild.Modeling.Simulation;
 using WhatToBuild.Planning;
 using WhatToBuild.Recommendations;
 using WhatToBuild.Services;
@@ -56,8 +57,24 @@ app.MapGet("/api/recommendation", (GameStateService service) => service.LatestRe
 app.MapGet("/api/preferences", (PlanPreferences preferences) =>
     new { coreItems = preferences.CoreItems, label = preferences.Label });
 
-app.MapPost("/api/preferences", (PlanPreferences preferences, PreferenceRequest request) =>
+app.MapPost("/api/preferences", (PlanPreferences preferences, ChampionKits kits, ChampionRepository champions, PreferenceRequest request) =>
 {
+    if (request.Burst is { Champion.Length: > 0 } burst)
+    {
+        // Only steps the champion's kit has, in any form, and basic attacks.
+        var allowed = champions.ByName(burst.Champion) is { } champion
+                      && kits.For(champion) is { } supported
+            ? supported.Forms.DefaultIfEmpty(null).SelectMany(form => (supported.NewFight(form) as ScriptedKit)?.BurstSteps ?? []).ToHashSet()
+            : [];
+        var steps = burst.Steps?.Where(allowed.Contains).ToList();
+        preferences.SetBurstCombo(burst.Champion, burst.Reset ? null : steps);
+    }
+
+    if (request.BurstExcluded is { } excluded)
+    {
+        preferences.BurstExcluded = excluded.ToHashSet();
+    }
+
     if (request.CoreItems is { } coreItems)
     {
         preferences.CoreItems = coreItems;
@@ -80,7 +97,10 @@ app.MapHub<GameHub>("/hub");
 
 app.Run();
 
-record PreferenceRequest(int? CoreItems, WeightsRequest? Weights);
+record PreferenceRequest(int? CoreItems, WeightsRequest? Weights, BurstRequest? Burst = null, string[]? BurstExcluded = null);
+
+/// <summary>A burst sequence for a champion, as ability keys and <c>AA</c>; <c>Reset</c> goes back to the kit's own.</summary>
+record BurstRequest(string Champion, string[]? Steps, bool Reset = false);
 
 /// <summary>Objective weights for one entry of model.json's objectives; <c>Reset</c> goes back to the model's own.</summary>
 record WeightsRequest(string Key, double Damage, double Burst, double Survival, bool Reset = false);

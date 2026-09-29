@@ -14,7 +14,25 @@ public sealed record RecommendationDto(
     IReadOnlyList<MatchupDto>? Matchups = null,
     FormAdviceDto? Form = null,
     bool Calculating = false,
-    WeightsDto? Weights = null);
+    WeightsDto? Weights = null,
+    BurstDto? Burst = null);
+
+/// <summary>
+/// The burst the plan scores: <c>Steps</c>, the sequence in play (yours when <c>Custom</c>, else
+/// the kit's <c>Default</c>), built from <c>Choices</c>; none for a champion with no script.
+/// <c>Share</c> is the share of the counted enemies' health it takes with the finished build.
+/// </summary>
+public sealed record BurstDto(
+    string Champion,
+    IReadOnlyList<string> Steps,
+    IReadOnlyList<string> Default,
+    IReadOnlyList<string> Choices,
+    bool Custom,
+    double Share,
+    IReadOnlyList<BurstTargetDto> Targets);
+
+/// <summary>An enemy for the burst: whether it counts, and the share of its health the burst takes.</summary>
+public sealed record BurstTargetDto(string Champion, string Icon, bool Counted, double Threat, double? Share);
 
 /// <summary>
 /// The objective weights the plan scores builds with, for the entry in model.json it reads

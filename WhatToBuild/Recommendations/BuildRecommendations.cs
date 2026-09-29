@@ -221,6 +221,18 @@ public sealed class BuildRecommendations : IRecommendationSource
         || new GameTrends(state, stack, _model).Signature + "|" + _preferences.Key != _signature
         || state.GameTime < _plannedAt;
 
+    /// <summary>An evaluator for this moment, scoring with everything you set on the page.</summary>
+    private BuildEvaluator NewEvaluator(GameState state, GameStack stack)
+    {
+        _preferences.StartGame(GameKey(state));
+        return new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model)
+        {
+            ChosenWeights = _preferences.Weights,
+            BurstCombo = _preferences.BurstCombo(state.ActivePlayer!.Champion.Name),
+            BurstExcluded = _preferences.BurstExcluded,
+        });
+    }
+
     public RecommendationDto? Compute(GameState state, GameStack stack)
     {
         if (state.ActivePlayer is null || !state.Enemies.Any())
@@ -230,7 +242,7 @@ public sealed class BuildRecommendations : IRecommendationSource
 
         lock (_lock)
         {
-            var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model) { ChosenWeights = _preferences.Weights });
+            var evaluator = NewEvaluator(state, stack);
 
             if (_lockedGame != GameKey(state))
             {
@@ -525,7 +537,7 @@ public sealed class BuildRecommendations : IRecommendationSource
     {
         lock (_lock)
         {
-            var evaluator = new BuildEvaluator(new BuildContext(state, stack, _items, _neutrals, _kits, _model) { ChosenWeights = _preferences.Weights });
+            var evaluator = NewEvaluator(state, stack);
             AdviseForm(evaluator, state);
 
             _built = Built(state);
@@ -756,7 +768,40 @@ public sealed class BuildRecommendations : IRecommendationSource
             Assumptions(planned),
             Matchups(planned, state),
             planned.Advice,
-            Weights: WeightsOf(context, planned.Steps.LastOrDefault()?.After ?? planned.Baseline));
+            Weights: WeightsOf(context, planned.Steps.LastOrDefault()?.After ?? planned.Baseline),
+            Burst: BurstOf(planned, planned.Steps.LastOrDefault()?.After ?? planned.Baseline));
+    }
+
+    /// <summary>
+    /// The burst sequence in play and what it can be made of, and every enemy with the share of
+    /// its health the finished build's burst takes and whether it counts.
+    /// </summary>
+    private BurstDto BurstOf(Planned planned, Evaluation finished)
+    {
+        var context = planned.Context;
+        var kit = context.Kits.NewFight(context.Champion, context.Form) as ScriptedKit;
+        var standard = kit?.Playstyle.Burst ?? [];
+        var field = planned.Evaluator.BattlefieldAt(finished.Time);
+
+        var targets = field.Enemies.Select(e =>
+        {
+            var fight = finished.Targets.FirstOrDefault(t => t.Enemy.Champion.Id == e.Champion.Id)?.Fight;
+            return new BurstTargetDto(
+                e.Champion.Name,
+                GameStateMapper.ChampionIconUrl(_patch, e.Champion.Icon),
+                !context.BurstExcluded.Contains(e.Champion.Name),
+                e.Threat,
+                fight is null ? null : BuildEvaluator.BurstShare(fight));
+        }).ToList();
+
+        return new BurstDto(
+            context.Champion.Name,
+            context.BurstCombo ?? standard,
+            standard,
+            kit?.BurstSteps ?? [],
+            context.BurstCombo is not null,
+            finished.Burst,
+            targets);
     }
 
     /// <summary>

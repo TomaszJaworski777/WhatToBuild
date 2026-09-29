@@ -186,6 +186,72 @@ public class PlanPreferenceTests
     }
 
     [TestMethod]
+    public void TheBurstIsAveragedOverTheEnemiesYouCount()
+    {
+        var state = Game();
+        var model = FastModel();
+        Evaluation Burst(params string[] excluded)
+        {
+            var context = new BuildContext(state, new GameStack(), _items, _neutrals, _kits, model) { BurstExcluded = excluded.ToHashSet() };
+            return new BuildEvaluator(context).Evaluate(context.Owned, state.GameTime, null, EvaluationMode.Full);
+        }
+
+        var all = Burst();
+        var share = all.Targets.ToDictionary(t => t.Enemy.Champion.Name, t => BuildEvaluator.BurstShare(t.Fight));
+        var threat = all.Targets.ToDictionary(t => t.Enemy.Champion.Name, t => t.Enemy.Threat);
+
+        Assert.AreEqual(all.Targets.Sum(t => t.Enemy.Threat * share[t.Enemy.Champion.Name]), all.Burst, 1e-9, "Every enemy counts by default.");
+
+        var noTank = Burst("Garen");
+        var rest = threat.Keys.Where(n => n != "Garen").ToList();
+        Assert.AreEqual(rest.Sum(n => threat[n] * share[n]) / rest.Sum(n => threat[n]), noTank.Burst, 1e-9, "Garen's weight spreads over the rest.");
+        Assert.AreEqual(share["Caitlyn"], Burst("Garen", "Wukong", "Veigar", "Soraka").Burst, 1e-9, "One enemy left: its share alone.");
+        Assert.AreEqual(all.Burst, Burst("Garen", "Wukong", "Veigar", "Caitlyn", "Soraka").Burst, 1e-9, "Leaving every enemy out counts them all.");
+    }
+
+    [TestMethod]
+    public void BurstChoicesChangeThePlanKeyAndEnemiesResetWithTheGame()
+    {
+        var preferences = new PlanPreferences();
+        var key = preferences.Key;
+
+        preferences.SetBurstCombo("Nasus", ["Q", "AA"]);
+        CollectionAssert.AreEqual(new[] { "Q", "AA" }, preferences.BurstCombo("nasus")!.ToList());
+        Assert.AreNotEqual(key, preferences.Key, "A new combo re-plans.");
+
+        preferences.SetBurstCombo("Nasus", []);
+        Assert.IsNull(preferences.BurstCombo("Nasus"), "An empty combo goes back to the kit's own.");
+        Assert.AreEqual(key, preferences.Key);
+
+        preferences.StartGame("a");
+        preferences.BurstExcluded = new HashSet<string> { "Garen" };
+        Assert.AreNotEqual(key, preferences.Key, "Leaving an enemy out re-plans.");
+        preferences.StartGame("a");
+        Assert.Contains("garen", preferences.BurstExcluded);
+        preferences.StartGame("b");
+        Assert.IsEmpty(preferences.BurstExcluded, "A new game counts every enemy again.");
+    }
+
+    [TestMethod]
+    public void TheRecommendationCarriesTheBurst()
+    {
+        var preferences = new PlanPreferences();
+        preferences.SetBurstCombo("Kindred", ["W", "AA", "AA"]);
+        preferences.BurstExcluded = new HashSet<string> { "Garen" };
+        var source = new BuildRecommendations(_items, _neutrals, _kits, FastModel(), preferences);
+
+        var burst = source.Compute(Game(), new GameStack())!.Burst!;
+
+        Assert.IsTrue(burst.Custom);
+        CollectionAssert.AreEqual(new[] { "W", "AA", "AA" }, burst.Steps.ToList());
+        Assert.IsNotEmpty(burst.Default);
+        Assert.Contains("AA", burst.Choices);
+        Assert.HasCount(5, burst.Targets);
+        Assert.IsFalse(burst.Targets.Single(t => t.Champion == "Garen").Counted);
+        Assert.IsTrue(burst.Targets.Where(t => t.Champion != "Garen").All(t => t.Counted));
+    }
+
+    [TestMethod]
     public void MovingTheSliderRepicksTheBuild()
     {
         var preferences = new PlanPreferences { CoreItems = 1 };

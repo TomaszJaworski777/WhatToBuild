@@ -478,6 +478,121 @@ img {
     text-align: right;
 }
 
+.burst-section {
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--edge);
+}
+
+.burst-section[hidden] {
+    display: none;
+}
+
+.burst-steps {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    min-height: 26px;
+    margin: 8px 0 6px;
+    padding: 0;
+    list-style: none;
+}
+
+.burst-steps li + li::before {
+    content: "›";
+    margin-right: 4px;
+    color: var(--faint);
+}
+
+.burst-step {
+    min-width: 30px;
+    padding: 3px 8px;
+    border: 1px solid var(--gold-dark);
+    border-radius: 4px;
+    background: rgba(200, 170, 110, 0.12);
+    color: var(--gold-bright);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.burst-step:hover {
+    border-color: var(--chaos);
+    color: var(--chaos);
+    text-decoration: line-through;
+}
+
+.burst-step-attack {
+    border-color: var(--edge);
+    background: rgba(9, 20, 40, 0.6);
+    color: var(--text);
+    font-weight: 500;
+}
+
+.burst-step:focus-visible,
+.burst-target:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+.burst-empty {
+    color: var(--faint);
+    font-size: 11px;
+}
+
+.burst-add {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.burst-label {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.burst-targets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.burst-target {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border: 1px solid var(--gold-dark);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+
+.burst-target img {
+    width: 30px;
+    height: 30px;
+    border-radius: 3px;
+}
+
+.burst-target-off {
+    border-color: var(--edge);
+    color: var(--faint);
+}
+
+.burst-target-off img {
+    filter: grayscale(1);
+    opacity: 0.4;
+}
+
 .core-state {
     padding: 2px 10px;
     border: 1px solid var(--edge);

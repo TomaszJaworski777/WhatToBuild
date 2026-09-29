@@ -70,6 +70,12 @@ public sealed class BuildContext
     public IReadOnlyDictionary<string, ModelSettings.ObjectiveWeights> ChosenWeights { get; init; } =
         new Dictionary<string, ModelSettings.ObjectiveWeights>();
 
+    /// <summary>The burst sequence you chose on the page for this champion; none plays the kit's own.</summary>
+    public IReadOnlyList<string>? BurstCombo { get; init; }
+
+    /// <summary>Enemies (by champion name) left out of the burst: it is the share of the others' health it takes.</summary>
+    public IReadOnlySet<string> BurstExcluded { get; init; } = new HashSet<string>();
+
     public ModelSettings.ObjectiveWeights ObjectiveFor(string? form)
     {
         var model = Settings.Objectives.For(Me.Champion, form);
@@ -424,7 +430,8 @@ public sealed class BuildEvaluator
             var results = phases
                 .Select(phase => FightSimulator.Run(
                     new FightSetup(us, target, field.OurRanks, field.OurMarks, settings.Fight.TeamfightSeconds, phase, sustain, Sustained: true,
-                        LifeSteal: lifeSteal, Omnivamp: omnivamp, StartDistance: start, AttackUptime: uptime, DashContactSeconds: settings.Fight.DashContactSeconds),
+                        LifeSteal: lifeSteal, Omnivamp: omnivamp, StartDistance: start, AttackUptime: uptime, DashContactSeconds: settings.Fight.DashContactSeconds,
+                        BurstCombo: _context.BurstCombo),
                     _context.Kits.NewFight(_context.Champion, form)))
                 .ToList();
 
@@ -441,7 +448,7 @@ public sealed class BuildEvaluator
             field.Enemies.Sum(e => field.Focus[e] * incomingFrom[e].LocksUs) / fightSeconds);
 
         var dps = (1 - locked) * targets.Sum(t => t.Enemy.Threat * t.Fight.EffectiveDps);
-        var opening = targets.Sum(t => t.Enemy.Threat * Math.Min(1, t.Fight.EarlyDamage / Math.Max(1, t.Fight.TargetHealth)));
+        var opening = Burst(field, targets);
         var survival = Survival(us, field, targets, incomingFrom, form);
 
         var clearWeight = _context.ClearWeightAt(time);
@@ -488,6 +495,26 @@ public sealed class BuildEvaluator
             Targets = targets,
             Us = us,
         };
+    }
+
+    /// <summary>The share of one enemy's health the burst takes; past a kill it takes nothing more.</summary>
+    public static double BurstShare(FightResult fight) => Math.Min(1, fight.EarlyDamage / Math.Max(1, fight.TargetHealth));
+
+    /// <summary>Whether an enemy counts for the burst: every one does unless you left it out (all left out counts them all).</summary>
+    public bool CountsForBurst(CombatProfile enemy, Battlefield field) =>
+        !_context.BurstExcluded.Contains(enemy.Champion.Name)
+        || field.Enemies.All(e => _context.BurstExcluded.Contains(e.Champion.Name));
+
+    /// <summary>
+    /// The share of the enemy team's health the burst takes, weighed by threat over the enemies it
+    /// counts: leaving one out spreads its weight over the rest, so the whole still reads 0 to 1.
+    /// </summary>
+    private double Burst(Battlefield field, List<TargetResult> targets)
+    {
+        var weight = field.Enemies.Where(e => CountsForBurst(e, field)).Sum(e => e.Threat);
+        return weight <= 0
+            ? 0
+            : targets.Where(t => CountsForBurst(t.Enemy, field)).Sum(t => t.Enemy.Threat * BurstShare(t.Fight)) / weight;
     }
 
     private (double TimeAlive, double WithoutAbility, double Incoming, double Burst, double Pool, double Healing, Dictionary<DamageType, double> ByType, Dictionary<CombatProfile, double> ByEnemy, double Lockdown) Survival(

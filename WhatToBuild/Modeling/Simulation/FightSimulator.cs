@@ -10,22 +10,23 @@ public static class FightSimulator
 
     /// <summary>
     /// The fight, played with the kit's combo. Its <see cref="FightResult.EarlyDamage"/> is the
-    /// burst: what the kit's burst sequence deals when played once from a fresh start, or, for a
-    /// kit with no script, what lands in the first <see cref="Fight.BurstSeconds"/>.
+    /// burst: what the burst sequence (<see cref="FightSetup.BurstCombo"/> when one is chosen,
+    /// else the kit's own) deals when played once from a fresh start, or, for a kit with no
+    /// script, what lands in the first <see cref="Fight.BurstSeconds"/>.
     /// </summary>
     public static FightResult Run(FightSetup setup, IChampionKit? kit = null)
     {
         var result = Play(setup, kit, stop: _ => false);
 
-        return kit is ScriptedKit { Playstyle.Burst.Count: > 0 } scripted
+        return kit is ScriptedKit scripted && (setup.BurstCombo ?? scripted.Playstyle.Burst).Count > 0
             ? result with { EarlyDamage = Burst(setup, scripted).Damage }
             : result;
     }
 
-    /// <summary>The kit's burst sequence, played once from a fresh start against a fresh target.</summary>
+    /// <summary>The burst sequence, played once from a fresh start against a fresh target.</summary>
     public static FightResult Burst(FightSetup setup, ScriptedKit kit)
     {
-        var burst = kit.ForBurst();
+        var burst = kit.ForBurst(setup.BurstCombo is { Count: > 0 } chosen ? chosen : null);
         return Play(setup with { Sustained = false }, burst, stop: _ => burst.BurstDone);
     }
 

@@ -74,6 +74,23 @@
                         </div>
                     </div>
                 </div>
+                <div id="burst-section" class="burst-section" hidden>
+                    <div class="focus-head">
+                        <span>Burst combo</span>
+                        <span id="burst-state" class="focus-champion"></span>
+                    </div>
+                    <ol id="burst-steps" class="burst-steps" aria-label="Burst sequence"></ol>
+                    <div id="burst-add" class="burst-add" role="group" aria-label="Add a step"></div>
+                    <div class="burst-label">
+                        <span>Averaged over</span>
+                        <span id="burst-share" class="focus-share"></span>
+                    </div>
+                    <div id="burst-targets" class="burst-targets" role="group" aria-label="Enemies the burst counts"></div>
+                    <div class="focus-actions">
+                        <button type="button" id="burst-reset" class="focus-reset" disabled>Default combo</button>
+                        <span class="focus-hint">Click a step to remove it, an enemy to leave it out.</span>
+                    </div>
+                </div>
             </aside>
 
             <section id="build" class="build" hidden></section>

@@ -33,7 +33,8 @@ public sealed record FightSetup(
     double Omnivamp = 0,
     double StartDistance = 0,
     double AttackUptime = 1,
-    double DashContactSeconds = 0);
+    double DashContactSeconds = 0,
+    IReadOnlyList<string>? BurstCombo = null);
 
 public sealed class Fight
 {

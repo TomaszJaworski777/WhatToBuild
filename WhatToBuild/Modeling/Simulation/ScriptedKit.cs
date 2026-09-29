@@ -72,6 +72,7 @@ public abstract class ScriptedKit : IChampionKit
     private int _step;
 
     private bool _bursting;
+    private IReadOnlyList<string>? _burst;
     private int _burstStep;
     private bool _awaitingEmpoweredAttack;
 
@@ -85,6 +86,9 @@ public abstract class ScriptedKit : IChampionKit
     /// <summary>The farthest it reaches a target from: its attack range, or an ability that goes farther.</summary>
     public double Reach(double attackRange) => Playstyle.Combo.Select(a => a.Range ?? attackRange).Append(attackRange).Max();
 
+    /// <summary>What a burst sequence can be made of: the combo's ability keys and <see cref="Attack"/>.</summary>
+    public IReadOnlyList<string> BurstSteps => [.. Playstyle.Combo.Select(a => a.Key), Attack];
+
     /// <summary>Running the burst: every step has gone out and every hit it started has landed.</summary>
     public bool BurstDone { get; private set; }
 
@@ -93,11 +97,15 @@ public abstract class ScriptedKit : IChampionKit
     /// <summary>A new kit, as this one was built, with nothing cast yet; <paramref name="burst"/> when it will play the burst.</summary>
     protected abstract ScriptedKit Fresh(bool burst);
 
-    /// <summary>A new kit that plays the burst sequence once instead of the combo.</summary>
-    public ScriptedKit ForBurst()
+    /// <summary>
+    /// A new kit that plays a burst sequence once instead of the combo: <paramref name="steps"/>
+    /// when given (one you chose), else the playstyle's own.
+    /// </summary>
+    public ScriptedKit ForBurst(IReadOnlyList<string>? steps = null)
     {
         var kit = Fresh(burst: true);
         kit._bursting = true;
+        kit._burst = steps;
         return kit;
     }
 
@@ -161,7 +169,9 @@ public abstract class ScriptedKit : IChampionKit
     /// <summary>The next woven spell waits for an attack (a spell whose hit lands after its cast, like a charged dash).</summary>
     protected void AwaitAttack() => _attackLanded = false;
 
-    private string? CurrentBurstStep => _burstStep < Playstyle.Burst.Count ? Playstyle.Burst[_burstStep] : null;
+    private IReadOnlyList<string> BurstSequence => _burst ?? Playstyle.Burst;
+
+    private string? CurrentBurstStep => _burstStep < BurstSequence.Count ? BurstSequence[_burstStep] : null;
 
     /// <summary>
     /// The burst, step by step with nothing woven in between: each ability goes out as soon as it
@@ -173,7 +183,13 @@ public abstract class ScriptedKit : IChampionKit
     {
         while (!_awaitingEmpoweredAttack && CurrentBurstStep is { } key && key != Attack)
         {
-            var ability = Playstyle.Combo.First(a => a.Key == key);
+            // A step the kit has no ability for (one chosen on the page) is left out.
+            if (Playstyle.Combo.FirstOrDefault(a => a.Key == key) is not { } ability)
+            {
+                _burstStep++;
+                continue;
+            }
+
             if (!Fits(fight, ability, weave: false))
             {
                 return;

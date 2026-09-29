@@ -42,8 +42,50 @@ public sealed class PlanPreferences
         }
     }
 
+    /// <summary>The most steps a burst sequence you write can have.</summary>
+    public const int MaxBurstSteps = 12;
+
+    private readonly ConcurrentDictionary<string, IReadOnlyList<string>> _burstCombos = new(StringComparer.OrdinalIgnoreCase);
+    private volatile IReadOnlySet<string> _burstExcluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    private string? _game;
+
+    /// <summary>The burst sequence you chose for a champion, by name; none plays the kit's own.</summary>
+    public IReadOnlyList<string>? BurstCombo(string champion) => _burstCombos.GetValueOrDefault(champion);
+
+    public void SetBurstCombo(string champion, IReadOnlyList<string>? steps)
+    {
+        if (steps is not { Count: > 0 })
+        {
+            _burstCombos.TryRemove(champion, out _);
+        }
+        else
+        {
+            _burstCombos[champion] = steps.Take(MaxBurstSteps).ToList();
+        }
+    }
+
+    /// <summary>Enemies (by champion name) the burst leaves out. They belong to one game: a new lobby clears them.</summary>
+    public IReadOnlySet<string> BurstExcluded
+    {
+        get => _burstExcluded;
+        set => _burstExcluded = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>The game being planned; when it is a new one, the enemies left out of the last one are let back in.</summary>
+    public void StartGame(string game)
+    {
+        if (_game is not null && _game != game)
+        {
+            BurstExcluded = new HashSet<string>();
+        }
+
+        _game = game;
+    }
+
     public string Key =>
-        CoreItems + string.Concat(_weights.OrderBy(w => w.Key, StringComparer.OrdinalIgnoreCase).Select(w => $"|{w.Key}:{w.Value.Key}"));
+        CoreItems + string.Concat(_weights.OrderBy(w => w.Key, StringComparer.OrdinalIgnoreCase).Select(w => $"|{w.Key}:{w.Value.Key}"))
+        + string.Concat(_burstCombos.OrderBy(c => c.Key, StringComparer.OrdinalIgnoreCase).Select(c => $"|{c.Key}>{string.Join(',', c.Value)}"))
+        + (_burstExcluded.Count > 0 ? "|-" + string.Join(',', _burstExcluded.Order(StringComparer.OrdinalIgnoreCase)) : "");
 
     public string Label => $"{CoreItems} item{(CoreItems == 1 ? "" : "s")} + shoes";
 }

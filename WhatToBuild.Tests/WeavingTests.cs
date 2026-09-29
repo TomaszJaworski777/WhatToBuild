@@ -133,6 +133,28 @@ public class WeavingTests
     }
 
     [TestMethod]
+    public void AChosenBurstIsPlayedInsteadOfTheKitsOwn()
+    {
+        var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3071)!]);
+        var ranks = new AbilityRanks(3, 3, 3, 2);
+        var setup = new FightSetup(us, Target(), ranks, BurstCombo: ["Q", ScriptedKit.Attack, "X"]);
+        var burst = FightSimulator.Burst(setup, (ScriptedKit)_kits.NewFight(us.Champion)!);
+
+        Assert.AreEqual(2, burst.Attacks, "Q's empowered attack, then the attack step; the unknown step is left out.");
+        CollectionAssert.AreEquivalent(new[] { "Q" }, burst.DamageBySource.Keys.Where(IsSpell).Select(s => s[..1]).Distinct().ToList());
+        Assert.AreEqual(burst.Damage, FightSimulator.Run(setup, _kits.NewFight(us.Champion)).EarlyDamage, 1e-9, "The fight's burst is the chosen one.");
+    }
+
+    [TestMethod]
+    public void TheBurstIsMadeOfTheCombosKeysAndAttacks()
+    {
+        var kit = (ScriptedKit)_kits.NewFight(_champions.ByName("Talon")!)!;
+
+        CollectionAssert.IsSubsetOf(kit.Playstyle.Burst.ToList(), kit.BurstSteps.ToList());
+        Assert.AreEqual(ScriptedKit.Attack, kit.BurstSteps[^1]);
+    }
+
+    [TestMethod]
     public void TheFightReportsItsBurstSequence()
     {
         var us = new ChampionState(_champions.ByName("Nasus")!, 13, [_items.ByRiotId(3071)!]);

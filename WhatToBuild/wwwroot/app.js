@@ -663,6 +663,9 @@ function onState(state) {
 function onRecommendation(recommendation) {
     lastRecommendation = recommendation;
     syncFocus(recommendation?.weights);
+    if (!recommendation?.calculating) {
+        syncBurst(recommendation?.burst);
+    }
     renderAll();
 }
 
@@ -1021,6 +1024,163 @@ function wireFocus() {
     });
 }
 
+// Burst: the sequence the burst weight is scored on, and the enemies whose health it is averaged
+// over. Edits show at once and re-plan after a short pause; until the new plan comes back, what
+// was sent wins over an older plan still scored on the previous settings.
+const BURST_SEND_DELAY = 600;
+const burstState = {
+    champion: null, steps: [], defaults: [], choices: [], custom: false, share: null, targets: [],
+    excluded: new Set(), pendingSteps: null, pendingExcluded: null, timer: null,
+};
+
+function stepLabel(step) {
+    return step === "AA" ? "Attack" : step;
+}
+
+function sameList(a, b) {
+    return !!a && !!b && a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
+function sameSet(a, b) {
+    return !!a && !!b && a.size === b.size && [...a].every((v) => b.has(v));
+}
+
+function drawBurst() {
+    const s = burstState;
+    $("burst-section").hidden = !s.champion;
+    if (!s.champion) {
+        return;
+    }
+
+    const scripted = s.choices.length > 0;
+    $("burst-state").textContent = scripted ? `${s.champion} · ${sameList(s.steps, s.defaults) ? "default" : "custom"}` : `${s.champion} · no script`;
+
+    $("burst-steps").innerHTML = !scripted
+        ? `<li class="burst-empty">No scripted kit: the burst is the opening of the fight.</li>`
+        : s.steps.length
+            ? s.steps.map((step, i) => `<li><button type="button" class="burst-step${step === "AA" ? " burst-step-attack" : ""}" data-remove="${i}" title="Remove this step">${esc(stepLabel(step))}</button></li>`).join("")
+            : `<li class="burst-empty">Empty: add a step, or it goes back to the default.</li>`;
+
+    $("burst-add").innerHTML = s.choices
+        .map((step) => `<button type="button" class="focus-preset" data-add="${esc(step)}" title="Add ${esc(stepLabel(step))} to the end">+ ${esc(stepLabel(step))}</button>`)
+        .join("");
+
+    const counted = s.targets.filter((t) => !s.excluded.has(t.champion));
+    const unchanged = sameSet(s.excluded, new Set(s.targets.filter((t) => !t.counted).map((t) => t.champion)));
+    $("burst-share").textContent = s.share != null && unchanged && sameList(s.steps, lastRecommendation?.burst?.steps)
+        ? `· takes ${pct(s.share)} of their health`
+        : counted.length ? "· re-planning…" : "";
+
+    $("burst-targets").innerHTML = s.targets.map((t) => {
+        const on = !s.excluded.has(t.champion);
+        const share = t.share != null ? pct(t.share) : "—";
+        return `<button type="button" class="burst-target${on ? "" : " burst-target-off"}" data-target="${esc(t.champion)}" aria-pressed="${on}"
+                    title="${esc(t.champion)}: burst takes ${share} of its health · ${pct(t.threat)} threat${on ? "" : " · left out"}">
+                    <img src="${esc(t.icon)}" alt="${esc(t.champion)}" />${share}
+                </button>`;
+    }).join("");
+
+    $("burst-reset").disabled = !scripted || (sameList(s.steps, s.defaults) && !s.custom);
+}
+
+function syncBurst(burst) {
+    const s = burstState;
+    if (!burst) {
+        s.champion = null;
+        drawBurst();
+        return;
+    }
+
+    const championChanged = s.champion !== burst.champion;
+    s.champion = burst.champion;
+    s.defaults = burst.default;
+    s.choices = burst.choices;
+    s.custom = burst.custom;
+    s.share = burst.share;
+    s.targets = burst.targets;
+
+    if (championChanged || !s.pendingSteps || sameList(burst.steps, s.pendingSteps)) {
+        s.steps = [...burst.steps];
+        s.pendingSteps = null;
+    }
+
+    const excluded = new Set(burst.targets.filter((t) => !t.counted).map((t) => t.champion));
+    if (championChanged || !s.pendingExcluded || sameSet(excluded, s.pendingExcluded)) {
+        s.excluded = excluded;
+        s.pendingExcluded = null;
+    }
+
+    drawBurst();
+}
+
+function queueBurst(reset = false) {
+    const s = burstState;
+    s.pendingSteps = reset || s.steps.length === 0 ? [...s.defaults] : [...s.steps];
+    s.pendingExcluded = new Set(s.excluded);
+    clearTimeout(s.timer);
+    s.timer = setTimeout(async () => {
+        try {
+            await fetch("/api/preferences", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    burst: s.choices.length ? { champion: s.champion, steps: s.steps, reset: reset || s.steps.length === 0 } : null,
+                    burstExcluded: [...s.excluded],
+                }),
+            });
+        } catch {
+            $("burst-state").textContent = `${s.champion} · not saved`;
+        }
+    }, BURST_SEND_DELAY);
+}
+
+function wireBurst() {
+    $("burst-steps").addEventListener("click", (e) => {
+        const button = e.target.closest?.("[data-remove]");
+        if (button) {
+            burstState.steps = burstState.steps.filter((_, i) => i !== Number(button.dataset.remove));
+            drawBurst();
+            queueBurst();
+        }
+    });
+
+    $("burst-add").addEventListener("click", (e) => {
+        const button = e.target.closest?.("[data-add]");
+        if (button && burstState.steps.length < 12) {
+            burstState.steps = [...burstState.steps, button.dataset.add];
+            drawBurst();
+            queueBurst();
+        }
+    });
+
+    $("burst-targets").addEventListener("click", (e) => {
+        const button = e.target.closest?.("[data-target]");
+        if (!button) {
+            return;
+        }
+
+        const name = button.dataset.target;
+        const excluded = new Set(burstState.excluded);
+        if (excluded.has(name)) {
+            excluded.delete(name);
+        } else if (excluded.size + 1 < burstState.targets.length) {
+            // At least one enemy always counts.
+            excluded.add(name);
+        }
+
+        burstState.excluded = excluded;
+        drawBurst();
+        queueBurst();
+    });
+
+    $("burst-reset").addEventListener("click", () => {
+        burstState.steps = [...burstState.defaults];
+        burstState.custom = false;
+        drawBurst();
+        queueBurst(true);
+    });
+}
+
 async function loadInitial() {
     try {
         const response = await fetch("/api/state");
@@ -1061,5 +1221,6 @@ async function connect() {
 
 wireHorizon();
 wireFocus();
+wireBurst();
 loadInitial();
 connect();
